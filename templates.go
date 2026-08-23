@@ -96,7 +96,7 @@ func initPage(parentDir, path, key string) {
 		filepath.Join(parentDir, templatesDir, "user", "include", "silenced.tmpl"),
 	}
 
-	if key == "login.tmpl" || key == "landing.tmpl" || key == "signup.tmpl" {
+	if key == "login.tmpl" || key == "landing.tmpl" {
 		files = append(files, filepath.Join(parentDir, templatesDir, "include", "oauth.tmpl"))
 	}
 

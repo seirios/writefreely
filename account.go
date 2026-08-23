@@ -29,7 +29,6 @@ import (
 	"github.com/writeas/web-core/auth"
 	"github.com/writeas/web-core/data"
 	"github.com/writeas/web-core/log"
-	"github.com/writefreely/writefreely/author"
 	"github.com/writefreely/writefreely/config"
 	"github.com/writefreely/writefreely/mailer"
 	"github.com/writefreely/writefreely/page"
@@ -67,13 +66,7 @@ func NewUserPage(app *App, r *http.Request, u *User, title string, flashes []str
 	up.Flashes = flashes
 	up.Path = r.URL.Path
 	up.IsAdmin = u.IsAdmin()
-	up.CanInvite = canUserInvite(app.cfg, up.IsAdmin)
 	return up
-}
-
-func canUserInvite(cfg *config.Config, isAdmin bool) bool {
-	return cfg.App.UserInvites != "" &&
-		(isAdmin || cfg.App.UserInvites != "admin")
 }
 
 func (up *UserPage) SetMessaging(u *User) {
@@ -85,151 +78,6 @@ const (
 )
 
 var actuallyUsernameReg = regexp.MustCompile("username is actually ([a-z0-9\\-]+)\\. Please try that, instead")
-
-func apiSignup(app *App, w http.ResponseWriter, r *http.Request) error {
-	_, err := signup(app, w, r)
-	return err
-}
-
-func signup(app *App, w http.ResponseWriter, r *http.Request) (*AuthUser, error) {
-	if app.cfg.App.DisablePasswordAuth {
-		err := ErrDisabledPasswordAuth
-		return nil, err
-	}
-
-	reqJSON := IsJSON(r)
-
-	// Get params
-	var ur userRegistration
-	if reqJSON {
-		decoder := json.NewDecoder(r.Body)
-		err := decoder.Decode(&ur)
-		if err != nil {
-			log.Error("Couldn't parse signup JSON request: %v\n", err)
-			return nil, ErrBadJSON
-		}
-	} else {
-		// Check if user is already logged in
-		u := getUserSession(app, r)
-		if u != nil {
-			return &AuthUser{User: u}, nil
-		}
-
-		err := r.ParseForm()
-		if err != nil {
-			log.Error("Couldn't parse signup form request: %v\n", err)
-			return nil, ErrBadFormData
-		}
-
-		err = app.formDecoder.Decode(&ur, r.PostForm)
-		if err != nil {
-			log.Error("Couldn't decode signup form request: %v\n", err)
-			return nil, ErrBadFormData
-		}
-	}
-
-	return signupWithRegistration(app, ur, w, r)
-}
-
-func signupWithRegistration(app *App, signup userRegistration, w http.ResponseWriter, r *http.Request) (*AuthUser, error) {
-	reqJSON := IsJSON(r)
-
-	// Validate required params (alias)
-	if signup.Alias == "" {
-		return nil, impart.HTTPError{http.StatusBadRequest, "A username is required."}
-	}
-	if signup.Pass == "" {
-		return nil, impart.HTTPError{http.StatusBadRequest, "A password is required."}
-	}
-	var desiredUsername string
-	if signup.Normalize {
-		// With this option we simply conform the username to what we expect
-		// without complaining. Since they might've done something funny, like
-		// enter: write.as/Way Out There, we'll use their raw input for the new
-		// collection name and sanitize for the slug / username.
-		desiredUsername = signup.Alias
-		signup.Alias = getSlug(signup.Alias, "")
-	}
-	if !author.IsValidUsername(app.cfg, signup.Alias) {
-		// Ensure the username is syntactically correct.
-		return nil, impart.HTTPError{http.StatusPreconditionFailed, "Username is reserved or isn't valid. It must be at least 3 characters long, and can only include letters, numbers, and hyphens."}
-	}
-
-	// Handle empty optional params
-	hashedPass, err := auth.HashPass([]byte(signup.Pass))
-	if err != nil {
-		return nil, impart.HTTPError{http.StatusInternalServerError, "Could not create password hash."}
-	}
-
-	// Create struct to insert
-	u := &User{
-		Username:   signup.Alias,
-		HashedPass: hashedPass,
-		HasPass:    true,
-		Email:      prepareUserEmail(signup.Email, app.keys.EmailKey),
-		Created:    time.Now().Truncate(time.Second).UTC(),
-	}
-
-	// Create actual user
-	if err := app.db.CreateUser(app.cfg, u, desiredUsername, signup.Description); err != nil {
-		return nil, err
-	}
-
-	// Log invite if needed
-	if signup.InviteCode != "" {
-		err = app.db.CreateInvitedUser(signup.InviteCode, u.ID)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Add back unencrypted data for response
-	if signup.Email != "" {
-		u.Email.String = signup.Email
-	}
-
-	resUser := &AuthUser{
-		User: u,
-	}
-	title := signup.Alias
-	if signup.Normalize {
-		title = desiredUsername
-	}
-	resUser.Collections = &[]Collection{
-		{
-			Alias:       signup.Alias,
-			Title:       title,
-			Description: signup.Description,
-		},
-	}
-
-	var token string
-	if reqJSON && !signup.Web {
-		token, err = app.db.GetAccessToken(u.ID)
-		if err != nil {
-			return nil, impart.HTTPError{http.StatusInternalServerError, "Could not create access token. Try re-authenticating."}
-		}
-		resUser.AccessToken = token
-	} else {
-		session, err := app.sessionStore.Get(r, cookieName)
-		if err != nil {
-			// The cookie should still save, even if there's an error.
-			// Source: https://github.com/gorilla/sessions/issues/16#issuecomment-143642144
-			log.Error("Session: %v; ignoring", err)
-		}
-		session.Values[cookieUserVal] = resUser.User.Cookie()
-		err = session.Save(r, w)
-		if err != nil {
-			log.Error("Couldn't save session: %v", err)
-			return nil, err
-		}
-	}
-	if reqJSON {
-		return resUser, impart.WriteSuccess(w, resUser, http.StatusCreated)
-	}
-
-	return resUser, nil
-}
 
 func viewLogout(app *App, w http.ResponseWriter, r *http.Request) error {
 	session, err := app.sessionStore.Get(r, cookieName)

@@ -136,7 +136,6 @@ type (
 
 		// Additional functions
 		LocalTimeline bool   `ini:"local_timeline"`
-		UserInvites   string `ini:"user_invites"`
 
 		// Defaults
 		DefaultVisibility string `ini:"default_visibility"`
@@ -228,16 +227,6 @@ func (ac *AppCfg) LandingPath() string {
 func (lc EmailCfg) Enabled() bool {
 	return (lc.Domain != "" && lc.MailgunPrivate != "") ||
 		lc.Username != "" && lc.Password != "" && lc.Host != "" && lc.Port > 0
-}
-
-func (ac AppCfg) SignupPath() string {
-	if !ac.OpenRegistration {
-		return ""
-	}
-	if ac.Chorus || ac.Private || (ac.Landing != "" && ac.Landing != "/") {
-		return "/signup"
-	}
-	return "/"
 }
 
 // Load reads the given configuration file, then parses and returns it as a Config.

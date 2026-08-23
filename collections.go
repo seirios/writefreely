@@ -403,7 +403,6 @@ func (c CollectionPage) UserPage() *UserPage {
 	return &UserPage{
 		StaticPage: c.StaticPage,
 		IsAdmin:    c.IsAdmin,
-		CanInvite:  c.CanInvite,
 		CollAlias:  c.CollAlias,
 	}
 }
@@ -638,7 +637,6 @@ type CollectionPage struct {
 	PinnedPosts     *[]PublicPost
 
 	IsAdmin   bool
-	CanInvite bool
 
 	// Helper field for Chorus mode
 	CollAlias string
@@ -926,7 +924,6 @@ func handleViewCollection(app *App, w http.ResponseWriter, r *http.Request) erro
 		displayPage.Flash = template.HTML(f)
 	}
 	displayPage.IsAdmin = u != nil && u.IsAdmin()
-	displayPage.CanInvite = canUserInvite(app.cfg, displayPage.IsAdmin)
 	var owner *User
 	if u != nil {
 		displayPage.Username = u.Username

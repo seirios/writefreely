@@ -65,7 +65,6 @@ func newTemplateTestApp(t *testing.T, mutate func(cfg *config.Config)) (*App, *m
 	cfg.App.Federation = true
 	cfg.App.UpdateChecks = false
 	cfg.App.MinUsernameLen = 1
-	cfg.App.UserInvites = "user"
 	// Make the auto-created user blog fully public so we exercise the
 	// normal collection/post templates rather than the password-gate flow.
 	cfg.App.DefaultVisibility = "public"
@@ -292,7 +291,6 @@ func TestTemplateRendering_MeAndBlogPages(t *testing.T) {
 				{name: "me: posts list", path: "/me/posts/", authed: true, wantStatus: http.StatusOK},
 				{name: "me: export", path: "/me/export", authed: true, wantStatus: http.StatusOK},
 				{name: "me: import", path: "/me/import", authed: true, wantStatus: http.StatusOK},
-				{name: "me: invites", path: "/me/invites", authed: true, wantStatus: http.StatusOK},
 				{name: "me: settings", path: "/me/settings", authed: true, wantStatus: http.StatusOK},
 			}
 

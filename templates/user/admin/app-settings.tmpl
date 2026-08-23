@@ -84,19 +84,6 @@ select {
 			</div>
 		</div>
 		<div class="features row">
-			<div{{if .Config.SingleUser}} class="invisible"{{end}}><label for="user_invites">
-					Allow invitations from...
-					<p>Choose who is allowed to invite new people.</p>
-				</label></div>
-			<div{{if .Config.SingleUser}} class="invisible"{{end}}>
-				<select name="user_invites" id="user_invites">
-					<option value="none" {{if eq .Config.UserInvites ""}}selected="selected"{{end}}>No one</option>
-					<option value="admin" {{if eq .Config.UserInvites "admin"}}selected="selected"{{end}}>Only Admins</option>
-					<option value="user" {{if eq .Config.UserInvites "user"}}selected="selected"{{end}}>All Users</option>
-				</select>
-			</div>
-		</div>
-		<div class="features row">
 			<div><label for="private">
 					Private Instance
 					<p>Limit site access to people with an account.</p>

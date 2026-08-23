@@ -82,9 +82,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	// Set up dynamic page handlers
 	// Handle auth
 	auth := write.PathPrefix("/api/auth/").Subrouter()
-	if apper.App().cfg.App.OpenRegistration {
-		auth.HandleFunc("/signup", handler.All(apiSignup)).Methods("POST")
-	}
 	auth.HandleFunc("/login", handler.All(login)).Methods("POST")
 	auth.HandleFunc("/read", handler.WebErrors(handleWebCollectionUnlock, UserLevelNone)).Methods("POST")
 	auth.HandleFunc("/me", handler.All(handleAPILogout)).Methods("DELETE")
@@ -107,7 +104,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	me.HandleFunc("/export.json", handler.Download(viewExportFull, UserLevelUser)).Methods("GET")
 	me.Path("/import").Handler(csrf.Protect(apper.App().keys.CSRFKey, csrf.Path("/"))(handler.User(viewImport))).Methods("GET")
 	me.Path("/settings").Handler(csrf.Protect(apper.App().keys.CSRFKey, csrf.Path("/"))(handler.User(viewSettings))).Methods("GET")
-	me.Path("/invites").Handler(csrf.Protect(apper.App().keys.CSRFKey, csrf.Path("/"))(handler.User(handleViewUserInvites))).Methods("GET")
 	me.HandleFunc("/logout", handler.Web(viewLogout, UserLevelNone)).Methods("GET")
 
 	write.HandleFunc("/api/me", handler.All(viewMeAPI)).Methods("GET")
@@ -117,7 +113,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	apiMe.HandleFunc("/collections", handler.UserAPI(viewMyCollectionsAPI)).Methods("GET")
 	apiMe.HandleFunc("/password", handler.All(updatePassphrase)).Methods("POST")
 	apiMe.Path("/self").Handler(csrfProtectForm(apper.App().keys.CSRFKey, handler.All(updateSettings))).Methods("POST")
-	apiMe.Path("/invites").Handler(csrf.Protect(apper.App().keys.CSRFKey, csrf.Path("/"))(handler.User(handleCreateUserInvite))).Methods("POST")
 	apiMe.Path("/import").Handler(csrf.Protect(apper.App().keys.CSRFKey, csrf.Path("/"))(handler.User(handleImport))).Methods("POST")
 	apiMe.Path("/oauth/remove").Handler(csrf.Protect(apper.App().keys.CSRFKey, csrf.Path("/"))(handler.User(removeOauth))).Methods("POST")
 
@@ -162,7 +157,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	posts.HandleFunc("/{post:[a-zA-Z0-9]+}", handler.All(deletePost)).Methods("DELETE")
 	posts.HandleFunc("/{post:[a-zA-Z0-9]+}/{property}", handler.AllReader(fetchPostProperty)).Methods("GET")
 
-	write.HandleFunc("/auth/signup", handler.Web(handleWebSignup, UserLevelNoneRequired)).Methods("POST")
 	write.HandleFunc("/auth/login", handler.Web(webLogin, UserLevelNoneRequired)).Methods("POST")
 
 	write.HandleFunc("/admin", handler.Admin(handleViewAdminDash)).Methods("GET")
@@ -182,8 +176,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	// Handle special pages first
 	write.Path("/reset").Handler(csrf.Protect(apper.App().keys.CSRFKey, csrf.Path("/"))(handler.Web(viewResetPassword, UserLevelNoneRequired)))
 	write.HandleFunc("/login", handler.Web(viewLogin, UserLevelNoneRequired))
-	write.HandleFunc("/signup", handler.Web(handleViewLanding, UserLevelNoneRequired))
-	write.HandleFunc("/invite/{code:[a-zA-Z0-9]+}", handler.Web(handleViewInvite, UserLevelOptional)).Methods("GET")
 	// TODO: show a reader-specific 404 page if the function is disabled
 	write.HandleFunc("/read", handler.Web(viewLocalTimeline, UserLevelReader))
 	RouteRead(handler, UserLevelReader, write.PathPrefix("/read").Subrouter())

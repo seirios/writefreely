@@ -19,69 +19,6 @@ import (
 	"github.com/writeas/web-core/log"
 )
 
-func handleWebSignup(app *App, w http.ResponseWriter, r *http.Request) error {
-	reqJSON := IsJSON(r)
-
-	// Get params
-	var ur userRegistration
-	if reqJSON {
-		decoder := json.NewDecoder(r.Body)
-		err := decoder.Decode(&ur)
-		if err != nil {
-			log.Error("Couldn't parse signup JSON request: %v\n", err)
-			return ErrBadJSON
-		}
-	} else {
-		err := r.ParseForm()
-		if err != nil {
-			log.Error("Couldn't parse signup form request: %v\n", err)
-			return ErrBadFormData
-		}
-
-		err = app.formDecoder.Decode(&ur, r.PostForm)
-		if err != nil {
-			log.Error("Couldn't decode signup form request: %v\n", err)
-			return ErrBadFormData
-		}
-	}
-	if !app.cfg.App.OpenRegistration {
-		// Registrations are closed, so an invite is required. Verify the given
-		// code actually exists and is still usable -- otherwise any non-empty
-		// value would be enough to create an account. Mirrors the check the
-		// OAuth signup flow already performs in viewOauthCallback().
-		i, err := app.db.GetUserInvite(ur.InviteCode)
-		if err != nil {
-			return impart.HTTPError{http.StatusForbidden, "Registration is closed"}
-		}
-		if !i.Active(app.db) {
-			return impart.HTTPError{http.StatusNotFound, "Invite link has expired."}
-		}
-	}
-	ur.Web = true
-	ur.Normalize = true
-
-	to := "/"
-	if app.cfg.App.SimpleNav {
-		to = "/new"
-	}
-	if ur.InviteCode != "" {
-		to = "/invite/" + ur.InviteCode
-	}
-	_, err := signupWithRegistration(app, ur, w, r)
-	if err != nil {
-		if err, ok := err.(impart.HTTPError); ok {
-			session, _ := app.sessionStore.Get(r, cookieName)
-			if session != nil {
-				session.AddFlash(err.Message)
-				session.Save(r, w)
-				return impart.HTTPError{http.StatusFound, to}
-			}
-		}
-		return err
-	}
-	return impart.HTTPError{http.StatusFound, to}
-}
-
 // { "username": "asdf" }
 // result: { code: 204 }
 func handleUsernameCheck(app *App, w http.ResponseWriter, r *http.Request) error {

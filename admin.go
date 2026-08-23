@@ -586,10 +586,6 @@ func handleAdminUpdateConfig(apper Apper, u *User, w http.ResponseWriter, r *htt
 		log.Info("Initializing local timeline...")
 		initLocalTimeline(apper.App())
 	}
-	apper.App().cfg.App.UserInvites = r.FormValue("user_invites")
-	if apper.App().cfg.App.UserInvites == "none" {
-		apper.App().cfg.App.UserInvites = ""
-	}
 	apper.App().cfg.App.DefaultVisibility = r.FormValue("default_visibility")
 
 	m := "?cm=Configuration+saved."

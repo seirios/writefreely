@@ -223,7 +223,6 @@ func configureOauthRoutes(parentHandler *Handler, r *mux.Router, app *App, oauth
 	}
 	r.HandleFunc("/oauth/"+oauthClient.GetProvider(), parentHandler.OAuth(handler.viewOauthInit)).Methods("GET")
 	r.HandleFunc("/oauth/callback/"+oauthClient.GetProvider(), parentHandler.OAuth(handler.viewOauthCallback)).Methods("GET")
-	r.HandleFunc("/oauth/signup", parentHandler.OAuth(handler.viewOauthSignup)).Methods("POST")
 }
 
 func (h oauthHandler) viewOauthCallback(app *App, w http.ResponseWriter, r *http.Request) error {
@@ -232,7 +231,7 @@ func (h oauthHandler) viewOauthCallback(app *App, w http.ResponseWriter, r *http
 	code := r.FormValue("code")
 	state := r.FormValue("state")
 
-	provider, clientID, attachUserID, inviteCode, err := h.DB.ValidateOAuthState(ctx, state)
+	provider, clientID, attachUserID, _, err := h.DB.ValidateOAuthState(ctx, state)
 	if err != nil {
 		log.Error("Unable to ValidateOAuthState: %s", err)
 		return impart.HTTPError{http.StatusInternalServerError, err.Error()}
@@ -294,40 +293,8 @@ func (h oauthHandler) viewOauthCallback(app *App, w http.ResponseWriter, r *http
 		return impart.HTTPError{http.StatusFound, "/me/settings"}
 	}
 
-	// New user registration below.
-	// First, verify that user is allowed to register
-	if inviteCode != "" {
-		// Verify invite code is valid
-		i, err := app.db.GetUserInvite(inviteCode)
-		if err != nil {
-			return impart.HTTPError{http.StatusInternalServerError, err.Error()}
-		}
-		if !i.Active(app.db) {
-			return impart.HTTPError{http.StatusNotFound, "Invite link has expired."}
-		}
-	} else if !app.cfg.App.OpenRegistration {
-		addSessionFlash(app, w, r, ErrUserNotFound.Error(), nil)
-		return impart.HTTPError{http.StatusFound, "/login"}
-	}
-
-	displayName := tokenInfo.DisplayName
-	if len(displayName) == 0 {
-		displayName = tokenInfo.Username
-	}
-
-	tp := &oauthSignupPageParams{
-		AccessToken:     tokenResponse.AccessToken,
-		TokenUsername:   tokenInfo.Username,
-		TokenAlias:      tokenInfo.DisplayName,
-		TokenEmail:      tokenInfo.Email,
-		TokenRemoteUser: tokenInfo.UserID,
-		Provider:        provider,
-		ClientID:        clientID,
-		InviteCode:      inviteCode,
-	}
-	tp.TokenHash = tp.HashTokenParams(h.Config.Server.HashSeed)
-
-	return h.showOauthSignupPage(app, w, r, tp, nil)
+	addSessionFlash(app, w, r, ErrUserNotFound.Error(), nil)
+	return impart.HTTPError{http.StatusFound, "/login"}
 }
 
 func (r *callbackProxyClient) register(ctx context.Context, state string) error {
