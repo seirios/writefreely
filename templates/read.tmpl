@@ -92,13 +92,11 @@
 			{{range .Posts}}<article class="{{.Font}} h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 			{{if .Title.String -}}
 				<h2 class="post-title" itemprop="name" class="p-name">
-					{{- if .IsPaid}}{{template "paid-badge" .}}{{end -}}
 					<a href="{{if .Slug.String}}{{.Collection.CanonicalURL}}{{.Slug.String}}{{else}}{{.CanonicalURL .Host}}.md{{end}}" itemprop="url" class="u-url">{{.PlainDisplayTitle}}</a>
 				</h2>
 				<time class="dt-published" datetime="{{.Created8601}}" pubdate itemprop="datePublished" content="{{.Created}}">{{if not .Title.String}}<a href="{{.Collection.CanonicalURL}}{{.Slug.String}}" itemprop="url">{{end}}{{.DisplayDate}}{{if not .Title.String}}</a>{{end}}</time>
 			{{- else -}}
 				<h2 class="post-title" itemprop="name">
-					{{- if .IsPaid}}{{template "paid-badge" .}}{{end -}}
 					<time class="dt-published" datetime="{{.Created8601}}" pubdate itemprop="datePublished" content="{{.Created}}"><a href="{{if .Collection}}{{.Collection.CanonicalURL}}{{.Slug.String}}{{else}}{{.CanonicalURL .Host}}.md{{end}}" itemprop="url" class="u-url">{{.DisplayDate}}</a></time>
 				</h2>
 			{{- end}}
