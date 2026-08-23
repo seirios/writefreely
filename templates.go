@@ -67,6 +67,7 @@ func initTemplate(parentDir, name string) {
 	files := []string{
 		filepath.Join(parentDir, templatesDir, name+".tmpl"),
 		filepath.Join(parentDir, templatesDir, "include", "footer.tmpl"),
+		filepath.Join(parentDir, templatesDir, "include", "pinned-custom.tmpl"),
 		filepath.Join(parentDir, templatesDir, "base.tmpl"),
 		filepath.Join(parentDir, templatesDir, "user", "include", "silenced.tmpl"),
 	}
