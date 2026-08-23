@@ -111,7 +111,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	apiMe.HandleFunc("/", handler.All(viewMeAPI)).Methods("GET")
 	apiMe.HandleFunc("/posts", handler.UserWebAPI(viewMyPostsAPI)).Methods("GET")
 	apiMe.HandleFunc("/collections", handler.UserAPI(viewMyCollectionsAPI)).Methods("GET")
-	apiMe.HandleFunc("/password", handler.All(updatePassphrase)).Methods("POST")
 	apiMe.Path("/self").Handler(csrfProtectForm(apper.App().keys.CSRFKey, handler.All(updateSettings))).Methods("POST")
 	apiMe.Path("/import").Handler(csrf.Protect(apper.App().keys.CSRFKey, csrf.Path("/"))(handler.User(handleImport))).Methods("POST")
 	apiMe.Path("/oauth/remove").Handler(csrf.Protect(apper.App().keys.CSRFKey, csrf.Path("/"))(handler.User(removeOauth))).Methods("POST")

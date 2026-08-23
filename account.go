@@ -815,45 +815,6 @@ func updateSettings(app *App, w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func updatePassphrase(app *App, w http.ResponseWriter, r *http.Request) error {
-	accessToken := r.Header.Get("Authorization")
-	if accessToken == "" {
-		return ErrNoAccessToken
-	}
-
-	curPass := r.FormValue("current")
-	newPass := r.FormValue("new")
-	// Ensure a new password is given (always required)
-	if newPass == "" {
-		return impart.HTTPError{http.StatusBadRequest, "Provide a new password."}
-	}
-
-	userID, sudo := app.db.GetUserIDPrivilege(accessToken)
-	if userID == -1 {
-		return ErrBadAccessToken
-	}
-
-	// Ensure a current password is given if the access token doesn't have sudo
-	// privileges.
-	if !sudo && curPass == "" {
-		return impart.HTTPError{http.StatusBadRequest, "Provide current password."}
-	}
-
-	// Hash the new password
-	hashedPass, err := auth.HashPass([]byte(newPass))
-	if err != nil {
-		return impart.HTTPError{http.StatusInternalServerError, "Could not create password hash."}
-	}
-
-	// Do update
-	err = app.db.ChangePassphrase(userID, sudo, curPass, hashedPass)
-	if err != nil {
-		return err
-	}
-
-	return impart.WriteSuccess(w, struct{}{}, http.StatusOK)
-}
-
 func viewStats(app *App, u *User, w http.ResponseWriter, r *http.Request) error {
 	var c *Collection
 	var err error
