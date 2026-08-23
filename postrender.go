@@ -50,8 +50,6 @@ func (p *Post) formatContent(cfg *config.Config, c *Collection, isOwner bool, is
 		baseURL = "/" + c.Alias + "/"
 	}
 
-	p.Content = strings.Replace(p.Content, "&lt;!--paid-->", "<!--paid-->", 1)
-
 	p.HTMLTitle = template.HTML(applyBasicMarkdown([]byte(p.Title.String)))
 	p.HTMLContent = template.HTML(applyMarkdown([]byte(p.Content), baseURL, cfg))
 	if exc := strings.Index(string(p.Content), "<!--more-->"); exc > -1 {
@@ -80,9 +78,6 @@ func (p *Post) augmentContent(c *Collection) {
 
 func (p *PublicPost) augmentContent() {
 	p.Post.augmentContent(&p.Collection.Collection)
-}
-
-func (p *PublicPost) augmentReadingDestination() {
 }
 
 func applyMarkdown(data []byte, baseURL string, cfg *config.Config) string {

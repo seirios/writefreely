@@ -97,9 +97,6 @@ func ViewFeed(app *App, w http.ResponseWriter, req *http.Request) error {
 
 	var title, permalink string
 	for _, p := range *coll.Posts {
-		// Add necessary path back to the web browser
-		p.Collection = coll.CollectionObj // augmentReadingDestination requires a populated Collection field
-		p.augmentReadingDestination()
 		// Create the item for the feed
 		title = p.PlainDisplayTitle()
 		permalink = fmt.Sprintf("%s%s", baseUrl, p.Slug.String)

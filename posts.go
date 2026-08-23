@@ -1229,7 +1229,6 @@ func (p *PublicPost) ActivityObject(app *App) *activitystreams.Object {
 	p.augmentContent()
 	if p.HTMLContent == template.HTML("") {
 		p.formatContent(cfg, false, false)
-		p.augmentReadingDestination()
 	}
 	o.Content = string(p.HTMLContent)
 	if o.Type == "Note" && p.Title.String != "" {
