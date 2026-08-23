@@ -128,14 +128,15 @@ type (
 		Host     string `ini:"host"`
 
 		// Site appearance
-		Theme      string `ini:"theme"`
-		Editor     string `ini:"editor"`
-		JSDisabled bool   `ini:"disable_js"`
-		WebFonts   bool   `ini:"webfonts"`
-		Landing    string `ini:"landing"`
-		SimpleNav  bool   `ini:"simple_nav"`
-		WFModesty  bool   `ini:"wf_modesty"`
-		NoMenu     bool   `ini:"no_menu"`
+		Theme              string `ini:"theme"`
+		Editor             string `ini:"editor"`
+		JSDisabled         bool   `ini:"disable_js"`
+		WebFonts           bool   `ini:"webfonts"`
+		Landing            string `ini:"landing"`
+		SimpleNav          bool   `ini:"simple_nav"`
+		WFModesty          bool   `ini:"wf_modesty"`
+		NoMenu             bool   `ini:"no_menu"`
+		ShowFooterBranding bool   `ini:"show_footer_branding"`
 
 		// Site functionality
 		Chorus        bool `ini:"chorus"`

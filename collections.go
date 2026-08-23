@@ -240,11 +240,6 @@ func (c *Collection) FriendlyVisibility() string {
 	return "Unlisted"
 }
 
-func (c *Collection) ShowFooterBranding() bool {
-	// TODO: implement this setting
-	return true
-}
-
 // CanonicalURL returns a fully-qualified URL to the collection.
 func (c *Collection) CanonicalURL() string {
 	return c.RedirectingCanonicalURL(false)
