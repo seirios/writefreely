@@ -135,6 +135,7 @@ type (
 		Landing    string `ini:"landing"`
 		SimpleNav  bool   `ini:"simple_nav"`
 		WFModesty  bool   `ini:"wf_modesty"`
+		NoMenu     bool   `ini:"no_menu"`
 
 		// Site functionality
 		Chorus        bool `ini:"chorus"`

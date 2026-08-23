@@ -41,6 +41,7 @@
 
 	</head>
 	<body id="collection" itemscope itemtype="http://schema.org/WebPage">
+	{{if not .NoMenu}}
 		{{if or .IsOwner .SingleUser}}
 			<nav id="manage"><ul>
 				<li class="has-submenu"><a onclick="void(0)">&#9776; Menu</a>
@@ -78,6 +79,7 @@
 				</li>
 			</ul></nav>
 		{{end}}
+	{{end}}
 
 		<header>
 		{{if .Silenced}}
