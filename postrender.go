@@ -150,7 +150,8 @@ func applyMarkdownSpecial(data []byte, baseURL string, cfg *config.Config, skipN
 		blackfriday.EXTENSION_AUTOLINK |
 		blackfriday.EXTENSION_STRIKETHROUGH |
 		blackfriday.EXTENSION_SPACE_HEADERS |
-		blackfriday.EXTENSION_AUTO_HEADER_IDS
+		blackfriday.EXTENSION_AUTO_HEADER_IDS |
+		blackfriday.EXTENSION_DEFINITION_LISTS
 	htmlFlags := 0 |
 		blackfriday.HTML_USE_SMARTYPANTS |
 		blackfriday.HTML_SMARTYPANTS_DASHES
