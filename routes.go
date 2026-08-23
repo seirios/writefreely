@@ -76,11 +76,8 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	// handle mentions
 	write.HandleFunc("/@/{handle}", handler.Web(handleViewMention, UserLevelReader))
 
-	configureSlackOauth(handler, write, apper.App())
 	configureWriteAsOauth(handler, write, apper.App())
-	configureGitlabOauth(handler, write, apper.App())
 	configureGenericOauth(handler, write, apper.App())
-	configureGiteaOauth(handler, write, apper.App())
 
 	// Set up dynamic page handlers
 	// Handle auth

@@ -112,7 +112,7 @@ h3 { font-weight: normal; }
 			{{ end }}
 		</div>
 		{{ end }}
-		{{ if or .OauthSlack .OauthWriteAs .OauthGitLab .OauthGeneric .OauthGitea }}
+		{{ if or .OauthWriteAs .OauthGeneric }}
 		<div class="option">
 			<h2>Link External Accounts</h2>
 			<p>Connect additional accounts to enable logging in with those providers, instead of using your username and password.</p>
@@ -122,30 +122,6 @@ h3 { font-weight: normal; }
 					<a class="btn cta loginbtn" id="writeas-login" href="/oauth/write.as?attach=t">
 						<img src="/img/mark/writeas-white.png" alt="Write.as" />
 						Link <strong>Write.as</strong>
-					</a>
-				</div>
-			{{ end }}
-			{{ if .OauthSlack }}
-				<div class="section oauth-provider">
-					<a class="btn cta loginbtn" id="slack-login" href="/oauth/slack?attach=t">
-						<img src="/img/mark/slack.png" alt="Slack" />
-						Link <strong>Slack</strong>
-					</a>
-				</div>
-			{{ end }}
-			{{ if .OauthGitLab }}
-				<div class="section oauth-provider">
-					<a class="btn cta loginbtn" id="gitlab-login" href="/oauth/gitlab?attach=t">
-						<img src="/img/mark/gitlab.png" alt="GitLab" />
-						Link <strong>{{.GitLabDisplayName}}</strong>
-					</a>
-				</div>
-			{{ end }}
-			{{ if .OauthGitea }}
-				<div class="section oauth-provider">
-					<a class="btn cta loginbtn" id="gitea-login" href="/oauth/gitea?attach=t">
-						<img src="/img/mark/gitea.png" alt="Gitea" />
-						Link <strong>{{.GiteaDisplayName}}</strong>
 					</a>
 				</div>
 			{{ end }}

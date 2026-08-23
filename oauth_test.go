@@ -89,11 +89,6 @@ func (m *MockOAuthDatastoreProvider) Config() *config.Config {
 		TokenLocation:   "https://write.as/oauth/token",
 		InspectLocation: "https://write.as/oauth/inspect",
 	}
-	cfg.SlackOauth = config.SlackOauthCfg{
-		ClientID:     "development",
-		ClientSecret: "development",
-		TeamID:       "development",
-	}
 	return cfg
 }
 

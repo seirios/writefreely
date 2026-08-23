@@ -29,12 +29,7 @@ import (
 
 // OAuthButtons holds display information for different OAuth providers we support.
 type OAuthButtons struct {
-	SlackEnabled       bool
 	WriteAsEnabled     bool
-	GitLabEnabled      bool
-	GitLabDisplayName  string
-	GiteaEnabled       bool
-	GiteaDisplayName   string
 	GenericEnabled     bool
 	GenericDisplayName string
 }
@@ -42,12 +37,7 @@ type OAuthButtons struct {
 // NewOAuthButtons creates a new OAuthButtons struct based on our app configuration.
 func NewOAuthButtons(cfg *config.Config) *OAuthButtons {
 	return &OAuthButtons{
-		SlackEnabled:       cfg.SlackOauth.ClientID != "",
 		WriteAsEnabled:     cfg.WriteAsOauth.ClientID != "",
-		GitLabEnabled:      cfg.GitlabOauth.ClientID != "",
-		GitLabDisplayName:  config.OrDefaultString(cfg.GitlabOauth.DisplayName, gitlabDisplayName),
-		GiteaEnabled:       cfg.GiteaOauth.ClientID != "",
-		GiteaDisplayName:   config.OrDefaultString(cfg.GiteaOauth.DisplayName, giteaDisplayName),
 		GenericEnabled:     cfg.GenericOauth.ClientID != "",
 		GenericDisplayName: config.OrDefaultString(cfg.GenericOauth.DisplayName, genericOauthDisplayName),
 	}
@@ -163,30 +153,6 @@ func (h oauthHandler) viewOauthInit(app *App, w http.ResponseWriter, r *http.Req
 	return impart.HTTPError{http.StatusTemporaryRedirect, location}
 }
 
-func configureSlackOauth(parentHandler *Handler, r *mux.Router, app *App) {
-	if app.Config().SlackOauth.ClientID != "" {
-		callbackLocation := app.Config().App.Host + "/oauth/callback/slack"
-
-		var stateRegisterClient *callbackProxyClient = nil
-		if app.Config().SlackOauth.CallbackProxyAPI != "" {
-			stateRegisterClient = &callbackProxyClient{
-				server:           app.Config().SlackOauth.CallbackProxyAPI,
-				callbackLocation: app.Config().App.Host + "/oauth/callback/slack",
-				httpClient:       config.DefaultHTTPClient(),
-			}
-			callbackLocation = app.Config().SlackOauth.CallbackProxy
-		}
-		oauthClient := slackOauthClient{
-			ClientID:         app.Config().SlackOauth.ClientID,
-			ClientSecret:     app.Config().SlackOauth.ClientSecret,
-			TeamID:           app.Config().SlackOauth.TeamID,
-			HttpClient:       config.DefaultHTTPClient(),
-			CallbackLocation: callbackLocation,
-		}
-		configureOauthRoutes(parentHandler, r, app, oauthClient, stateRegisterClient)
-	}
-}
-
 func configureWriteAsOauth(parentHandler *Handler, r *mux.Router, app *App) {
 	if app.Config().WriteAsOauth.ClientID != "" {
 		callbackLocation := app.Config().App.Host + "/oauth/callback/write.as"
@@ -207,34 +173,6 @@ func configureWriteAsOauth(parentHandler *Handler, r *mux.Router, app *App) {
 			ExchangeLocation: config.OrDefaultString(app.Config().WriteAsOauth.TokenLocation, writeAsExchangeLocation),
 			InspectLocation:  config.OrDefaultString(app.Config().WriteAsOauth.InspectLocation, writeAsIdentityLocation),
 			AuthLocation:     config.OrDefaultString(app.Config().WriteAsOauth.AuthLocation, writeAsAuthLocation),
-			HttpClient:       config.DefaultHTTPClient(),
-			CallbackLocation: callbackLocation,
-		}
-		configureOauthRoutes(parentHandler, r, app, oauthClient, callbackProxy)
-	}
-}
-
-func configureGitlabOauth(parentHandler *Handler, r *mux.Router, app *App) {
-	if app.Config().GitlabOauth.ClientID != "" {
-		callbackLocation := app.Config().App.Host + "/oauth/callback/gitlab"
-
-		var callbackProxy *callbackProxyClient = nil
-		if app.Config().GitlabOauth.CallbackProxy != "" {
-			callbackProxy = &callbackProxyClient{
-				server:           app.Config().GitlabOauth.CallbackProxyAPI,
-				callbackLocation: app.Config().App.Host + "/oauth/callback/gitlab",
-				httpClient:       config.DefaultHTTPClient(),
-			}
-			callbackLocation = app.Config().GitlabOauth.CallbackProxy
-		}
-
-		address := config.OrDefaultString(app.Config().GitlabOauth.Host, gitlabHost)
-		oauthClient := gitlabOauthClient{
-			ClientID:         app.Config().GitlabOauth.ClientID,
-			ClientSecret:     app.Config().GitlabOauth.ClientSecret,
-			ExchangeLocation: address + "/oauth/token",
-			InspectLocation:  address + "/api/v4/user",
-			AuthLocation:     address + "/oauth/authorize",
 			HttpClient:       config.DefaultHTTPClient(),
 			CallbackLocation: callbackLocation,
 		}
@@ -269,38 +207,6 @@ func configureGenericOauth(parentHandler *Handler, r *mux.Router, app *App) {
 			MapUsername:      config.OrDefaultString(app.Config().GenericOauth.MapUsername, "username"),
 			MapDisplayName:   config.OrDefaultString(app.Config().GenericOauth.MapDisplayName, "-"),
 			MapEmail:         config.OrDefaultString(app.Config().GenericOauth.MapEmail, "email"),
-		}
-		configureOauthRoutes(parentHandler, r, app, oauthClient, callbackProxy)
-	}
-}
-
-func configureGiteaOauth(parentHandler *Handler, r *mux.Router, app *App) {
-	if app.Config().GiteaOauth.ClientID != "" {
-		callbackLocation := app.Config().App.Host + "/oauth/callback/gitea"
-
-		var callbackProxy *callbackProxyClient = nil
-		if app.Config().GiteaOauth.CallbackProxy != "" {
-			callbackProxy = &callbackProxyClient{
-				server:           app.Config().GiteaOauth.CallbackProxyAPI,
-				callbackLocation: app.Config().App.Host + "/oauth/callback/gitea",
-				httpClient:       config.DefaultHTTPClient(),
-			}
-			callbackLocation = app.Config().GiteaOauth.CallbackProxy
-		}
-
-		oauthClient := giteaOauthClient{
-			ClientID:         app.Config().GiteaOauth.ClientID,
-			ClientSecret:     app.Config().GiteaOauth.ClientSecret,
-			ExchangeLocation: app.Config().GiteaOauth.Host + "/login/oauth/access_token",
-			InspectLocation:  app.Config().GiteaOauth.Host + "/login/oauth/userinfo",
-			AuthLocation:     app.Config().GiteaOauth.Host + "/login/oauth/authorize",
-			HttpClient:       config.DefaultHTTPClient(),
-			CallbackLocation: callbackLocation,
-			Scope:            "openid profile email",
-			MapUserID:        "sub",
-			MapUsername:      "login",
-			MapDisplayName:   "full_name",
-			MapEmail:         "email",
 		}
 		configureOauthRoutes(parentHandler, r, app, oauthClient, callbackProxy)
 	}

@@ -1181,11 +1181,8 @@ func viewSettings(app *App, u *User, w http.ResponseWriter, r *http.Request) err
 
 	flashes, _ := getSessionFlashes(app, w, r, nil)
 
-	enableOauthSlack := app.Config().SlackOauth.ClientID != ""
 	enableOauthWriteAs := app.Config().WriteAsOauth.ClientID != ""
-	enableOauthGitLab := app.Config().GitlabOauth.ClientID != ""
 	enableOauthGeneric := app.Config().GenericOauth.ClientID != ""
-	enableOauthGitea := app.Config().GiteaOauth.ClientID != ""
 
 	oauthAccounts, err := app.db.GetOauthAccounts(r.Context(), u.ID)
 	if err != nil {
@@ -1194,22 +1191,16 @@ func viewSettings(app *App, u *User, w http.ResponseWriter, r *http.Request) err
 	}
 	for idx, oauthAccount := range oauthAccounts {
 		switch oauthAccount.Provider {
-		case "slack":
-			enableOauthSlack = false
 		case "write.as":
 			enableOauthWriteAs = false
-		case "gitlab":
-			enableOauthGitLab = false
 		case "generic":
 			oauthAccounts[idx].DisplayName = app.Config().GenericOauth.DisplayName
 			oauthAccounts[idx].AllowDisconnect = app.Config().GenericOauth.AllowDisconnect
 			enableOauthGeneric = false
-		case "gitea":
-			enableOauthGitea = false
 		}
 	}
 
-	displayOauthSection := enableOauthSlack || enableOauthWriteAs || enableOauthGitLab || enableOauthGeneric || enableOauthGitea || len(oauthAccounts) > 0
+	displayOauthSection := enableOauthWriteAs || enableOauthGeneric || len(oauthAccounts) > 0
 
 	obj := struct {
 		*UserPage
@@ -1220,14 +1211,9 @@ func viewSettings(app *App, u *User, w http.ResponseWriter, r *http.Request) err
 		CSRFField               template.HTML
 		OauthSection            bool
 		OauthAccounts           []oauthAccountInfo
-		OauthSlack              bool
 		OauthWriteAs            bool
-		OauthGitLab             bool
-		GitLabDisplayName       string
 		OauthGeneric            bool
 		OauthGenericDisplayName string
-		OauthGitea              bool
-		GiteaDisplayName        string
 	}{
 		UserPage:                NewUserPage(app, r, u, "Account Settings", flashes),
 		Email:                   fullUser.EmailClear(app.keys),
@@ -1237,14 +1223,9 @@ func viewSettings(app *App, u *User, w http.ResponseWriter, r *http.Request) err
 		CSRFField:               csrf.TemplateField(r),
 		OauthSection:            displayOauthSection,
 		OauthAccounts:           oauthAccounts,
-		OauthSlack:              enableOauthSlack,
 		OauthWriteAs:            enableOauthWriteAs,
-		OauthGitLab:             enableOauthGitLab,
-		GitLabDisplayName:       config.OrDefaultString(app.Config().GitlabOauth.DisplayName, gitlabDisplayName),
 		OauthGeneric:            enableOauthGeneric,
 		OauthGenericDisplayName: config.OrDefaultString(app.Config().GenericOauth.DisplayName, genericOauthDisplayName),
-		OauthGitea:              enableOauthGitea,
-		GiteaDisplayName:        config.OrDefaultString(app.Config().GiteaOauth.DisplayName, giteaDisplayName),
 	}
 
 	showUserPage(w, "settings", obj)
