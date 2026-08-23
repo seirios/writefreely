@@ -67,7 +67,6 @@ type (
 		PublicOwner bool           `datastore:"public_owner" json:"-"`
 		URL         string         `json:"url,omitempty"`
 
-		Monetization string `json:"monetization_pointer,omitempty"`
 		Verification string `json:"verification_link"`
 
 		db       *datastore
@@ -117,7 +116,6 @@ type (
 		StyleSheet   *string         `schema:"style_sheet" json:"style_sheet"`
 		Script       *string         `schema:"script" json:"script"`
 		Signature    *string         `schema:"signature" json:"signature"`
-		Monetization *string         `schema:"monetization_pointer" json:"monetization_pointer"`
 		Verification *string         `schema:"verification_link" json:"verification_link"`
 		LetterReply  *string         `schema:"letter_reply" json:"letter_reply"`
 		Visibility   *int            `schema:"visibility" json:"public"`
@@ -378,13 +376,6 @@ func (c *Collection) EmailSubsEnabled() bool {
 	return c.db.CollectionHasAttribute(c.ID, "email_subs")
 }
 
-func (c *Collection) MonetizationURL() string {
-	if c.Monetization == "" {
-		return ""
-	}
-	return strings.Replace(c.Monetization, "$", "https://", 1)
-}
-
 // DisplayDescription returns the description with rendered Markdown and HTML.
 func (c *Collection) DisplayDescription() *template.HTML {
 	if c.Description == "" {
@@ -403,10 +394,6 @@ func (c *Collection) PlainDescription() string {
 	desc := stripHTMLWithoutEscaping(c.Description)
 	desc = stripmd.Strip(desc)
 	return desc
-}
-
-func (c CollectionPage) DisplayMonetization() string {
-	return displayMonetization(c.Monetization, c.Alias)
 }
 
 // UserPage provides the fields expected by the shared "user-navigation"
@@ -645,7 +632,6 @@ type CollectionPage struct {
 	IsSubscriber    bool
 	CanPin          bool
 	Username        string
-	Monetization    string
 	FediverseAuthor string
 	Flash           template.HTML
 	Collections     *[]Collection
@@ -977,7 +963,6 @@ func handleViewCollection(app *App, w http.ResponseWriter, r *http.Request) erro
 	// Add more data
 	// TODO: fix this mess of collections inside collections
 	displayPage.PinnedPosts, _ = app.db.GetPinnedPosts(coll.CollectionObj, isOwner)
-	displayPage.Monetization = app.db.GetCollectionAttribute(coll.ID, "monetization_pointer")
 
 	collTmpl := "collection"
 	if app.cfg.App.Chorus {
@@ -1116,7 +1101,6 @@ func handleViewCollectionTag(app *App, w http.ResponseWriter, r *http.Request) e
 	// Add more data
 	// TODO: fix this mess of collections inside collections
 	displayPage.PinnedPosts, _ = app.db.GetPinnedPosts(coll.CollectionObj, isOwner)
-	displayPage.Monetization = app.db.GetCollectionAttribute(coll.ID, "monetization_pointer")
 
 	err = templates["collection-tags"].ExecuteTemplate(w, "collection-tags", displayPage)
 	if err != nil {
@@ -1217,7 +1201,6 @@ func handleViewCollectionLang(app *App, w http.ResponseWriter, r *http.Request) 
 	// Add more data
 	// TODO: fix this mess of collections inside collections
 	displayPage.PinnedPosts, _ = app.db.GetPinnedPosts(coll.CollectionObj, isOwner)
-	displayPage.Monetization = app.db.GetCollectionAttribute(coll.ID, "monetization_pointer")
 
 	collTmpl := "collection"
 	if app.cfg.App.Chorus {

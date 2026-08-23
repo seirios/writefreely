@@ -876,7 +876,6 @@ func (db *datastore) GetCollectionBy(condition string, value interface{}) (*Coll
 	c.Signature = signature.String
 	c.Format = format.String
 	c.Public = c.IsPublic()
-	c.Monetization = db.GetCollectionAttribute(c.ID, "monetization_pointer")
 	c.Verification = db.GetCollectionAttribute(c.ID, "verification_link")
 
 	c.db = db
@@ -948,7 +947,7 @@ func (db *datastore) UpdateCollection(app *App, c *SubmittedCollection, alias st
 	// WHERE values
 	q.Where("alias = ? AND owner_id = ?", alias, c.OwnerID)
 
-	if q.Updates == "" && c.Monetization == nil {
+	if q.Updates == "" {
 		return ErrPostNoUpdatableVals
 	}
 
@@ -1014,29 +1013,6 @@ func (db *datastore) UpdateCollection(app *App, c *SubmittedCollection, alias st
 			err = db.SetCollectionAttribute(collID, "verification_link", *c.Verification)
 			if err != nil {
 				log.Error("Unable to insert verification_link value: %v", err)
-				return err
-			}
-		}
-	}
-
-	// Update Monetization value
-	if c.Monetization != nil {
-		skipUpdate := false
-		if *c.Monetization != "" {
-			// Strip away any excess spaces
-			trimmed := strings.TrimSpace(*c.Monetization)
-			// Only update value when it starts with "$", per spec: https://paymentpointers.org
-			if strings.HasPrefix(trimmed, "$") {
-				c.Monetization = &trimmed
-			} else {
-				// Value appears invalid, so don't update
-				skipUpdate = true
-			}
-		}
-		if !skipUpdate {
-			_, err = db.Exec("INSERT INTO collectionattributes (collection_id, attribute, value) VALUES (?, ?, ?) "+db.upsert("collection_id", "attribute")+" value = ?", collID, "monetization_pointer", *c.Monetization, *c.Monetization)
-			if err != nil {
-				log.Error("Unable to insert monetization_pointer value: %v", err)
 				return err
 			}
 		}
@@ -1968,8 +1944,6 @@ func (db *datastore) GetCollections(u *User, hostName string) (*[]Collection, er
 		/*
 			// NOTE: future functionality
 			if visibility != nil { // TODO: && visibility == CollPublic {
-				// Add Monetization info when retrieving all public collections
-				c.Monetization = db.GetCollectionAttribute(c.ID, "monetization_pointer")
 			}
 		*/
 
@@ -2018,9 +1992,6 @@ func (db *datastore) GetPublicCollections(hostName string) (*[]Collection, error
 		c.hostName = hostName
 		c.URL = c.CanonicalURL()
 		c.Public = c.IsPublic()
-
-		// Add Monetization information
-		c.Monetization = db.GetCollectionAttribute(c.ID, "monetization_pointer")
 
 		colls = append(colls, c)
 	}

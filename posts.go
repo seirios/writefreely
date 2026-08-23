@@ -149,7 +149,6 @@ type (
 		IsOwner         bool
 		IsPinned        bool
 		IsCustomDomain  bool
-		Monetization    string
 		Verification    string
 		FediverseAuthor string
 		PinnedPosts     *[]PublicPost
@@ -313,14 +312,6 @@ func (c CollectionPostPage) UserPage() *UserPage {
 		CanInvite:  c.CanInvite,
 		CollAlias:  c.CollAlias,
 	}
-}
-
-func (c CollectionPostPage) DisplayMonetization() string {
-	if c.Collection == nil {
-		log.Info("CollectionPostPage.DisplayMonetization: c.Collection is nil")
-		return ""
-	}
-	return displayMonetization(c.Monetization, c.Collection.Alias)
 }
 
 func handleViewPost(app *App, w http.ResponseWriter, r *http.Request) error {
@@ -1676,7 +1667,6 @@ Are you sure it was ever here?` + shortCodeNoSig,
 		tp.CanInvite = canUserInvite(app.cfg, tp.IsAdmin)
 		tp.PinnedPosts, _ = app.db.GetPinnedPosts(coll, p.IsOwner)
 		tp.IsPinned = len(*tp.PinnedPosts) > 0 && PostsContains(tp.PinnedPosts, p)
-		tp.Monetization = coll.Monetization
 		tp.Verification = coll.Verification
 		if tp.Verification != "" {
 			// Fetch info for fediverse:creator tag

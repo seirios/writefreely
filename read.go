@@ -112,7 +112,6 @@ func (app *App) FetchPublicPosts() (interface{}, error) {
 
 			c.Public = true
 			c.Title = title.String
-			c.Monetization = app.db.GetCollectionAttribute(c.ID, "monetization_pointer")
 		}
 
 		p.extractData()

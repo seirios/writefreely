@@ -128,7 +128,6 @@ type (
 		// Federation
 		Federation   bool `ini:"federation"`
 		PublicStats  bool `ini:"public_stats"`
-		Monetization bool `ini:"monetization"`
 		NotesOnly    bool `ini:"notes_only"`
 
 		// Access

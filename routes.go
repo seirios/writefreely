@@ -132,7 +132,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	// Handle collections
 	write.HandleFunc("/api/collections", handler.All(newCollection)).Methods("POST")
 	apiColls := write.PathPrefix("/api/collections/").Subrouter()
-	apiColls.HandleFunc("/monetization-pointer", handler.PlainTextAPI(handleSPSPEndpoint)).Methods("GET")
 	apiColls.HandleFunc("/"+host, handler.AllReader(fetchCollection)).Methods("GET")
 	apiColls.HandleFunc("/{alias:[0-9a-zA-Z\\-]+}", handler.AllReader(fetchCollection)).Methods("GET")
 	apiColls.HandleFunc("/{alias:[0-9a-zA-Z\\-]+}", handler.All(existingCollection)).Methods("POST", "DELETE")
