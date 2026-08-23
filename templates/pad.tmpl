@@ -166,7 +166,7 @@
 		var doneTypingInterval = 200;
 
 		var posts;
-		{{if and .Post.Id (not .Post.Slug)}}
+		{{if and (and .Post.Id (not .Post.Slug)) (not .User)}}
 		var token = null;
 		var curPostIdx;
 		posts = JSON.parse(H.get('posts', '[]'));
