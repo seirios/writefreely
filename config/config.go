@@ -111,6 +111,7 @@ type (
 		WFModesty          bool   `ini:"wf_modesty"`
 		NoMenu             bool   `ini:"no_menu"`
 		ShowFooterBranding bool   `ini:"show_footer_branding"`
+		EmptyFooter        bool   `ini:"empty_footer"`
 
 		// Site functionality
 		Chorus        bool `ini:"chorus"`
