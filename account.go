@@ -30,9 +30,7 @@ import (
 	"github.com/writeas/web-core/data"
 	"github.com/writeas/web-core/log"
 	"github.com/writefreely/writefreely/config"
-	"github.com/writefreely/writefreely/mailer"
 	"github.com/writefreely/writefreely/page"
-	"github.com/writefreely/writefreely/spam"
 )
 
 type (
@@ -158,7 +156,6 @@ func viewLogin(app *App, w http.ResponseWriter, r *http.Request) error {
 		To            string
 		Message       template.HTML
 		Flashes       []template.HTML
-		EmailEnabled  bool
 		LoginUsername string
 	}{
 		StaticPage:    pageForReq(app, r),
@@ -166,7 +163,6 @@ func viewLogin(app *App, w http.ResponseWriter, r *http.Request) error {
 		To:            r.FormValue("to"),
 		Message:       template.HTML(""),
 		Flashes:       []template.HTML{},
-		EmailEnabled:  app.cfg.Email.Enabled(),
 		LoginUsername: getTempInfo(app, "login-user", r, w),
 	}
 
@@ -718,18 +714,13 @@ func viewEditCollection(app *App, u *User, w http.ResponseWriter, r *http.Reques
 		*Collection
 		Silenced bool
 
-		config.EmailCfg
 		LetterReplyTo string
 	}{
 		UserPage:   NewUserPage(app, r, u, "Edit "+c.DisplayTitle(), flashes),
 		Collection: c,
 		Silenced:   silenced,
-		EmailCfg:   app.cfg.Email,
 	}
 	obj.UserPage.CollAlias = c.Alias
-	if obj.EmailCfg.Enabled() {
-		obj.LetterReplyTo = app.db.GetCollectionAttribute(c.ID, collAttrLetterReplyTo)
-	}
 
 	showUserPage(w, "collection", obj)
 	return nil
@@ -905,15 +896,12 @@ func viewStats(app *App, u *User, w http.ResponseWriter, r *http.Request) error 
 		Collection       *Collection
 		TopPosts         *[]PublicPost
 		APFollowers      int
-		EmailEnabled     bool
-		EmailSubscribers int
 		Silenced         bool
 	}{
 		UserPage:     NewUserPage(app, r, u, titleStats+"Stats", flashes),
 		VisitsBlog:   alias,
 		Collection:   c,
 		TopPosts:     topPosts,
-		EmailEnabled: app.cfg.Email.Enabled(),
 		Silenced:     silenced,
 	}
 	obj.UserPage.CollAlias = c.Alias
@@ -923,13 +911,6 @@ func viewStats(app *App, u *User, w http.ResponseWriter, r *http.Request) error 
 			return err
 		}
 		obj.APFollowers = len(*folls)
-	}
-	if obj.EmailEnabled {
-		subs, err := app.db.GetEmailSubscribers(c.ID, true)
-		if err != nil {
-			return err
-		}
-		obj.EmailSubscribers = len(subs)
 	}
 
 	showUserPage(w, "stats", obj)
@@ -952,15 +933,11 @@ func handleViewSubscribers(app *App, u *User, w http.ResponseWriter, r *http.Req
 	obj := struct {
 		*UserPage
 		Collection CollectionNav
-		EmailSubs  []*EmailSubscriber
 		Followers  *[]RemoteUser
 		Silenced   bool
 
 		Filter            string
 		FederationEnabled bool
-		CanEmailSub       bool
-		CanAddSubs        bool
-		EmailSubsEnabled  bool
 	}{
 		UserPage: NewUserPage(app, r, u, c.DisplayTitle()+" Subscribers", flashes),
 		Collection: CollectionNav{
@@ -971,23 +948,11 @@ func handleViewSubscribers(app *App, u *User, w http.ResponseWriter, r *http.Req
 		Silenced:          u.IsSilenced(),
 		Filter:            filter,
 		FederationEnabled: app.cfg.App.Federation,
-		CanEmailSub:       app.cfg.Email.Enabled(),
-		EmailSubsEnabled:  c.EmailSubsEnabled(),
 	}
 
 	obj.Followers, err = app.db.GetAPFollowers(c)
 	if err != nil {
 		return err
-	}
-
-	obj.EmailSubs, err = app.db.GetEmailSubscribers(c.ID, true)
-	if err != nil {
-		return err
-	}
-
-	if obj.Filter == "" {
-		// Set permission to add email subscribers
-		//obj.CanAddSubs = app.db.GetUserAttribute(c.OwnerID, userAttrCanAddEmailSubs) == "1"
 	}
 
 	showUserPage(w, "subscribers", obj)
@@ -1063,68 +1028,6 @@ func viewSettings(app *App, u *User, w http.ResponseWriter, r *http.Request) err
 	return nil
 }
 
-func viewResetPassword(app *App, w http.ResponseWriter, r *http.Request) error {
-	token := r.FormValue("t")
-	resetting := false
-	var userID int64 = 0
-	if token != "" {
-		// Show new password page
-		userID = app.db.GetUserFromPasswordReset(token)
-		if userID == 0 {
-			return impart.HTTPError{http.StatusNotFound, ""}
-		}
-		resetting = true
-	}
-
-	if r.Method == http.MethodPost {
-		newPass := r.FormValue("new-pass")
-		if newPass == "" {
-			// Send password reset email
-			return handleResetPasswordInit(app, w, r)
-		}
-
-		// Do actual password reset
-		// Assumes token has been validated above
-		err := doAutomatedPasswordChange(app, userID, newPass)
-		if err != nil {
-			return err
-		}
-		err = app.db.ConsumePasswordResetToken(token)
-		if err != nil {
-			log.Error("Couldn't consume token %s for user %d!!! %s", token, userID, err)
-		}
-		addSessionFlash(app, w, r, "Your password was reset. Now you can log in below.", nil)
-		return impart.HTTPError{http.StatusFound, "/login"}
-	}
-
-	f, _ := getSessionFlashes(app, w, r, nil)
-
-	// Show reset password page
-	d := struct {
-		page.StaticPage
-		Flashes      []string
-		EmailEnabled bool
-		CSRFField    template.HTML
-		Token        string
-		IsResetting  bool
-		IsSent       bool
-	}{
-		StaticPage:   pageForReq(app, r),
-		Flashes:      f,
-		EmailEnabled: app.cfg.Email.Enabled(),
-		CSRFField:    csrf.TemplateField(r),
-		Token:        token,
-		IsResetting:  resetting,
-		IsSent:       r.FormValue("sent") == "1",
-	}
-	err := pages["reset.tmpl"].ExecuteTemplate(w, "base", d)
-	if err != nil {
-		log.Error("Unable to render password reset page: %v", err)
-		return err
-	}
-	return err
-}
-
 func doAutomatedPasswordChange(app *App, userID int64, newPass string) error {
 	// Do password reset
 	hashedPass, err := auth.HashPass([]byte(newPass))
@@ -1138,143 +1041,6 @@ func doAutomatedPasswordChange(app *App, userID int64, newPass string) error {
 		return err
 	}
 	return nil
-}
-
-func handleResetPasswordInit(app *App, w http.ResponseWriter, r *http.Request) error {
-	returnLoc := impart.HTTPError{http.StatusFound, "/reset"}
-
-	if !app.cfg.Email.Enabled() {
-		// Email isn't configured, so there's nothing to do; send back to the reset form, where they'll get an explanation
-		return returnLoc
-	}
-
-	ip := spam.GetIP(r)
-	alias := r.FormValue("alias")
-
-	u, err := app.db.GetUserForAuth(alias)
-	if err != nil {
-		if strings.IndexAny(alias, "@") > 0 {
-			addSessionFlash(app, w, r, ErrUserNotFoundEmail.Message, nil)
-			return returnLoc
-		}
-		addSessionFlash(app, w, r, ErrUserNotFound.Message, nil)
-		return returnLoc
-	}
-	if u.IsAdmin() {
-		// Prevent any reset emails on admin accounts
-		log.Error("Admin reset attempt", `Someone just tried to reset the password for an admin (ID %d - %s). IP address: %s`, u.ID, u.Username, ip)
-		return returnLoc
-	}
-	if u.Email.String == "" {
-		err := impart.HTTPError{http.StatusPreconditionFailed, "User doesn't have an email address. Please contact us (" + app.cfg.App.Host + "/contact) to reset your password."}
-		addSessionFlash(app, w, r, err.Message, nil)
-		return returnLoc
-	}
-	if isSet, _ := app.db.IsUserPassSet(u.ID); !isSet {
-		err = loginViaEmail(app, u.Username, "/me/settings")
-		if err != nil {
-			return err
-		}
-		addSessionFlash(app, w, r, "We've emailed you a link to log in with.", nil)
-		return returnLoc
-	}
-
-	token, err := app.db.CreatePasswordResetToken(u.ID)
-	if err != nil {
-		log.Error("Error resetting password: %s", err)
-		addSessionFlash(app, w, r, ErrInternalGeneral.Message, nil)
-		return returnLoc
-	}
-
-	err = emailPasswordReset(app, u.EmailClear(app.keys), token)
-	if err != nil {
-		log.Error("Error emailing password reset: %s", err)
-		addSessionFlash(app, w, r, ErrInternalGeneral.Message, nil)
-		return returnLoc
-	}
-
-	addSessionFlash(app, w, r, "We sent an email to the address associated with this account.", nil)
-	returnLoc.Message += "?sent=1"
-	return returnLoc
-}
-
-func emailPasswordReset(app *App, toEmail, token string) error {
-	// Send email
-	mlr, err := mailer.New(app.cfg.Email)
-	if err != nil {
-		return err
-	}
-	footerPara := "Didn't request this password reset? Your account is still safe, and you can safely ignore this email."
-
-	plainMsg := fmt.Sprintf("We received a request to reset your password on %s. Please click the following link to continue (or copy and paste it into your browser): %s/reset?t=%s\n\n%s", app.cfg.App.SiteName, app.cfg.App.Host, token, footerPara)
-	m, err := mlr.NewMessage(mailer.FormatAddress(app.cfg.App.SiteName, "noreply-password@"+app.cfg.Email.Domain), "Reset Your "+app.cfg.App.SiteName+" Password", plainMsg, fmt.Sprintf("<%s>", toEmail))
-	if err != nil {
-		return err
-	}
-	m.AddTag("Password Reset")
-	m.SetHTML(fmt.Sprintf(`<html>
-	<body style="font-family:Lora, 'Palatino Linotype', Palatino, Baskerville, 'Book Antiqua', 'New York', 'DejaVu serif', serif; font-size: 100%%; margin:1em 2em;">
-		<div style="margin:0 auto; max-width: 40em; font-size: 1.2em;">
-        <h1 style="font-size:1.75em"><a style="text-decoration:none;color:#000;" href="%s">%s</a></h1>
-		<p>We received a request to reset your password on %s. Please click the following link to continue:</p>
-		<p style="font-size:1.2em;margin-bottom:1.5em;"><a href="%s/reset?t=%s">Reset your password</a></p>
-        <p style="font-size: 0.86em;margin:1em auto">%s</p>
-        </div>
-	</body>
-</html>`, app.cfg.App.Host, app.cfg.App.SiteName, app.cfg.App.SiteName, app.cfg.App.Host, token, footerPara))
-	return mlr.Send(m)
-}
-
-func loginViaEmail(app *App, alias, redirectTo string) error {
-	if !app.cfg.Email.Enabled() {
-		return fmt.Errorf("EMAIL ISN'T CONFIGURED on this server")
-	}
-
-	// Make sure user has added an email
-	// TODO: create a new func to just get user's email; "ForAuth" doesn't match here
-	u, _ := app.db.GetUserForAuth(alias)
-	if u == nil {
-		if strings.IndexAny(alias, "@") > 0 {
-			return ErrUserNotFoundEmail
-		}
-		return ErrUserNotFound
-	}
-	if u.Email.String == "" {
-		return impart.HTTPError{http.StatusPreconditionFailed, "User doesn't have an email address. Log in with password, instead."}
-	}
-
-	// Generate one-time login token
-	t, err := app.db.GetTemporaryOneTimeAccessToken(u.ID, 60*15, true)
-	if err != nil {
-		log.Error("Unable to generate token for email login: %s", err)
-		return impart.HTTPError{http.StatusInternalServerError, "Unable to generate token."}
-	}
-
-	// Send email
-	mlr, err := mailer.New(app.cfg.Email)
-	if err != nil {
-		return err
-	}
-	toEmail := u.EmailClear(app.keys)
-	footerPara := "This link will only work once and expires in 15 minutes. Didn't ask us to log in? You can safely ignore this email."
-
-	plainMsg := fmt.Sprintf("Log in to %s here: %s/login?to=%s&with=%s\n\n%s", app.cfg.App.SiteName, app.cfg.App.Host, redirectTo, t, footerPara)
-	m, err := mlr.NewMessage(mailer.FormatAddress(app.cfg.App.SiteName, "noreply-login@"+app.cfg.Email.Domain), "Log in to "+app.cfg.App.SiteName, plainMsg, fmt.Sprintf("<%s>", toEmail))
-	if err != nil {
-		return err
-	}
-	m.AddTag("Email Login")
-
-	m.SetHTML(fmt.Sprintf(`<html>
-	<body style="font-family:Lora, 'Palatino Linotype', Palatino, Baskerville, 'Book Antiqua', 'New York', 'DejaVu serif', serif; font-size: 100%%; margin:1em 2em;">
-		<div style="margin:0 auto; max-width: 40em; font-size: 1.2em;">
-        <h1 style="font-size:1.75em"><a style="text-decoration:none;color:#000;" href="%s">%s</a></h1>
-		<p style="font-size:1.2em;margin-bottom:1.5em;text-align:center"><a href="%s/login?to=%s&with=%s">Log in to %s here</a>.</p>
-        <p style="font-size: 0.86em;color:#666;text-align:center;max-width:35em;margin:1em auto">%s</p>
-        </div>
-	</body>
-</html>`, app.cfg.App.Host, app.cfg.App.SiteName, app.cfg.App.Host, redirectTo, t, app.cfg.App.SiteName, footerPara))
-	return mlr.Send(m)
 }
 
 func saveTempInfo(app *App, key, val string, r *http.Request, w http.ResponseWriter) error {

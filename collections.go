@@ -106,7 +106,6 @@ type (
 		Privacy   int    `schema:"privacy" json:"privacy"`
 		Pass      string `schema:"password" json:"password"`
 		MathJax   bool   `schema:"mathjax" json:"mathjax"`
-		EmailSubs bool   `schema:"email_subs" json:"email_subs"`
 		Handle    string `schema:"handle" json:"handle"`
 
 		// Actual collection values updated in the DB
@@ -372,10 +371,6 @@ func (c *Collection) RenderMathJax() bool {
 	return c.db.CollectionHasAttribute(c.ID, "render_mathjax")
 }
 
-func (c *Collection) EmailSubsEnabled() bool {
-	return c.db.CollectionHasAttribute(c.ID, "email_subs")
-}
-
 // DisplayDescription returns the description with rendered Markdown and HTML.
 func (c *Collection) DisplayDescription() *template.HTML {
 	if c.Description == "" {
@@ -628,7 +623,6 @@ type CollectionPage struct {
 	IsOwner         bool
 	IsCollLoggedIn  bool
 	Honeypot        string
-	IsSubscriber    bool
 	CanPin          bool
 	Username        string
 	FediverseAuthor string
@@ -928,7 +922,6 @@ func handleViewCollection(app *App, w http.ResponseWriter, r *http.Request) erro
 	if u != nil {
 		displayPage.Username = u.Username
 		displayPage.IsOwner = u.ID == coll.OwnerID
-		displayPage.IsSubscriber = u.IsEmailSubscriber(app, coll.ID)
 		if displayPage.IsOwner {
 			// Add in needed information for users viewing their own collection
 			owner = u

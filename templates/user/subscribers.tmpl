@@ -8,7 +8,7 @@
 	}
 </style>
 
-<div class="snug content-container {{if not .CanEmailSub}}clean{{end}}">
+<div class="snug content-container clean">
 	{{if .Silenced}}
 		{{template "user-silenced"}}
 	{{end}}
@@ -20,7 +20,6 @@
 		{{template "collection-nav" .Collection}}
 
 		<nav class="pager sub">
-			<a href="/me/c/{{.Collection.Alias}}/subscribers" {{if eq .Filter ""}}class="selected"{{end}}>Email ({{len .EmailSubs}})</a>
 			<a href="/me/c/{{.Collection.Alias}}/subscribers?filter=fediverse" {{if eq .Filter "fediverse"}}class="selected"{{end}}>Followers ({{len .Followers}})</a>
 		</nav>
 	{{end}}
@@ -56,42 +55,6 @@
 				</tr>
 			{{ end }}
 		</table>
-	{{ else }}
-		{{if or .CanEmailSub .EmailSubs}}
-			{{if not .CanEmailSub}}
-				<div class="alert info">
-					<p><strong>Email subscriptions are disabled on this server</strong>, so no new emails will be sent out.</p>
-				</div>
-			{{end}}
-			{{if .EmailSubsEnabled}}
-				<div class="row toolbar ends">
-					<a href="/api/collections/{{.Collection.Alias}}/email/subscribers/export.csv">Export list</a>
-				</div>
-			{{else}}
-				<div class="alert info">
-					<p><strong>Email subscriptions are disabled</strong>. {{if .EmailSubs}}No new emails will be sent out.{{end}} To enable email subscriptions, turn the option on from your blog's <a href="/me/c/{{.Collection.Alias}}#updates">Customize</a> page.</p>
-				</div>
-			{{end}}
-			<table class="classy export">
-				<tr>
-					<th style="width: 60%">Email Address</th>
-					<th colspan="2">Since</th>
-				</tr>
-
-				{{ if .EmailSubs }}
-					{{range $el := .EmailSubs}}
-						<tr>
-							<td><a href="mailto:{{.Email.String}}">{{.Email.String}}</a></td>
-							<td>{{.SubscribedFriendly}}</td>
-						</tr>
-					{{end}}
-				{{ else }}
-					<tr>
-						<td colspan="2">No subscribers yet.</td>
-					</tr>
-				{{ end }}
-			</table>
-		{{end}}
 	{{ end }}
 
 </div>

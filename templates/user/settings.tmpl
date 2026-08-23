@@ -67,18 +67,6 @@ h3 { font-weight: normal; }
 			</div>
 		</div>
 
-		<div class="option">
-			<h3>Email</h3>
-			<div class="section">
-				{{if and (not .Email) (not .IsLogOut)}}<div class="alert info"><p>Add your email to get:</p>
-				<ul>
-					<li>No-passphrase login</li>
-					<li>Account recovery if you forget your passphrase</li>
-				</ul></div>{{end}}
-				<input type="email" name="email" style="letter-spacing: 1px" placeholder="Email address" value="{{.Email}}" size="40" tabindex="{{if .IsLogOut}}2{{else}}3{{end}}" />
-			</div>
-		</div>
-
 		<div class="option" style="text-align: center;">
 			<input type="submit" value="Save changes" tabindex="4" />
 		</div>

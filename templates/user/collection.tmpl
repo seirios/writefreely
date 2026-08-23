@@ -101,21 +101,7 @@ textarea.section.norm {
 					</label>
 					<p class="describe">Readers can subscribe to your blog's <a href="{{.CanonicalURL}}feed/" target="feed">RSS feed</a> with their favorite RSS reader.</p>
 				</li>
-				{{if .EmailCfg.Enabled}}
-				<li>
-					<label class="option-text" id="email-sub-label"><input type="checkbox" name="email_subs" id="email_subs" {{if .EmailSubsEnabled}}checked="checked"{{end}} />
-						Email subscriptions
-					</label>
-					<p class="describe">
-						Let readers subscribe to your blog via email, and optionally accept private replies.
-					</p>
-					<div id="custom-letter-reply" style="font-size: .8em; margin-top: -0.5em; margin-left: 1.8em; margin-bottom: 1em;" {{if not .EmailSubsEnabled}}style="display:none"{{end}}>
-						Allow replies to this address:
-						<input type="email" name="letter_reply" id="letter_reply" placeholder="me@example.com" value="{{.LetterReplyTo}}" {{if not .EmailSubsEnabled}}disabled{{end}} />
-					</div>
-				</li>
-				{{end}}
-                {{if .Federation}}
+				{{if .Federation}}
 				<li>
 					<label class="option-text" id="federate-label"><input type="checkbox" name="federate" id="federate" {{if .Federation}}checked="checked"{{end}} disabled />
 						Federation
@@ -281,13 +267,6 @@ var $fediCustomDomain = document.getElementById('fedi-custom-domain');
 var $customDomain = document.getElementById('domain-alias');
 var $customHandleEnv = document.getElementById('custom-handle-env');
 var $normalHandleEnv = document.getElementById('normal-handle-env');
-
-var $emailSubsCheck = document.getElementById('email_subs');
-var $letterReply = document.getElementById('letter_reply');
-H.getEl('email_subs').on('click', function() {
-    let show = $emailSubsCheck.checked
-    $letterReply.disabled = !show
-})
 
 if (matchMedia('(pointer:fine)').matches) {
 	// Only initialize Ace editor on devices with a mouse

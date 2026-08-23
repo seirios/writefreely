@@ -138,10 +138,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	apiColls.HandleFunc("/{alias}/collect", handler.All(addPost)).Methods("POST")
 	apiColls.HandleFunc("/{alias}/pin", handler.All(pinPost)).Methods("POST")
 	apiColls.HandleFunc("/{alias}/unpin", handler.All(pinPost)).Methods("POST")
-	apiColls.HandleFunc("/{alias}/email/subscribers/export.csv", handler.Download(handleExportEmailSubscriptions, UserLevelUser)).Methods("GET")
-	apiColls.HandleFunc("/{alias}/email/subscribe", handler.All(handleCreateEmailSubscription)).Methods("POST")
-	apiColls.HandleFunc("/{alias}/email/subscribe", handler.All(handleDeleteEmailSubscription)).Methods("DELETE")
-	apiColls.HandleFunc("/{collection}/email/unsubscribe", handler.All(handleDeleteEmailSubscription)).Methods("GET")
 	apiColls.HandleFunc("/{alias}/inbox", handler.All(handleFetchCollectionInbox)).Methods("POST")
 	apiColls.HandleFunc("/{alias}/outbox", handler.AllReader(handleFetchCollectionOutbox)).Methods("GET")
 	apiColls.HandleFunc("/{alias}/following", handler.AllReader(handleFetchCollectionFollowing)).Methods("GET")
@@ -174,7 +170,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	write.HandleFunc("/admin/updates", handler.Admin(handleViewAdminUpdates)).Methods("GET")
 
 	// Handle special pages first
-	write.Path("/reset").Handler(csrf.Protect(apper.App().keys.CSRFKey, csrf.Path("/"))(handler.Web(viewResetPassword, UserLevelNoneRequired)))
 	write.HandleFunc("/login", handler.Web(viewLogin, UserLevelNoneRequired))
 	// TODO: show a reader-specific 404 page if the function is disabled
 	write.HandleFunc("/read", handler.Web(viewLocalTimeline, UserLevelReader))
@@ -232,8 +227,6 @@ func RouteCollections(handler *Handler, r *mux.Router) {
 	r.HandleFunc("/tag:{tag}/feed/", handler.Web(ViewFeed, UserLevelReader))
 	r.HandleFunc("/sitemap.xml", handler.AllReader(handleViewSitemap))
 	r.HandleFunc("/feed/", handler.AllReader(ViewFeed))
-	r.HandleFunc("/email/confirm/{subscriber}", handler.All(handleConfirmEmailSubscription)).Methods("GET")
-	r.HandleFunc("/email/unsubscribe/{subscriber}", handler.All(handleDeleteEmailSubscription)).Methods("GET")
 	r.HandleFunc("/{slug}", handler.CollectionPostOrStatic)
 	r.HandleFunc("/{slug}/edit", handler.Web(handleViewPad, UserLevelUser))
 	r.HandleFunc("/{slug}/edit/meta", handler.Web(handleViewMeta, UserLevelUser))

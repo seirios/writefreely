@@ -32,16 +32,14 @@ td.none {
 
 	<p>Stats for all time.</p>
 
-	{{if or .Federation .EmailEnabled}}
+	{{if or .Federation}}
 	<h3>Subscribers</h3>
 	<table id="fediverse" class="classy export">
 		<tr>
 			{{if .Federation}}<th>Fediverse Followers</th>{{end}}
-			{{if .EmailEnabled}}<th>Email Subscribers</th>{{end}}
 		</tr>
 		<tr>
 			{{if .Federation}}<td><a href="/me/c/{{.Collection.Alias}}/subscribers?filter=fediverse">{{.APFollowers}}</a></td>{{end}}
-			{{if .EmailEnabled}}<td><a href="/me/c/{{.Collection.Alias}}/subscribers">{{.EmailSubscribers}}</a></td>{{end}}
 		</tr>
 	</table>
 	{{end}}
