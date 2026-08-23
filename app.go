@@ -432,8 +432,6 @@ func Initialize(apper Apper, debug bool) (*App, error) {
 
 	initActivityPub(apper.App())
 
-	log.Info("[jobs] Not starting publish jobs queue: no email provider is configured.")
-
 	// Handle local timeline, if enabled
 	if apper.App().cfg.App.LocalTimeline {
 		log.Info("Initializing local timeline...")
