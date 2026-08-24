@@ -54,7 +54,7 @@
 </h2>
 {{end}}
 
-{{if .Excerpt}}<div {{if .Language}}lang="{{.Language.String}}"{{end}} dir="{{.Direction}}" class="book p-summary">{{if and (and (not $.IsOwner) (not $.Format.ShowDates)) (not .Title.String)}}<a class="hidden action" href="{{if $.IsOwner}}/{{$.Alias}}/{{.Slug.String}}{{else}}{{$.CanonicalURL}}{{.Slug.String}}{{end}}">view</a>{{end}}{{.Excerpt}}</div>
+{{if .HTMLExcerpt}}<div {{if .Language}}lang="{{.Language.String}}"{{end}} dir="{{.Direction}}" class="book p-summary">{{if and (and (not $.IsOwner) (not $.Format.ShowDates)) (not .Title.String)}}<a class="hidden action" href="{{if $.IsOwner}}/{{$.Alias}}/{{.Slug.String}}{{else}}{{$.CanonicalURL}}{{.Slug.String}}{{end}}">view</a>{{end}}{{.HTMLExcerpt}}</div>
 
 <a class="read-more" href="{{$.CanonicalURL}}{{.Slug.String}}">{{localstr "Read more..." .Language.String}}</a>{{else}}<div {{if .Language}}lang="{{.Language.String}}"{{end}} dir="{{.Direction}}" class="book e-content">{{if and (and (not $.IsOwner) (not $.Format.ShowDates)) (not .Title.String)}}<a class="hidden action" href="{{if $.IsOwner}}/{{$.Alias}}/{{.Slug.String}}{{else}}{{$.CanonicalURL}}{{.Slug.String}}{{end}}">view</a>{{end}}{{.HTMLContent}}</div>{{end}}</article>{{ end }}
 {{ end }}

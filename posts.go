@@ -265,12 +265,6 @@ func (p Post) SummaryHTML() template.HTML {
 	return template.HTML(p.Summary())
 }
 
-// Excerpt shows any text that comes before a (more) tag.
-// TODO: use HTMLExcerpt in templates instead of this method
-func (p *Post) Excerpt() template.HTML {
-	return p.HTMLExcerpt
-}
-
 func (p *Post) CreatedDate() string {
 	return p.Created.Format("2006-01-02")
 }
@@ -1325,7 +1319,7 @@ func (p *PublicPost) PreviewObject(app *App, art *activitystreams.Object) *activ
 	} else {
 		p.HTMLExcerpt = p.HTMLContent
 	}
-	o.Content = strings.TrimRight(string(p.Excerpt()), "\n")
+	o.Content = strings.TrimRight(string(p.HTMLExcerpt), "\n")
 	return o
 }
 

@@ -101,7 +101,7 @@
 				</h2>
 			{{- end}}
 			<p class="source">{{if .Collection}}from <a href="{{.Collection.CanonicalURL}}">{{.Collection.DisplayTitle}}</a>{{else}}<em>Anonymous</em>{{end}}</p>
-			{{if .Excerpt}}<div class="p-summary" {{if .Language}}lang="{{.Language.String}}"{{end}} dir="{{.Direction}}">{{.Excerpt}}</div>
+			{{if .HTMLExcerpt}}<div class="p-summary" {{if .Language}}lang="{{.Language.String}}"{{end}} dir="{{.Direction}}">{{.HTMLExcerpt}}</div>
 		
 			<a class="read-more" href="{{if .Collection}}{{.Collection.CanonicalURL}}{{.Slug.String}}{{else}}{{.CanonicalURL .Host}}.md{{end}}">{{localstr "Read more..." .Language.String}}</a>{{else}}<div class="e-content preview" {{if .Language}}lang="{{.Language.String}}"{{end}} dir="{{.Direction}}">{{ if not .HTMLContent }}<p id="post-body" class="e-content preview">{{.Content}}</p>{{ else }}{{.HTMLContent}}{{ end }}<div class="over">&nbsp;</div></div>
 			
