@@ -641,7 +641,7 @@ type TagCollectionPage struct {
 	Tag string
 }
 
-func (tcp TagCollectionPage) PrevPageURL(prefix string, n int, tl bool) string {
+func (tcp TagCollectionPage) PrevPageURL(prefix string, _ string, n int, tl bool) string {
 	u := fmt.Sprintf("/tag:%s", tcp.Tag)
 	if n > 2 {
 		u += fmt.Sprintf("/page/%d", n-1)
