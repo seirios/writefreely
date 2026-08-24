@@ -21,7 +21,7 @@ import (
 	"github.com/writeas/web-core/log"
 )
 
-func ViewFeed(app *App, w http.ResponseWriter, req *http.Request) error {
+func handleViewFeed(app *App, w http.ResponseWriter, req *http.Request) error {
 	alias := collectionAliasFromReq(req)
 
 	// Display collection if this is a collection
