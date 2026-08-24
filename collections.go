@@ -653,7 +653,7 @@ func (tcp TagCollectionPage) PrevPageURL(prefix string, n int, tl bool) string {
 
 }
 
-func (tcp TagCollectionPage) NextPageURL(prefix string, n int, tl bool) string {
+func (tcp TagCollectionPage) NextPageURL(prefix string, _ string, n int, tl bool) string {
 	if tl {
 		return fmt.Sprintf("/tag:%s/page/%d", tcp.Tag, n+1)
 	}
