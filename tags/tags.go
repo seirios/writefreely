@@ -14,6 +14,13 @@ func Extract(body string) []string {
 		// Second value (whether or not there's a hashtag) ignored here, since
 		// we're only extracting hashtags.
 		ht, _ := matches[i].Hashtag()
+		var prevChar byte
+		if matches[i].ByteRange.Start > 0 {
+			prevChar = body[matches[i].ByteRange.Start - 1]
+		}
+		if prevChar != ' ' {
+			continue
+		}
 		tags[ht] = true
 	}
 
