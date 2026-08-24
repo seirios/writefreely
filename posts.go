@@ -35,9 +35,9 @@ import (
 	"github.com/writeas/web-core/converter"
 	"github.com/writeas/web-core/i18n"
 	"github.com/writeas/web-core/log"
-	"github.com/writeas/web-core/tags"
 	"github.com/writefreely/writefreely/page"
 	"github.com/writefreely/writefreely/parse"
+	"github.com/writefreely/writefreely/tags"
 )
 
 const (
