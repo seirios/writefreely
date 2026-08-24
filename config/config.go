@@ -120,10 +120,7 @@ type (
 
 		// Users
 		SingleUser       bool `ini:"single_user"`
-		OpenRegistration bool `ini:"open_registration"`
-		OpenDeletion     bool `ini:"open_deletion"`
 		MinUsernameLen   int  `ini:"min_username_len"`
-		MaxBlogs         int  `ini:"max_blogs"`
 
 		// Options for public instances
 		// Federation
@@ -169,8 +166,7 @@ func New() *Config {
 			Theme:          "write",
 			WebFonts:       true,
 			SingleUser:     true,
-			MinUsernameLen: 3,
-			MaxBlogs:       1,
+			MinUsernameLen: 8,
 			Federation:     true,
 			PublicStats:    true,
 		},

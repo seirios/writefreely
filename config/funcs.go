@@ -42,13 +42,6 @@ func (ac AppCfg) FriendlyHost() string {
 	return res
 }
 
-func (ac AppCfg) CanCreateBlogs(currentlyUsed uint64) bool {
-	if ac.MaxBlogs <= 0 {
-		return true
-	}
-	return int(currentlyUsed) < ac.MaxBlogs
-}
-
 // OrDefaultString returns input or a default value if input is empty.
 func OrDefaultString(input, defaultValue string) string {
 	if len(input) == 0 {

@@ -49,7 +49,7 @@ func nodeInfoConfig(db *datastore, cfg *config.Config) *nodeinfo.Config {
 				GitHub:   "https://github.com/writefreely/writefreely",
 				Follow:   "https://writing.exchange/@writefreely",
 			},
-			MaxBlogs:     cfg.App.MaxBlogs,
+			MaxBlogs:     1,
 			PublicReader: cfg.App.LocalTimeline,
 			Invites:      false,
 		},
@@ -70,7 +70,7 @@ func nodeInfoConfig(db *datastore, cfg *config.Config) *nodeinfo.Config {
 }
 
 func (r nodeInfoResolver) IsOpenRegistration() (bool, error) {
-	return r.cfg.App.OpenRegistration, nil
+	return false, nil
 }
 
 func (r nodeInfoResolver) Usage() (nodeinfo.Usage, error) {

@@ -332,30 +332,6 @@ func Configure(fname string, configSections string) (*SetupData, error) {
 			return data, err
 		}
 
-		if !data.Config.App.SingleUser {
-			selPrompt = promptui.Select{
-				Templates: selTmpls,
-				Label:     "Registration",
-				Items:     []string{"Open", "Closed"},
-			}
-			_, regType, err := selPrompt.Run()
-			if err != nil {
-				return data, err
-			}
-			data.Config.App.OpenRegistration = regType == "Open"
-
-			prompt = promptui.Prompt{
-				Templates: tmpls,
-				Label:     "Max blogs per user",
-				Default:   fmt.Sprintf("%d", data.Config.App.MaxBlogs),
-			}
-			maxBlogs, err := prompt.Run()
-			if err != nil {
-				return data, err
-			}
-			data.Config.App.MaxBlogs, _ = strconv.Atoi(maxBlogs) // Ignore error, as we've already validated number
-		}
-
 		selPrompt = promptui.Select{
 			Templates: selTmpls,
 			Label:     "Federation",

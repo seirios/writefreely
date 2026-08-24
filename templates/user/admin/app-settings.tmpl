@@ -68,22 +68,6 @@ select {
 			<div{{if .Config.SingleUser}} class="invisible"{{end}}><input type="text" name="landing" id="landing" class="inline" value="{{.Config.Landing}}" style="width: 14em;"/></div>
 		</div>
 		<div class="features row">
-			<div{{if .Config.SingleUser}} class="invisible"{{end}}><label for="open_registration">
-					Open Registrations
-					<p>Allow anyone who visits the site to create an account.</p>
-				</label></div>
-			<div{{if .Config.SingleUser}} class="invisible"{{end}}><input type="checkbox" name="open_registration" id="open_registration" {{if .Config.OpenRegistration}}checked="checked"{{end}} />
-			</div>
-		</div>
-		<div class="features row">
-			<div{{if .Config.SingleUser}} class="invisible"{{end}}><label for="open_deletion">
-					Allow account deletion
-					<p>Allow all users to delete their account. Admins can always delete users.</p>
-				</label></div>
-			<div{{if .Config.SingleUser}} class="invisible"{{end}}><input type="checkbox" name="open_deletion" id="open_deletion" {{if .Config.OpenDeletion}}checked="checked"{{end}} />
-			</div>
-		</div>
-		<div class="features row">
 			<div><label for="private">
 					Private Instance
 					<p>Limit site access to people with an account.</p>
@@ -109,13 +93,6 @@ select {
 					<option value="private" {{if eq .Config.DefaultVisibility "private"}}selected="selected"{{end}}>Private</option>
 				</select>
 			</div>
-		</div>
-		<div class="features row">
-			<div{{if .Config.SingleUser}} class="invisible"{{end}}><label for="max_blogs">
-					Maximum Blogs per User
-					<p>Keep things simple by setting this to <strong>1</strong>, unlimited by setting to <strong>0</strong>, or pick another amount.</p>
-				</label></div>
-			<div{{if .Config.SingleUser}} class="invisible"{{end}}><input type="number" name="max_blogs" id="max_blogs" class="inline" min="0" value="{{.Config.MaxBlogs}}"/></div>
 		</div>
 		<div class="features row">
 			<div><label for="federation">

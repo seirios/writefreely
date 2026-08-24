@@ -674,13 +674,11 @@ func viewCollections(app *App, u *User, w http.ResponseWriter, r *http.Request) 
 
 		UsedCollections, TotalCollections int
 
-		NewBlogsDisabled bool
 		Silenced         bool
 	}{
 		UserPage:         NewUserPage(app, r, u, u.Username+"'s Blogs", f),
 		Collections:      c,
 		UsedCollections:  int(uc),
-		NewBlogsDisabled: !app.cfg.App.CanCreateBlogs(uc),
 		Silenced:         silenced,
 	}
 	d.UserPage.SetMessaging(u)
@@ -1040,32 +1038,6 @@ func getTempInfo(app *App, key string, r *http.Request, w http.ResponseWriter) s
 
 	// Return value
 	return s
-}
-
-func handleUserDelete(app *App, u *User, w http.ResponseWriter, r *http.Request) error {
-	if !app.cfg.App.OpenDeletion {
-		return impart.HTTPError{http.StatusForbidden, "Open account deletion is disabled on this instance."}
-	}
-
-	confirmUsername := r.PostFormValue("confirm-username")
-	if u.Username != confirmUsername {
-		return impart.HTTPError{http.StatusBadRequest, "Confirmation username must match your username exactly."}
-	}
-
-	// Check for account deletion safeguards in place
-	if u.IsAdmin() {
-		return impart.HTTPError{http.StatusForbidden, "Cannot delete admin."}
-	}
-
-	err := app.db.DeleteAccount(u.ID)
-	if err != nil {
-		log.Error("user delete account: %v", err)
-		return impart.HTTPError{http.StatusInternalServerError, fmt.Sprintf("Could not delete account: %v", err)}
-	}
-
-	// FIXME: This doesn't ever appear to the user, as (I believe) the value is erased when the session cookie is reset
-	_ = addSessionFlash(app, w, r, "Thanks for writing with us! You account was deleted successfully.", nil)
-	return impart.HTTPError{http.StatusFound, "/me/logout"}
 }
 
 func removeOauth(app *App, u *User, w http.ResponseWriter, r *http.Request) error {

@@ -100,19 +100,6 @@ h3 { font-weight: normal; }
 		</div>
 		{{ end }}
 	{{ end }}
-
-	{{ if and .OpenDeletion (not .IsAdmin) }}
-		<h2>Incinerator</h2>
-		<div class="alert danger">
-			<div class="row">
-				<div>
-					<h3>Delete your account</h3>
-					<p>Permanently erase all your data, with no way to recover it.</p>
-				</div>
-				<button class="cta danger" onclick="prepareDeleteUser()">Delete your account...</button>
-			</div>
-		</div>
-	{{end}}
 </div>
 
 <div id="modal-delete-user" class="modal">
@@ -147,27 +134,6 @@ for (var i=0; i<showChecks.length; i++) {
 		}
 	});
 }
-
-{{ if and .OpenDeletion (not .IsAdmin) }}
-	H.getEl('cancel-delete').on('click', closeModals);
-
-	let $confirmDelBtn = document.getElementById('confirm-delete');
-	let $confirmText = document.getElementById('confirm-text')
-	$confirmText.addEventListener('input', function() {
-		$confirmDelBtn.disabled = this.value !== '{{.Username}}'
-	});
-
-	function prepareDeleteUser() {
-		$confirmText.value = ''
-		showModal('delete-user')
-		$confirmText.focus()
-	}
-
-	function confirmDeletion() {
-		$confirmDelBtn.disabled = true
-		$confirmDelBtn.value = 'Deleting...'
-	}
-{{ end }}
 </script>
 
 {{template "footer" .}}

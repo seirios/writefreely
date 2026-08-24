@@ -36,34 +36,6 @@ form dd {
 }
 </style>
 {{end}}
-{{define "content"}}
-<div id="pricing" class="content-container wide-form">
-
-<div class="row">
-	<div class="banner-container">
-		{{.Banner}}
-		<p><a href="{{if .Content}}#more{{else}}/about{{end}}">Learn more...</a></p>
-	</div>
-
-	<div{{if not .OpenRegistration}} style="padding: 2em 0;"{{end}}>
-		{{ if .OpenRegistration }}
-			{{template "oauth-buttons" .}}
-		{{if not .DisablePasswordAuth}}
-		{{if .Flashes}}<ul class="errors">
-			{{range .Flashes}}<li class="urgent">{{.}}</li>{{end}}
-		</ul>{{end}}
-		{{end}}
-		{{ else }}
-		<p style="font-size: 1.3em; margin: 1rem 0;">Registration is currently closed.</p>
-		<p>You can always sign up on <a href="https://writefreely.org/instances">another instance</a>.</p>
-		{{ end }}
-	</div>
-</div>
-
-{{if .Content}}
-<a name="more"></a><hr style="margin: 1em auto 3em;" />
-{{end}}
-</div>
 
 {{ if .Content }}
 <div class="content-container snug">
