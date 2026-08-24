@@ -41,7 +41,7 @@
 	<nav>
         {{template "pinned-custom" .}}
         {{if .PinnedPosts}}
-            {{range .PinnedPosts}}<a class="pinned" href="{{if $.IsOwner}}/{{$.Collection.Alias}}/{{.Slug.String}}{{else}}{{.CanonicalURL}}{{end}}">{{.DisplayTitle}}</a>{{end}}
+		{{range .PinnedPosts}}<a class="pinned" href="{{if not $.SingleUser}}/{{$.Collection.Alias}}/{{.Slug.String}}{{else}}{{.CanonicalURL $.Host}}{{end}}">{{.DisplayTitle}}</a>{{end}}
         {{end}}
 	</nav>
 </header>
