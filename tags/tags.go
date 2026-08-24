@@ -2,6 +2,8 @@
 package tags
 
 import (
+        "sort"
+
 	"github.com/kylemcc/twitter-text-go/extract"
 )
 
@@ -10,7 +12,6 @@ import (
 func Extract(body string) []string {
 	matches := extract.ExtractHashtags(body)
 	tags := map[string]int{}
-        k := 0
 	for i := range matches {
 		// Second value (whether or not there's a hashtag) ignored here, since
 		// we're only extracting hashtags.
@@ -26,8 +27,7 @@ func Extract(body string) []string {
                 // SBP: keep order of definition
                 _, exists := tags[ht]
                 if !exists {
-                    tags[ht] = k
-                    k++
+                    tags[ht] = i
                 }
 	}
 
@@ -38,6 +38,7 @@ func Extract(body string) []string {
             ordTags[v] = k
             ordKeys = append(ordKeys, v)
         }
+        sort.Ints(ordKeys)
 
         // SBP: iterate map in order
 	resTags := make([]string, 0)
