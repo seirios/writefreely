@@ -112,6 +112,7 @@ type (
 		NoMenu             bool   `ini:"no_menu"`
 		ShowFooterBranding bool   `ini:"show_footer_branding"`
 		EmptyFooter        bool   `ini:"empty_footer"`
+		MainLanguage       string `ini:"language"`
 
 		// Site functionality
 		Chorus        bool `ini:"chorus"`
@@ -162,13 +163,15 @@ func New() *Config {
 			Bind: "localhost", /* IPV6 support when not using localhost? */
 		},
 		App: AppCfg{
-			Host:           "http://localhost:8080",
-			Theme:          "write",
-			WebFonts:       true,
-			SingleUser:     true,
-			MinUsernameLen: 8,
-			Federation:     true,
-			PublicStats:    true,
+			Host:               "http://localhost:8080",
+			Theme:              "write",
+			WebFonts:           true,
+			SingleUser:         true,
+			MinUsernameLen:     8,
+			Federation:         true,
+			PublicStats:        true,
+                        ShowFooterBranding: true,
+                        MainLanguage:       "en",
 		},
 	}
 	c.UseMySQL(true)
