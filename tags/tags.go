@@ -9,7 +9,8 @@ import (
 // list of them.
 func Extract(body string) []string {
 	matches := extract.ExtractHashtags(body)
-	tags := map[string]bool{}
+	tags := map[string]int{}
+        k := 0
 	for i := range matches {
 		// Second value (whether or not there's a hashtag) ignored here, since
 		// we're only extracting hashtags.
@@ -18,15 +19,30 @@ func Extract(body string) []string {
 		if matches[i].ByteRange.Start > 0 {
 			prevChar = body[matches[i].ByteRange.Start - 1]
 		}
+                // SBP: require a space before
 		if prevChar != ' ' {
 			continue
 		}
-		tags[ht] = true
+                // SBP: keep order of definition
+                _, exists := tags[ht]
+                if !exists {
+                    tags[ht] = k
+                    k++
+                }
 	}
 
+        // SBP: reverse map, setup ordered keys
+        var ordKeys []int
+        ordTags := map[int]string{}
+        for k, v := range tags {
+            ordTags[v] = k
+            ordKeys = append(ordKeys, v)
+        }
+
+        // SBP: iterate map in order
 	resTags := make([]string, 0)
-	for k := range tags {
-		resTags = append(resTags, k)
+	for _, k := range ordKeys {
+		resTags = append(resTags, ordTags[k])
 	}
 	return resTags
 }
