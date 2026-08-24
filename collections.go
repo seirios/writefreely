@@ -901,7 +901,7 @@ func handleViewCollection(app *App, w http.ResponseWriter, r *http.Request) erro
 		return impart.HTTPError{http.StatusFound, redirURL}
 	}
 
-	coll.Posts, _ = app.db.GetPosts(app.cfg, c, page, cr.isCollOwner, false, false, "")
+	coll.Posts, _ = app.db.GetPosts(app.cfg, c, page, cr.isCollOwner, false, false, ct)
 
 	// Serve collection
 	displayPage := CollectionPage{
@@ -957,7 +957,7 @@ func handleViewCollection(app *App, w http.ResponseWriter, r *http.Request) erro
 	collTmpl := "collection"
 	if app.cfg.App.Chorus {
 		collTmpl = "chorus-collection"
-	} else if isArchiveView(r) {
+	} else if ct == postArch {
 		displayPage.NavSuffix = "/archive/"
 		collTmpl = "collection-archive"
 	}
