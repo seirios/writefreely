@@ -1003,9 +1003,9 @@ func handleViewMention(app *App, w http.ResponseWriter, r *http.Request) error {
 	return impart.HTTPError{Status: http.StatusFound, Message: remoteUser}
 }
 
-func handleViewCollectionTag(app *App, w http.ResponseWriter, r *http.Request) error {
+func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, kind string) error {
 	vars := mux.Vars(r)
-	tag := vars["tag"]
+        tag := vars[kind]
 
 	cr := &collectionReq{}
 	err := processCollectionRequest(cr, vars, w, r)
@@ -1026,27 +1026,52 @@ func handleViewCollectionTag(app *App, w http.ResponseWriter, r *http.Request) e
 	}
 
 	coll, _ := newDisplayCollection(c, cr, page)
+        if kind == "lang" {
+            coll.Language = tag
+            coll.NavSuffix = fmt.Sprintf("/lang:%s", tag)
+        }
 
-	taggedPostIDs, err := app.db.GetAllPostsTaggedIDs(c, tag, cr.isCollOwner)
-	if err != nil {
-		return err
-	}
+        var ttlPosts int
+        if kind == "tag" {
+            taggedPostIDs, err := app.db.GetAllPostsTaggedIDs(c, tag, cr.isCollOwner)
+            if err != nil {
+                    return err
+            }
+            ttlPosts = len(taggedPostIDs)
+        } else if kind == "lang" {
+            ttlLangPosts, err := app.db.GetCollLangTotalPosts(coll.ID, tag)
+            if err != nil {
+                    log.Error("Unable to getCollLangTotalPosts: %s", err)
+            }
+            ttlPosts = int(ttlLangPosts)
+        }
 
-	ttlPosts := len(taggedPostIDs)
 	pagePosts := coll.Format.PostsPerPage()
 	coll.TotalPages = int(math.Ceil(float64(ttlPosts) / float64(pagePosts)))
 	if coll.TotalPages > 0 && page > coll.TotalPages {
-		redirURL := fmt.Sprintf("/page/%d", coll.TotalPages)
-		if !app.cfg.App.SingleUser {
-			redirURL = fmt.Sprintf("/%s%s%s", cr.prefix, coll.Alias, redirURL)
-		}
-		return impart.HTTPError{http.StatusFound, redirURL}
+            var redirURL string
+            if kind == "tag" {
+                redirURL = fmt.Sprintf("/tag:%s/page/%d", tag, coll.TotalPages)
+            } else if kind == "lang" {
+                redirURL = fmt.Sprintf("/lang:%s/page/%d", tag, coll.TotalPages)
+            }
+            if !app.cfg.App.SingleUser {
+                redirURL = fmt.Sprintf("/%s%s%s", cr.prefix, coll.Alias, redirURL)
+            }
+            return impart.HTTPError{http.StatusFound, redirURL}
 	}
 
-	coll.Posts, _ = app.db.GetPostsTagged(app.cfg, c, tag, page, cr.isCollOwner)
-	if coll.Posts != nil && len(*coll.Posts) == 0 {
-		return ErrCollectionPageNotFound
-	}
+        if kind == "tag" {
+            coll.Posts, _ = app.db.GetPostsTagged(app.cfg, c, tag, page, cr.isCollOwner)
+            if coll.Posts != nil && len(*coll.Posts) == 0 {
+                    return ErrCollectionPageNotFound
+            }
+        } else if kind == "lang" {
+            coll.Posts, err = app.db.GetLangPosts(app.cfg, c, tag, page, cr.isCollOwner)
+            if err != nil {
+                    return ErrCollectionPageNotFound
+            }
+        }
 
 	// Serve collection
 	displayPage := TagCollectionPage{
@@ -1092,116 +1117,30 @@ func handleViewCollectionTag(app *App, w http.ResponseWriter, r *http.Request) e
 	// TODO: fix this mess of collections inside collections
 	displayPage.PinnedPosts, _ = app.db.GetPinnedPosts(coll.CollectionObj, isOwner)
 
-	err = templates["collection-tags"].ExecuteTemplate(w, "collection-tags", displayPage)
+        var collTmpl string
+        if kind == "tag" {
+            collTmpl = "collection-tags"
+        } else if kind == "lang" {
+            collTmpl = "collection"
+            if app.cfg.App.Chorus {
+                collTmpl = "chorus-collection"
+            }
+        }
+	err = templates[collTmpl].ExecuteTemplate(w, "collection", displayPage)
 	if err != nil {
-		log.Error("Unable to render collection tag page: %v", err)
+		log.Error("Unable to render collection %s page: %v", kind, err)
 	}
 
 	return nil
 }
 
+
+func handleViewCollectionTag(app *App, w http.ResponseWriter, r *http.Request) error {
+        return handleViewSubCollection(app, w, r, "tag")
+}
+
 func handleViewCollectionLang(app *App, w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	lang := vars["lang"]
-
-	cr := &collectionReq{}
-	err := processCollectionRequest(cr, vars, w, r)
-	if err != nil {
-		return err
-	}
-
-	u, err := checkUserForCollection(app, cr, r, false)
-	if err != nil {
-		return err
-	}
-
-	page := getCollectionPage(vars)
-
-	c, err := processCollectionPermissions(app, cr, u, w, r)
-	if c == nil || err != nil {
-		return err
-	}
-
-	coll, _ := newDisplayCollection(c, cr, page)
-	coll.Language = lang
-	coll.NavSuffix = fmt.Sprintf("/lang:%s", lang)
-
-	ttlPosts, err := app.db.GetCollLangTotalPosts(coll.ID, lang)
-	if err != nil {
-		log.Error("Unable to getCollLangTotalPosts: %s", err)
-	}
-	pagePosts := coll.Format.PostsPerPage()
-	coll.TotalPages = int(math.Ceil(float64(ttlPosts) / float64(pagePosts)))
-	if coll.TotalPages > 0 && page > coll.TotalPages {
-		redirURL := fmt.Sprintf("/lang:%s/page/%d", lang, coll.TotalPages)
-		if !app.cfg.App.SingleUser {
-			redirURL = fmt.Sprintf("/%s%s%s", cr.prefix, coll.Alias, redirURL)
-		}
-		return impart.HTTPError{http.StatusFound, redirURL}
-	}
-
-	coll.Posts, _ = app.db.GetLangPosts(app.cfg, c, lang, page, cr.isCollOwner)
-	if err != nil {
-		return ErrCollectionPageNotFound
-	}
-
-	// Serve collection
-	displayPage := struct {
-		CollectionPage
-		Tag string
-	}{
-		CollectionPage: CollectionPage{
-			DisplayCollection: coll,
-			StaticPage:        pageForReq(app, r),
-			IsCustomDomain:    cr.isCustomDomain,
-		},
-		Tag: lang,
-	}
-	var owner *User
-	if u != nil {
-		displayPage.Username = u.Username
-		displayPage.IsOwner = u.ID == coll.OwnerID
-		if displayPage.IsOwner {
-			// Add in needed information for users viewing their own collection
-			owner = u
-			displayPage.CanPin = true
-
-			pubColls, err := app.db.GetPublishableCollections(owner, app.cfg.App.Host)
-			if err != nil {
-				log.Error("unable to fetch collections: %v", err)
-			}
-			displayPage.Collections = pubColls
-		}
-	}
-	isOwner := owner != nil
-	if !isOwner {
-		// Current user doesn't own collection; retrieve owner information
-		owner, err = app.db.GetUserByID(coll.OwnerID)
-		if err != nil {
-			// Log the error and just continue
-			log.Error("Error getting user for collection: %v", err)
-		}
-		if owner.IsSilenced() {
-			return ErrCollectionNotFound
-		}
-	}
-	displayPage.Silenced = owner != nil && owner.IsSilenced()
-	displayPage.Owner = owner
-	coll.Owner = displayPage.Owner
-	// Add more data
-	// TODO: fix this mess of collections inside collections
-	displayPage.PinnedPosts, _ = app.db.GetPinnedPosts(coll.CollectionObj, isOwner)
-
-	collTmpl := "collection"
-	if app.cfg.App.Chorus {
-		collTmpl = "chorus-collection"
-	}
-	err = templates[collTmpl].ExecuteTemplate(w, "collection", displayPage)
-	if err != nil {
-		log.Error("Unable to render collection lang page: %v", err)
-	}
-
-	return nil
+        return handleViewSubCollection(app, w, r, "lang")
 }
 
 func handleCollectionPostRedirect(app *App, w http.ResponseWriter, r *http.Request) error {
