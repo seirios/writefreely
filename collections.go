@@ -994,12 +994,15 @@ func handleViewMention(app *App, w http.ResponseWriter, r *http.Request) error {
 }
 
 func handleSearchRedirect(app *App, w http.ResponseWriter, r *http.Request) error {
-	query := r.URL.Query().Get("q")
-	query = strings.TrimSpace(query)
-	query = url.QueryEscape(query)
-	loc := fmt.Sprintf("/search:%s", query)
-	return impart.HTTPError{http.StatusFound, loc}
-
+        if app.cfg.App.EnableSearch {
+            query := r.URL.Query().Get("q")
+            query = strings.TrimSpace(query)
+            query = url.QueryEscape(query)
+            loc := fmt.Sprintf("/search:%s", query)
+            return impart.HTTPError{http.StatusFound, loc}
+        } else {
+            return impart.HTTPError{http.StatusNotFound, "Search is disabled on this instance"}
+        }
 }
 
 func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, kind string) error {
@@ -1174,7 +1177,11 @@ func handleViewCollectionLang(app *App, w http.ResponseWriter, r *http.Request) 
 }
 
 func handleViewCollectionSearch(app *App, w http.ResponseWriter, r *http.Request) error {
-        return handleViewSubCollection(app, w, r, "search")
+        if app.cfg.App.EnableSearch {
+            return handleViewSubCollection(app, w, r, "search")
+        } else {
+            return impart.HTTPError{http.StatusNotFound, "Search is disabled on this instance"}
+        }
 }
 
 func handleCollectionPostRedirect(app *App, w http.ResponseWriter, r *http.Request) error {

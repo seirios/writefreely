@@ -134,6 +134,7 @@ type (
 
 		// Additional functions
 		LocalTimeline bool   `ini:"local_timeline"`
+		EnableSearch  bool   `ini:"search"`
 
 		// Defaults
 		DefaultVisibility string `ini:"default_visibility"`
