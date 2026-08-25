@@ -1506,6 +1506,7 @@ ORDER BY created `+order+limitStr, collID, lang)
 
 func PrepareSearchTerm(query string) (string) {
 	var searchTerm string
+	query = strings.ReplaceAll(query, "%", "\\%")
 	if strings.Contains(query, " ") { // multiple words
 		searchTerm = "%" + query + "%"
 	} else { // single word
@@ -1536,7 +1537,7 @@ func (db *datastore) GetSearchTotalPosts(collID int64, query string, includeFutu
 	}
 
 	searchTerm := PrepareSearchTerm(query)
-	err := db.QueryRow("SELECT COUNT(*) FROM posts WHERE collection_id = ? AND pinned_position IS NULL AND (title LIKE ? OR content LIKE ?) "+timeCondition, collID, searchTerm, searchTerm).Scan(&articles)
+	err := db.QueryRow("SELECT COUNT(*) FROM posts WHERE collection_id = ? AND pinned_position IS NULL AND (title LIKE ? ESCAPE ? OR content LIKE ? ESCAPE ?) "+timeCondition, collID, searchTerm, "\\", searchTerm, "\\").Scan(&articles)
 	if err != nil && err != sql.ErrNoRows {
 		log.Error("Couldn't get total search posts count for collection %d: %v", collID, err)
 		return 0, err
@@ -1572,8 +1573,8 @@ func (db *datastore) GetSearchPosts(cfg *config.Config, c *Collection, query str
 	searchTerm := PrepareSearchTerm(query)
 	rows, err := db.Query(`SELECT `+postCols+`
 FROM posts
-WHERE collection_id = ? AND pinned_position IS NULL AND (title LIKE ? OR content LIKE ?) `+timeCondition+`
-ORDER BY created `+order+limitStr, collID, searchTerm, searchTerm)
+WHERE collection_id = ? AND pinned_position IS NULL AND (title LIKE ? ESCAPE ? OR content LIKE ? ESCAPE ?) `+timeCondition+`
+ORDER BY created `+order+limitStr, collID, searchTerm, "\\", searchTerm, "\\")
 	if err != nil {
 		log.Error("Failed selecting from posts: %v", err)
 		return nil, impart.HTTPError{http.StatusInternalServerError, "Couldn't retrieve collection posts."}

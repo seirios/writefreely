@@ -995,7 +995,9 @@ func handleViewMention(app *App, w http.ResponseWriter, r *http.Request) error {
 
 func handleSearchRedirect(app *App, w http.ResponseWriter, r *http.Request) error {
 	query := r.URL.Query().Get("q")
-	loc := fmt.Sprintf("/search:%s", strings.TrimSpace(query))
+	query = strings.TrimSpace(query)
+	query = url.QueryEscape(query)
+	loc := fmt.Sprintf("/search:%s", query)
 	return impart.HTTPError{http.StatusFound, loc}
 
 }
