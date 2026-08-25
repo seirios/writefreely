@@ -641,23 +641,13 @@ type TagCollectionPage struct {
 	Tag string
 }
 
-func (tcp TagCollectionPage) PrevPageURL(prefix string, _ string, n int, tl bool) string {
-	u := fmt.Sprintf("/tag:%s", tcp.Tag)
-	if n > 2 {
-		u += fmt.Sprintf("/page/%d", n-1)
-	}
-	if tl {
-		return u
-	}
-	return "/" + prefix + tcp.Alias + u
+func (tcp TagCollectionPage) PrevPageURL(prefix string, navSuffix string, n int, tl bool) string {
+	return tcp.CollectionPage.PrevPageURL(prefix, navSuffix, n, tl)
 
 }
 
-func (tcp TagCollectionPage) NextPageURL(prefix string, _ string, n int, tl bool) string {
-	if tl {
-		return fmt.Sprintf("/tag:%s/page/%d", tcp.Tag, n+1)
-	}
-	return fmt.Sprintf("/%s%s/tag:%s/page/%d", prefix, tcp.Alias, tcp.Tag, n+1)
+func (tcp TagCollectionPage) NextPageURL(prefix string, navSuffix string, n int, tl bool) string {
+	return tcp.CollectionPage.NextPageURL(prefix, navSuffix, n, tl)
 }
 
 func NewCollectionObj(c *Collection) *CollectionObj {
@@ -1026,7 +1016,9 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
 	}
 
 	coll, _ := newDisplayCollection(c, cr, page)
-        if kind == "lang" {
+        if kind == "tag" {
+            coll.NavSuffix = fmt.Sprintf("/tag:%s", tag)
+        } else if kind == "lang" {
             coll.Language = tag
             coll.NavSuffix = fmt.Sprintf("/lang:%s", tag)
         }
@@ -1141,6 +1133,10 @@ func handleViewCollectionTag(app *App, w http.ResponseWriter, r *http.Request) e
 
 func handleViewCollectionLang(app *App, w http.ResponseWriter, r *http.Request) error {
         return handleViewSubCollection(app, w, r, "lang")
+}
+
+func handleViewCollectionSearch(app *App, w http.ResponseWriter, r *http.Request) error {
+        return handleViewSubCollection(app, w, r, "search")
 }
 
 func handleCollectionPostRedirect(app *App, w http.ResponseWriter, r *http.Request) error {
