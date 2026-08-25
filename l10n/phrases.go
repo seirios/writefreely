@@ -11,6 +11,7 @@ const (
 // Default phrases
 var phrases = map[string]string{
 	"Anonymous post":                 "Anonymous post",
+	"Archive":                        "Archive",
 	"Blogs":                          "Blogs",
 	"Enter":                          "Enter",
 	"Newer":                          "Newer",
@@ -32,6 +33,7 @@ var phrases = map[string]string{
 	"email subscription success":     "Subscribed. You'll now receive future blog posts via email.",
 	"move to...":                     "move to...",
 	"pin":                            "pin",
+	"powered by":                     "powered by",
 	"published with write.as":        "published with write.as",
 	"share modal ending":             "Send it to a friend, share it across the web, or maybe tweet it. Learn more.",
 	"share modal introduction":       "Each published post has a secret, unique URL you can share with anyone. This is that URL:",
