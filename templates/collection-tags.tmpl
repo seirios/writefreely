@@ -70,14 +70,7 @@
 
 		{{if .Posts}}</section>{{else}}</div>{{end}}
 
-		{{ if .ShowFooterBranding }}
-		<footer dir="ltr">
-			<hr>
-			<nav>
-				<p style="font-size: 0.9em"><a class="home pubd" href="/">{{.SiteName}}</a> &middot; {{localstr "powered by" .MainLanguage}} <a style="margin-left:0" href="https://writefreely.org">writefreely</a></p>
-			</nav>
-		</footer>
-		{{ end }}
+                {{template "footer-branding" .}}
 	</body>
 	
 	{{if .CanShowScript}}
