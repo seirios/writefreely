@@ -1,0 +1,28 @@
+package l10n
+
+var phrasesFR = map[string]string{
+	"Anonymous post":                 "Billet anonyme",
+	"Blogs":                          "Blogs",
+	"Enter":                          "Valider",
+	"Newer":                          "Récents",
+	"Older":                          "Précédents",
+	"Posts":                          "Billets",
+	"Publish to...":                  "Publier sur...",
+	"Publish":                        "Publier",
+	"Read more...":                   "Lire la suite...",
+	"Subscribe":                      "S'abonner",
+	"This blog requires a password.": "Ce blog requiert un mot de passe.",
+	"Toggle theme":                   "Changer de thème",
+	"View posts":                     "Voir les billets",
+	"delete":                         "effacer",
+	"edit":                           "modifier",
+	"email subscription prompt":      "Insérer votre adresse email pour recevoir les mises à jour",
+	"move to...":                     "déplacer vers...",
+	"pin":                            "épingler",
+	"published with write.as":        "publié avec write.as",
+	"share modal ending":             "Envoyer à un ami, partager sur le web, ou peut-être en tant que tweet. En savoir plus.",
+	"share modal introduction":       "Chaque billet dispose d’une adresse (URL) secrète et unique qui peut être partagée avec quelqu’un. Voici cette URL:",
+	"share modal title":              "Partager ce billet",
+	"share":                          "partager",
+	"unpin":                          "détacher",
+}
