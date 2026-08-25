@@ -59,15 +59,16 @@
 <a class="read-more" href="{{$.CanonicalURL}}{{.Slug.String}}">{{localstr "Read more..." .Language.String}}</a>{{else}}<div {{if .Language}}lang="{{.Language.String}}"{{end}} dir="{{.Direction}}" class="book e-content">{{if and (and (not $.IsOwner) (not $.Format.ShowDates)) (not .Title.String)}}<a class="hidden action" href="{{if $.IsOwner}}/{{$.Alias}}/{{.Slug.String}}{{else}}{{$.CanonicalURL}}{{.Slug.String}}{{end}}">view</a>{{end}}{{.HTMLContent}}</div>{{end}}</article>{{ end }}
 {{ end }}
 
+
 {{define "paging"}}
     {{if gt .TotalPages 1}}
     <nav id="paging" class="content-container clearfix">
         {{if or (and .Format.Ascending (le .CurrentPage .TotalPages)) (isRTL .Direction)}}
-            {{if gt .CurrentPage 1}}<a href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">&#8672; {{if and .Format.Ascending (le .CurrentPage .TotalPages)}}Previous{{else}}Newer{{end}}</a>{{end}}
-            {{if lt .CurrentPage .TotalPages}}<a style="float:right;" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{if and .Format.Ascending (lt .CurrentPage .TotalPages)}}Next{{else}}Older{{end}} &#8674;</a>{{end}}
+            {{if gt .CurrentPage 1}}<a href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">&#8672; {{if and .Format.Ascending (le .CurrentPage .TotalPages)}}{{localstr "Previous" .MainLanguage}}{{else}}{{localstr "Newer" .MainLanguage}}{{end}}</a>{{end}}
+            {{if lt .CurrentPage .TotalPages}}<a style="float:right;" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{if and .Format.Ascending (lt .CurrentPage .TotalPages)}}{{localstr "Next" .MainLanguage}}{{else}}{{localstr "Older" .MainLanguage}}{{end}} &#8674;</a>{{end}}
         {{else}}
-            {{if lt .CurrentPage .TotalPages}}<a href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">&#8672; Older</a>{{end}}
-            {{if gt .CurrentPage 1}}<a style="float:right;" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">Newer &#8674;</a>{{end}}
+            {{if lt .CurrentPage .TotalPages}}<a href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">&#8672; {{localstr "Older" .MainLanguage}}</a>{{end}}
+            {{if gt .CurrentPage 1}}<a style="float:right;" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{localstr "Newer" .MainLanguage}} &#8674;</a>{{end}}
         {{end}}
     </nav>
     {{end}}
