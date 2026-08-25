@@ -17,7 +17,7 @@ var phrasesES = map[string]string{
 	"Read more...":                   "Leer más...",
 	"Subscribe":                      "Suscribirse",
 	"This blog requires a password.": "Este blog requiere una contraseña.",
-	"This page is missing":           "Página inexistente",
+	"This page is missing":           "Entrada inexistente",
 	"Toggle theme":                   "Cambiar tema",
 	"View posts":                     "Ver entradas",
 	"delete":                         "eliminar",
