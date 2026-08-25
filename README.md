@@ -1,5 +1,5 @@
 <p align="center">
-	<a href="https://writefreely.org"><img src="https://writefreely.org/img/logo.png" width="256px" alt="WriteFreely" /></a>
+	<a href="https://writefreely.org"><img src="https://writefreely.org/img/logo.png" width="200px" alt="WriteFreely" /></a>
 </p>
 
 # WriteFreely
@@ -8,7 +8,7 @@ WriteFreely is a clean, minimalist publishing platform made for writers. Start a
 
 ## This fork
 
-Welcome to my fork writefreely!
+Welcome to my fork of writefreely!
 
 We've got:
 
