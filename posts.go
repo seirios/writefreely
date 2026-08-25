@@ -1556,7 +1556,7 @@ func viewCollectionPost(app *App, w http.ResponseWriter, r *http.Request) error 
 			po := &Post{
 				Slug:     null.NewString(slug, true),
 				Font:     "norm",
-				Language: zero.NewString("en", true),
+				Language: zero.NewString(app.cfg.App.MainLanguage, true),
 				RTL:      zero.NewBool(false, true),
 				Content: `<div class="error-page"><p class="msg">` +
                                     localStr(`This page is missing`,app.cfg.App.MainLanguage) +
@@ -1619,7 +1619,6 @@ func viewCollectionPost(app *App, w http.ResponseWriter, r *http.Request) error 
 	} else {
 		p.extractData()
 		p.Content = strings.Replace(p.Content, "<!--more-->", "", 1)
-		p.Content = strings.Replace(p.Content, "&lt;!--emailsub-->", "<!--emailsub-->", 1)
 		// TODO: move this to function
 		p.formatContent(app.cfg, cr.isCollOwner, true)
 		tp := CollectionPostPage{

@@ -1023,7 +1023,7 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
             coll.NavSuffix = fmt.Sprintf("/lang:%s", tag)
         } else if kind == "search" {
 	    if(len(tag) > 128) {
-		log.Error("Searcb query exceeded maximum length")
+		log.Error("Search query exceeded maximum length")
                 return ErrCollectionPageNotFound
 	    }
             coll.NavSuffix = fmt.Sprintf("/search:%s", tag)
