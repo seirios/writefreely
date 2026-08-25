@@ -1,6 +1,6 @@
-{{define "head"}}<title>Page not found &mdash; {{.SiteName}}</title>{{end}}
+{{define "head"}}<title>{{localstr "Page not found" .MainLanguage}} &mdash; {{.SiteName}}</title>{{end}}
 {{define "content"}}
 		<div class="error-page">
-			<p class="msg">Page not found.</p>
+			<p class="msg">{{localstr "Page not found" .MainLanguage}}.</p>
 		</div>
 {{end}}

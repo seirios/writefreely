@@ -9,6 +9,7 @@ var phrasesES = map[string]string{
 	"Next":                           "Siguiente",
 	"No posts found":                 "No se encontraron entradas",
 	"Older":                          "Más antiguo",
+	"Page not found":                 "Página no encontrada",
 	"Posts":                          "Entradas",
 	"Previous":                       "Anterior",
 	"Publish to...":                  "Publicar en...",
