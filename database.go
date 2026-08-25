@@ -1513,7 +1513,7 @@ func (db *datastore) GetSearchTotalPosts(collID int64, query string, includeFutu
 	}
 
 	searchTerm := fmt.Sprintf("%% %s %%", query)
-	err := db.QueryRow("SELECT COUNT(*) FROM posts WHERE collection_id = ? AND (title LIKE ? OR content LIKE ?) "+timeCondition, collID, searchTerm, searchTerm).Scan(&articles)
+	err := db.QueryRow("SELECT COUNT(*) FROM posts WHERE collection_id = ? AND pinned_position IS NULL AND (title LIKE ? OR content LIKE ?) "+timeCondition, collID, searchTerm, searchTerm).Scan(&articles)
 	if err != nil && err != sql.ErrNoRows {
 		log.Error("Couldn't get total search posts count for collection %d: %v", collID, err)
 		return 0, err
@@ -1549,7 +1549,7 @@ func (db *datastore) GetSearchPosts(cfg *config.Config, c *Collection, query str
 	searchTerm := fmt.Sprintf("%% %s %%", query)
 	rows, err := db.Query(`SELECT `+postCols+`
 FROM posts
-WHERE collection_id = ? AND (title LIKE ? OR content LIKE ?) `+timeCondition+`
+WHERE collection_id = ? AND pinned_position IS NULL AND (title LIKE ? OR content LIKE ?) `+timeCondition+`
 ORDER BY created `+order+limitStr, collID, searchTerm, searchTerm)
 	if err != nil {
 		log.Error("Failed selecting from posts: %v", err)

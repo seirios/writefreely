@@ -993,9 +993,32 @@ func handleViewMention(app *App, w http.ResponseWriter, r *http.Request) error {
 	return impart.HTTPError{Status: http.StatusFound, Message: remoteUser}
 }
 
+func handleSearchRedirect(app *App, w http.ResponseWriter, r *http.Request) error {
+	query := r.URL.Query().Get("q")
+	loc := fmt.Sprintf("/search:%s", query)
+	return impart.HTTPError{http.StatusFound, loc}
+
+}
+
 func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, kind string) error {
 	vars := mux.Vars(r)
-        tag := vars[kind]
+
+	var tag string
+	if kind == "tag" {
+		tag = vars["tag"]
+	} else if kind == "lang" {
+		tag = vars["lang"]
+	} else if kind == "search" {
+		tag = vars["query"]
+		if(len(tag) > 128) {
+			log.Error("Search query exceeded maximum length")
+			return ErrCollectionPageNotFound
+		}
+		if tag == "" {
+			log.Error("Empty search query")
+			return ErrCollectionPageNotFound
+		}
+	}
 
 	cr := &collectionReq{}
 	err := processCollectionRequest(cr, vars, w, r)
@@ -1022,10 +1045,6 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
             coll.Language = tag
             coll.NavSuffix = fmt.Sprintf("/lang:%s", tag)
         } else if kind == "search" {
-	    if(len(tag) > 128) {
-		log.Error("Search query exceeded maximum length")
-                return ErrCollectionPageNotFound
-	    }
             coll.NavSuffix = fmt.Sprintf("/search:%s", tag)
         }
 
