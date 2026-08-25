@@ -1430,9 +1430,15 @@ func (db *datastore) GetPostsTagged(cfg *config.Config, c *Collection, tag strin
 	return &posts, nil
 }
 
-func (db *datastore) GetCollLangTotalPosts(collID int64, lang string) (uint64, error) {
+func (db *datastore) GetCollLangTotalPosts(collID int64, lang string, includeFuture bool) (uint64, error) {
 	var articles uint64
-	err := db.QueryRow("SELECT COUNT(*) FROM posts WHERE collection_id = ? AND language = ? AND created <= "+db.now(), collID, lang).Scan(&articles)
+
+	timeCondition := ""
+	if !includeFuture {
+		timeCondition = "AND created <= " + db.now()
+	}
+
+	err := db.QueryRow("SELECT COUNT(*) FROM posts WHERE collection_id = ? AND language = ? "+timeCondition, collID, lang).Scan(&articles)
 	if err != nil && err != sql.ErrNoRows {
 		log.Error("Couldn't get total lang posts count for collection %d: %v", collID, err)
 		return 0, err
@@ -1498,11 +1504,18 @@ ORDER BY created `+order+limitStr, collID, lang)
 	return &posts, nil
 }
 
-func (db *datastore) GetSearchTotalPosts(collID int64, query string) (uint64, error) {
+func (db *datastore) GetSearchTotalPosts(collID int64, query string, includeFuture bool) (uint64, error) {
 	var articles uint64
-	err := db.QueryRow("SELECT COUNT(*) FROM posts WHERE collection_id = ? AND language = ? AND created <= "+db.now(), collID, query).Scan(&articles)
+
+	timeCondition := ""
+	if !includeFuture {
+		timeCondition = "AND created <= " + db.now()
+	}
+
+	searchTerm := fmt.Sprintf("%% %s %%", query)
+	err := db.QueryRow("SELECT COUNT(*) FROM posts WHERE collection_id = ? AND (title LIKE ? OR content LIKE ?) "+timeCondition, collID, searchTerm, searchTerm).Scan(&articles)
 	if err != nil && err != sql.ErrNoRows {
-		log.Error("Couldn't get total lang posts count for collection %d: %v", collID, err)
+		log.Error("Couldn't get total search posts count for collection %d: %v", collID, err)
 		return 0, err
 	}
 	return articles, nil
@@ -1533,10 +1546,11 @@ func (db *datastore) GetSearchPosts(cfg *config.Config, c *Collection, query str
 		timeCondition = "AND created <= " + db.now()
 	}
 
+	searchTerm := fmt.Sprintf("%% %s %%", query)
 	rows, err := db.Query(`SELECT `+postCols+`
 FROM posts
-WHERE collection_id = ? AND language = ? `+timeCondition+`
-ORDER BY created `+order+limitStr, collID, query)
+WHERE collection_id = ? AND (title LIKE ? OR content LIKE ?) `+timeCondition+`
+ORDER BY created `+order+limitStr, collID, searchTerm, searchTerm)
 	if err != nil {
 		log.Error("Failed selecting from posts: %v", err)
 		return nil, impart.HTTPError{http.StatusInternalServerError, "Couldn't retrieve collection posts."}

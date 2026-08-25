@@ -1022,6 +1022,10 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
             coll.Language = tag
             coll.NavSuffix = fmt.Sprintf("/lang:%s", tag)
         } else if kind == "search" {
+	    if(len(tag) > 128) {
+		log.Error("Searcb query exceeded maximum length")
+                return ErrCollectionPageNotFound
+	    }
             coll.NavSuffix = fmt.Sprintf("/search:%s", tag)
         }
 
@@ -1033,13 +1037,13 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
             }
             ttlPosts = len(taggedPostIDs)
         } else if kind == "lang" {
-            ttlLangPosts, err := app.db.GetCollLangTotalPosts(coll.ID, tag)
+            ttlLangPosts, err := app.db.GetCollLangTotalPosts(coll.ID, tag, cr.isCollOwner)
             if err != nil {
                     log.Error("Unable to GetCollLangTotalPosts: %s", err)
             }
             ttlPosts = int(ttlLangPosts)
         } else if kind == "search" {
-            ttlSearchPosts, err := app.db.GetSearchTotalPosts(coll.ID, tag)
+            ttlSearchPosts, err := app.db.GetSearchTotalPosts(coll.ID, tag, cr.isCollOwner)
             if err != nil {
                     log.Error("Unable to GetSearchTotalPosts: %s", err)
             }
