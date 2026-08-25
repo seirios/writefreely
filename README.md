@@ -1,6 +1,6 @@
 &nbsp;
 <p align="center">
-	<a href="https://writefreely.org"><img src="https://writefreely.org/img/writefreely.svg" width="350px" alt="WriteFreely" /></a>
+	<a href="https://writefreely.org"><img src="https://writefreely.org/img/logo.png" width="256px" alt="WriteFreely" /></a>
 </p>
 <hr />
 
@@ -8,7 +8,7 @@
 
 WriteFreely is a clean, minimalist publishing platform made for writers. Start a blog, share knowledge within your organization, or build a community around the shared act of writing.
 
-## My fork
+## This fork
 
 Welcome to my fork writefreely!
 
