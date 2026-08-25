@@ -1558,9 +1558,9 @@ func viewCollectionPost(app *App, w http.ResponseWriter, r *http.Request) error 
 				Font:     "norm",
 				Language: zero.NewString("en", true),
 				RTL:      zero.NewBool(false, true),
-				Content: `<p class="msg">This page is missing.</p>
-
-Are you sure it was ever here?` + shortCodeNoSig,
+				Content: `<div class="error-page"><p class="msg">` +
+                                    localStr(`This page is missing`,app.cfg.App.MainLanguage) +
+                                    `.</p></div>` + shortCodeNoSig,
 			}
 			pp := po.processPost()
 			p = &pp

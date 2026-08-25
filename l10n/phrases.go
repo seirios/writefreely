@@ -26,6 +26,7 @@ var phrases = map[string]string{
 	"Read more...":                   "Read more...",
 	"Subscribe":                      "Subscribe",
 	"This blog requires a password.": "This blog requires a password.",
+	"This page is missing":           "This page is missing",
 	"Toggle theme":                   "Toggle theme",
 	"View posts":                     "View Posts",
 	"delete":                         "delete",
