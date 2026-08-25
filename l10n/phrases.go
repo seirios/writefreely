@@ -16,6 +16,7 @@ var phrases = map[string]string{
 	"Enter":                          "Enter",
 	"Newer":                          "Newer",
 	"Next":                           "Next",
+	"No posts found":                 "No posts found",
 	"Older":                          "Older",
 	"Posts":                          "Posts",
 	"Previous":                       "Previous",
