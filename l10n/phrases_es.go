@@ -24,7 +24,7 @@ var phrasesES = map[string]string{
 	"email subscription success":     "Suscrito con éxito. Ahora recibirás las entradas futuras en tu email.",
 	"move to...":                     "mover a",
 	"pin":                            "anclar",
-	"powered by":                     "este blog utiliza",
+	"powered by":                     "funciona con",
 	"published with write.as":        "publicado con write.as",
 	"share modal ending":             "Enviar la entrada a un amigo, compartirla en la web, o quizás tuitearla. Aprenda más.",
 	"share modal introduction":       "Cada entrada publicada tiene una URL única y secreta que puedes compartir con cualquiera. Esta es la URL:",
