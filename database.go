@@ -1504,6 +1504,29 @@ ORDER BY created `+order+limitStr, collID, lang)
 	return &posts, nil
 }
 
+func PrepareSearchTerm(query string) (string) {
+	var searchTerm string
+	if strings.Contains(query, " ") { // multiple words
+		searchTerm = "%" + query + "%"
+	} else { // single word
+		var pre string = " "
+		var pos string = " "
+		if strings.HasPrefix(query, "*") {
+			pre = ""
+			query = strings.TrimPrefix(query, "*")
+		}
+		if strings.HasSuffix(query, "*") {
+			pos = ""
+			query = strings.TrimSuffix(query, "*")
+		}
+		if strings.Contains(query, "*") { // mid-string pattern
+			query = strings.Replace(query, "*", "%", 1)
+		}
+		searchTerm = "%" + pre + query + pos + "%"
+	}
+	return searchTerm
+}
+
 func (db *datastore) GetSearchTotalPosts(collID int64, query string, includeFuture bool) (uint64, error) {
 	var articles uint64
 
@@ -1512,7 +1535,7 @@ func (db *datastore) GetSearchTotalPosts(collID int64, query string, includeFutu
 		timeCondition = "AND created <= " + db.now()
 	}
 
-	searchTerm := fmt.Sprintf("%% %s %%", query)
+	searchTerm := PrepareSearchTerm(query)
 	err := db.QueryRow("SELECT COUNT(*) FROM posts WHERE collection_id = ? AND pinned_position IS NULL AND (title LIKE ? OR content LIKE ?) "+timeCondition, collID, searchTerm, searchTerm).Scan(&articles)
 	if err != nil && err != sql.ErrNoRows {
 		log.Error("Couldn't get total search posts count for collection %d: %v", collID, err)
@@ -1546,7 +1569,7 @@ func (db *datastore) GetSearchPosts(cfg *config.Config, c *Collection, query str
 		timeCondition = "AND created <= " + db.now()
 	}
 
-	searchTerm := fmt.Sprintf("%% %s %%", query)
+	searchTerm := PrepareSearchTerm(query)
 	rows, err := db.Query(`SELECT `+postCols+`
 FROM posts
 WHERE collection_id = ? AND pinned_position IS NULL AND (title LIKE ? OR content LIKE ?) `+timeCondition+`
