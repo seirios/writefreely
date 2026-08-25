@@ -29,6 +29,8 @@ var phrasesES = map[string]string{
 	"pin":                            "anclar",
 	"powered by":                     "funciona con",
 	"published with write.as":        "publicado con write.as",
+	"result":                         "resultado",
+	"results":                        "resultados",
 	"share modal ending":             "Enviar la entrada a un amigo, compartirla en la web, o quizás tuitearla. Aprenda más.",
 	"share modal introduction":       "Cada entrada publicada tiene una URL única y secreta que puedes compartir con cualquiera. Esta es la URL:",
 	"share modal title":              "Compartir esta entrada",

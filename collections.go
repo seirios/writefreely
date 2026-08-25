@@ -1104,6 +1104,7 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
         }
 
 	// Serve collection
+        coll.TotalPosts = ttlPosts
 	displayPage := TagCollectionPage{
 		CollectionPage: CollectionPage{
 			DisplayCollection: coll,

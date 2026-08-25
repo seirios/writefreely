@@ -38,6 +38,8 @@ var phrases = map[string]string{
 	"pin":                            "pin",
 	"powered by":                     "powered by",
 	"published with write.as":        "published with write.as",
+	"result":                         "result",
+	"results":                        "results",
 	"share modal ending":             "Send it to a friend, share it across the web, or maybe tweet it. Learn more.",
 	"share modal introduction":       "Each published post has a secret, unique URL you can share with anyone. This is that URL:",
 	"share modal title":              "Share this post",

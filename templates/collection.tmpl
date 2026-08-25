@@ -99,6 +99,12 @@
 				{{range .PinnedPosts}}<a class="pinned" href="{{if not $.SingleUser}}/{{$.Alias}}/{{.Slug.String}}{{else}}{{.CanonicalURL $.Host}}{{end}}">{{.PlainDisplayTitle}}</a>{{end}}
 			{{end}}
 			</nav>
+
+                {{if .Tag}}
+                <div class="results">
+                    <p>{{.TotalPosts}} {{if gt .TotalPosts 1}}{{localstr "results" .MainLanguage}}{{else}}{{localstr "result" .MainLanguage}}{{end}}</p>
+                </div>
+                {{end}}
 		</header>
 
 		{{if .Posts}}<section id="wrapper" itemscope itemtype="http://schema.org/Blog">{{else}}<div id="wrapper">{{end}}
