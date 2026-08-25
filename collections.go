@@ -1151,16 +1151,8 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
         var collTmpl string
         if kind == "tag" {
             collTmpl = "collection-tags"
-        } else if kind == "lang" {
-            collTmpl = "collection"
-            if app.cfg.App.Chorus {
-                collTmpl = "chorus-collection"
-            }
-        } else if kind == "search" {
-            collTmpl = "collection"
-            if app.cfg.App.Chorus {
-                collTmpl = "chorus-collection"
-            }
+        } else if kind == "lang" || kind == "search" {
+            collTmpl = "collection-query"
         }
 	err = templates[collTmpl].ExecuteTemplate(w, "collection", displayPage)
 	if err != nil {
