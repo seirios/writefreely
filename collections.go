@@ -1021,6 +1021,8 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
         } else if kind == "lang" {
             coll.Language = tag
             coll.NavSuffix = fmt.Sprintf("/lang:%s", tag)
+        } else if kind == "search" {
+            coll.NavSuffix = fmt.Sprintf("/search:%s", tag)
         }
 
         var ttlPosts int
@@ -1033,9 +1035,15 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
         } else if kind == "lang" {
             ttlLangPosts, err := app.db.GetCollLangTotalPosts(coll.ID, tag)
             if err != nil {
-                    log.Error("Unable to getCollLangTotalPosts: %s", err)
+                    log.Error("Unable to GetCollLangTotalPosts: %s", err)
             }
             ttlPosts = int(ttlLangPosts)
+        } else if kind == "search" {
+            ttlSearchPosts, err := app.db.GetSearchTotalPosts(coll.ID, tag)
+            if err != nil {
+                    log.Error("Unable to GetSearchTotalPosts: %s", err)
+            }
+            ttlPosts = int(ttlSearchPosts)
         }
 
 	pagePosts := coll.Format.PostsPerPage()
@@ -1046,6 +1054,8 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
                 redirURL = fmt.Sprintf("/tag:%s/page/%d", tag, coll.TotalPages)
             } else if kind == "lang" {
                 redirURL = fmt.Sprintf("/lang:%s/page/%d", tag, coll.TotalPages)
+            } else if kind == "search" {
+                redirURL =  fmt.Sprintf("/search:%s/page/%d", tag, coll.TotalPages)
             }
             if !app.cfg.App.SingleUser {
                 redirURL = fmt.Sprintf("/%s%s%s", cr.prefix, coll.Alias, redirURL)
@@ -1060,6 +1070,11 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
             }
         } else if kind == "lang" {
             coll.Posts, err = app.db.GetLangPosts(app.cfg, c, tag, page, cr.isCollOwner)
+            if err != nil {
+                    return ErrCollectionPageNotFound
+            }
+        } else if kind == "search" {
+            coll.Posts, err = app.db.GetSearchPosts(app.cfg, c, tag, page, cr.isCollOwner)
             if err != nil {
                     return ErrCollectionPageNotFound
             }
@@ -1113,6 +1128,11 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
         if kind == "tag" {
             collTmpl = "collection-tags"
         } else if kind == "lang" {
+            collTmpl = "collection"
+            if app.cfg.App.Chorus {
+                collTmpl = "chorus-collection"
+            }
+        } else if kind == "search" {
             collTmpl = "collection"
             if app.cfg.App.Chorus {
                 collTmpl = "chorus-collection"

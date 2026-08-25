@@ -1498,6 +1498,75 @@ ORDER BY created `+order+limitStr, collID, lang)
 	return &posts, nil
 }
 
+func (db *datastore) GetSearchTotalPosts(collID int64, query string) (uint64, error) {
+	var articles uint64
+	err := db.QueryRow("SELECT COUNT(*) FROM posts WHERE collection_id = ? AND language = ? AND created <= "+db.now(), collID, query).Scan(&articles)
+	if err != nil && err != sql.ErrNoRows {
+		log.Error("Couldn't get total lang posts count for collection %d: %v", collID, err)
+		return 0, err
+	}
+	return articles, nil
+}
+
+func (db *datastore) GetSearchPosts(cfg *config.Config, c *Collection, query string, page int, includeFuture bool) (*[]PublicPost, error) {
+	collID := c.ID
+
+	cf := c.NewFormat()
+	order := "DESC"
+	if cf.Ascending() {
+		order = "ASC"
+	}
+
+	pagePosts := cf.PostsPerPage()
+	start := page*pagePosts - pagePosts
+	if page == 0 {
+		start = 0
+		pagePosts = 1000
+	}
+
+	limitStr := ""
+	if page > 0 {
+		limitStr = fmt.Sprintf(" LIMIT %d, %d", start, pagePosts)
+	}
+	timeCondition := ""
+	if !includeFuture {
+		timeCondition = "AND created <= " + db.now()
+	}
+
+	rows, err := db.Query(`SELECT `+postCols+`
+FROM posts
+WHERE collection_id = ? AND language = ? `+timeCondition+`
+ORDER BY created `+order+limitStr, collID, query)
+	if err != nil {
+		log.Error("Failed selecting from posts: %v", err)
+		return nil, impart.HTTPError{http.StatusInternalServerError, "Couldn't retrieve collection posts."}
+	}
+	defer rows.Close()
+
+	// TODO: extract this common row scanning logic for queries using `postCols`
+	posts := []PublicPost{}
+	for rows.Next() {
+		p := &Post{}
+		err = rows.Scan(&p.ID, &p.Slug, &p.Font, &p.Language, &p.RTL, &p.Privacy, &p.OwnerID, &p.CollectionID, &p.PinnedPosition, &p.Created, &p.Updated, &p.ViewCount, &p.Title, &p.Content)
+		if err != nil {
+			log.Error("Failed scanning row: %v", err)
+			break
+		}
+		p.extractData()
+		p.augmentContent(c)
+		p.formatContent(cfg, c, includeFuture, false)
+
+		posts = append(posts, p.processPost())
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Error("Error after Next() on rows: %v", err)
+	}
+
+	return &posts, nil
+}
+
+
 func (db *datastore) GetAPFollowers(c *Collection) (*[]RemoteUser, error) {
 	rows, err := db.Query(`SELECT actor_id, inbox, shared_inbox, f.created
 FROM remotefollows f

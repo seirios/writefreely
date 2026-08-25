@@ -223,6 +223,8 @@ func RouteCollections(handler *Handler, r *mux.Router) {
 	r.HandleFunc("/tag:{tag}", handler.Web(handleViewCollectionTag, UserLevelReader))
 	r.HandleFunc("/tag:{tag}/page/{page:[0-9]+}", handler.Web(handleViewCollectionTag, UserLevelReader))
 	r.HandleFunc("/tag:{tag}/feed/", handler.Web(handleViewFeed, UserLevelReader))
+	r.HandleFunc("/search:{search}", handler.Web(handleViewCollectionSearch, UserLevelReader))
+	r.HandleFunc("/search:{search}/page/{page:[0-9]+}", handler.Web(handleViewCollectionSearch, UserLevelReader))
 	r.HandleFunc("/sitemap.xml", handler.AllReader(handleViewSitemap))
 	r.HandleFunc("/feed/", handler.AllReader(handleViewFeed))
 	r.HandleFunc("/{slug}", handler.CollectionPostOrStatic)
