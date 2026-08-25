@@ -101,8 +101,8 @@
 			</nav>
 
                 {{if .Tag}}
-                <div class="results">
-                    <p>{{.TotalPosts}} {{if gt .TotalPosts 1}}{{localstr "results" .MainLanguage}}{{else}}{{localstr "result" .MainLanguage}}{{end}}</p>
+                <div class="results" {{if eq .TotalPosts 0}}style="display: none;"{{end}}>
+                    <p>{{.TotalPosts}} {{if eq .TotalPosts 1}}{{localstr "result" .MainLanguage}}{{else}}{{localstr "results" .MainLanguage}}{{end}}</p>
                 </div>
                 {{end}}
 		</header>
