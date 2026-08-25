@@ -3,7 +3,7 @@
 <head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
 	<meta charset="utf-8">
 
-	<title>Archive &mdash; {{.Collection.DisplayTitle}}</title>
+	<title>{{localstr "Archive" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}</title>
 
 	<link rel="stylesheet" type="text/css" href="/css/write.css" />
     {{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
@@ -52,7 +52,7 @@
 	<div id="wrapper" class="archive">
         {{- end}}
 
-		<h1>Archive</h1>
+		<h1>{{localstr "Archive" .MainLanguage}}</h1>
 
         {{if .Flash}}
 			<div class="alert success flash">
