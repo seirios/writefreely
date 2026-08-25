@@ -3,29 +3,27 @@
 	<a href="https://writefreely.org"><img src="https://writefreely.org/img/writefreely.svg" width="350px" alt="WriteFreely" /></a>
 </p>
 <hr />
-<p align="center">
-	<a href="https://github.com/writefreely/writefreely/releases/">
-		<img src="https://img.shields.io/github/release/writefreely/writefreely.svg" alt="Latest release" />
-	</a>
-	<a href="https://github.com/writefreely/writefreely/releases/latest">
-		<img src="https://img.shields.io/github/downloads/writefreely/writefreely/total.svg" />
-	</a>
-	<a href="https://ghcr.io/writefreely/writefreely">
-		<img src="https://img.shields.io/badge/docker-%230db7ed.svg?logo=docker&logoColor=white" />
-	</a>
-	<a href="https://github.com/writefreely/writefreely/actions/workflows/docker-publish.yml">
-		<img src="https://github.com/writefreely/writefreely/actions/workflows/docker-publish.yml/badge.svg" alt="Build container image, publish as GitHub-package" />
-	</a>
-</p>
-&nbsp;
+
+# WriteFreely
 
 WriteFreely is a clean, minimalist publishing platform made for writers. Start a blog, share knowledge within your organization, or build a community around the shared act of writing.
 
-![Screenshot of the Reader view of a WriteFreely instance, pen.writefree.ly.](https://files.writefreely.org/img/screens/pen-reader.png)
+## My fork
 
-[Try the writing experience](https://write.as/new)
+Welcome to my fork writefreely!
 
-[Find an instance](https://writefreely.org/instances)
+We've got:
+
++ NO monetization
++ NO email
++ NO user invites
++ NO third-party OAuth
++ NO spurious tags
++ Fixes for single-user sites
++ Search functionality
++ Improved localization
++ Working archive with tags
++ More configuration options
 
 ## Features
 
