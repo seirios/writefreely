@@ -1,34 +1,37 @@
 {{define "collection"}}<!DOCTYPE HTML>
-<html>
+<html lang="{{.MainLanguage}}" dir="{{.Direction}}">
 	<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
 		<meta charset="utf-8">
 
 		<title>{{.Tag}} &mdash; {{.Collection.DisplayTitle}}</title>
+		<meta name="title" content="{{.Tag}} &mdash; {{.Collection.DisplayTitle}}">
 		
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="canonical" href="{{.CanonicalURL}}tag:{{.Tag | tolower}}" />
+                {{if gt .CurrentPage 1}}<link rel="prev" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
+                {{if lt .CurrentPage .TotalPages}}<link rel="next" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
 		{{if not .Collection.IsPrivate}}<link rel="alternate" type="application/rss+xml" title="{{.Tag}} posts on {{.DisplayTitle}}" href="{{.CanonicalURL}}tag:{{.Tag}}/feed/" />{{end}}
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="canonical" href="{{.CanonicalURL}}tag:{{.Tag | tolower}}" />
-		<meta name="generator" content="Write.as">
-		<meta name="title" content="{{.Tag}} &mdash; {{.Collection.DisplayTitle}}">
+
+		<meta name="generator" content="WriteFreely">
 		<meta name="description" content="{{.Tag}} posts on {{.Collection.DisplayTitle}}">
-		<meta name="application-name" content="Write.as">
-		<meta name="application-url" content="https://write.as">
-		{{if gt .Views 1}}<meta name="twitter:label1" value="Views">
-		<meta name="twitter:data1" value="{{largeNumFmt .Views}}">{{end}}
 		<meta itemprop="name" content="{{.Collection.DisplayTitle}}">
 		<meta itemprop="description" content="{{.Tag}} posts on {{.Collection.DisplayTitle}}">
+
+		{{if gt .Views 1}}<meta name="twitter:label1" value="Views">
+		<meta name="twitter:data1" value="{{largeNumFmt .Views}}">{{end}}
 		<meta name="twitter:card" content="summary">
-		<meta name="twitter:site" content="@writeas__">
-		<meta name="twitter:description" content="{{.Tag}} posts on {{.Collection.DisplayTitle}}">
 		<meta name="twitter:title" content="{{.Tag}} &mdash; {{.Collection.DisplayTitle}}">
 		<meta name="twitter:image" content="{{.Collection.AvatarURL}}">
+		<meta name="twitter:description" content="{{.Tag}} posts on {{.Collection.DisplayTitle}}">
+
 		<meta property="og:title" content="{{.Tag}} &mdash; {{.Collection.DisplayTitle}}" />
 		<meta property="og:site_name" content="{{.DisplayTitle}}" />
 		<meta property="og:type" content="article" />
 		<meta property="og:url" content="{{.CanonicalURL}}tag:{{.Tag}}" />
+		<meta property="og:description" content="{{.Tag}} posts on {{.Collection.DisplayTitle}}">
 		<meta property="og:image" content="{{.Collection.AvatarURL}}">
 		{{template "collection-meta" .}}
 		{{if .Collection.StyleSheet}}<style type="text/css">{{.Collection.StyleSheetDisplay}}</style>{{end}}

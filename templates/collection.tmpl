@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 
 		<title>{{.DisplayTitle}}{{if not .SingleUser}} &mdash; {{.SiteName}}{{end}}</title>
+		<meta name="title" content="{{.DisplayTitle}}{{if not .SingleUser}} &mdash; {{.SiteName}}{{end}}">
 
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
@@ -18,10 +19,12 @@
 		<meta name="description" content="{{.PlainDescription}}">
 		<meta itemprop="name" content="{{.DisplayTitle}}">
 		<meta itemprop="description" content="{{.PlainDescription}}">
+
 		<meta name="twitter:card" content="summary">
 		<meta name="twitter:title" content="{{.DisplayTitle}}">
 		<meta name="twitter:image" content="{{.AvatarURL}}">
 		<meta name="twitter:description" content="{{.PlainDescription}}">
+
 		<meta property="og:title" content="{{.DisplayTitle}}" />
 		<meta property="og:site_name" content="{{.DisplayTitle}}" />
 		<meta property="og:type" content="article" />

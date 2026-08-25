@@ -1,27 +1,30 @@
 {{define "collection"}}<!DOCTYPE HTML>
-<html>
+<html lang="{{.MainLanguage}}" dir="{{.Direction}}">
 <head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
 	<meta charset="utf-8">
 
 	<title>{{localstr "Archive" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}</title>
+        <meta name="title" content="Archive &mdash; {{.Collection.DisplayTitle}}">
 
 	<link rel="stylesheet" type="text/css" href="/css/write.css" />
-    {{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
+        {{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 	<link rel="shortcut icon" href="/favicon.ico" />
 	<link rel="canonical" href="{{.CanonicalURL}}">
-    {{if gt .CurrentPage 1}}<link rel="prev" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
-    {{if lt .CurrentPage .TotalPages}}<link rel="next" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
-    {{if not .IsPrivate}}<link rel="alternate" type="application/rss+xml" title="{{.DisplayTitle}} &raquo; Feed" href="{{.CanonicalURL}}feed/" />{{end}}
+        {{if gt .CurrentPage 1}}<link rel="prev" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
+        {{if lt .CurrentPage .TotalPages}}<link rel="next" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
+        {{if not .IsPrivate}}<link rel="alternate" type="application/rss+xml" title="{{.DisplayTitle}} &raquo; Feed" href="{{.CanonicalURL}}feed/" />{{end}}
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 	<meta name="generator" content="WriteFreely">
 	<meta name="description" content="{{.PlainDescription}}">
 	<meta itemprop="name" content="{{.DisplayTitle}}">
 	<meta itemprop="description" content="{{.PlainDescription}}">
+
 	<meta name="twitter:card" content="summary">
 	<meta name="twitter:title" content="{{.DisplayTitle}}">
 	<meta name="twitter:image" content="{{.AvatarURL}}">
 	<meta name="twitter:description" content="{{.PlainDescription}}">
+
 	<meta property="og:title" content="{{.DisplayTitle}}" />
 	<meta property="og:site_name" content="{{.DisplayTitle}}" />
 	<meta property="og:type" content="article" />
