@@ -77,6 +77,40 @@
 		<script src="/js/modals.js"></script>
 		<script type="text/javascript" src="/js/menu.js"></script>
 		<script>
+		var $writer = H.getEl('writer');
+		var $btnPublish = H.getEl('publish');
+		var $btnReload = H.getEl('reload-draft');
+		var $btnEditedElsewhere = H.getEl('edited-elsewhere');
+		var $wc = H.getEl("wc");
+
+	{{if .Post.Id}}
+		// is saved post
+		const draftDoc = 'draft{{.Post.Id}}';
+		const origDoc = '{{.Post.Content}}';
+		const isBlogDraft = {{and .Post.Id (not .Post.Slug)}};
+		const isBrandNew = false;
+
+		document.addEventListener("DOMContentLoaded", function (event) {
+			// add small delay to avoid race condition
+			setTimeout(function() {
+				var scrollpos = sessionStorage.getItem('scrollpos'+draftDoc);
+				if (scrollpos) {
+					$writer.el.scrollTo(0, scrollpos);
+				}
+			}, 50);
+		});
+
+		window.addEventListener("beforeunload", function (e) {
+			sessionStorage.setItem('scrollpos'+draftDoc, $writer.el.scrollTop);
+		});
+	{{else}}
+		// is brand new post
+		const draftDoc = 'lastDoc';
+		const origDoc = '';
+		const isBlogDraft = false;
+		const isBrandNew = true;
+	{{end}}
+
 		function toggleTheme(newTheme) {
 			if (document.body.classList.contains('light')) {
 				setTheme('dark');
@@ -84,7 +118,7 @@
 				setTheme('light');
 			}
 			H.set('padTheme', newTheme);
-		}
+		};
 
 		function setTheme(newTheme) {
 			document.body.classList.remove('light');
@@ -104,25 +138,8 @@
 				}
 			}
 			H.set('padTheme', newTheme);
-		}
+		};
 
-		if (H.get('padTheme', 'auto') == 'light') {
-			setTheme('light');
-		} else if (H.get('padTheme', 'auto') == 'dark') {
-			setTheme('dark');
-		} else {
-			const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
-			if (isDarkMode) {
-				setTheme('dark');
-			} else {
-				setTheme('light');
-			}
-		}
-
-		var $writer = H.getEl('writer');
-		var $btnPublish = H.getEl('publish');
-		var $btnEraseEdit = H.getEl('edited-elsewhere');
-		var $wc = H.getEl("wc");
 		var updateWordCount = function() {
 			var words = 0;
 			var val = $writer.el.value.trim();
@@ -135,32 +152,33 @@
 				$wc.el.innerText = words + " word";
 			}
 		};
+
 		var wasModified = function() {
 			// compare contents only, excluding title (not part of origDoc)
 			const post = H.getTitleStrict($writer.el.value);
 			return post.content != origDoc;
 		};
-		var setButtonStates = function() {
+
+		var setButtonStatesOnce = function() {
 			if (!canPublish) {
 				$btnPublish.el.className = 'disabled';
-				return;
 			}
+			if (isBrandNew) {
+				$btnReload.el.className = 'disabled';
+			}
+			if (isBlogDraft) {
+				$btnPublish.el.childNodes[0].src = '/img/ic_save_dark@2x.png';
+			}
+		};
+
+		var setButtonStates = function() {
 			if (isBrandNew || wasModified()) {
 				$btnPublish.el.className = 'modified';
 			} else {
 				$btnPublish.el.className = '';
 			}
 		};
-	{{if .Post.Id}}
-		// saved post
-		const draftDoc = 'draft{{.Post.Id}}';
-		const origDoc = '{{.Post.Content}}';
-	{{else}}
-		// brand new post
-		const draftDoc = 'lastDoc';
-		const origDoc = '';
-	{{end}}
-		const isBrandNew = draftDoc == 'lastDoc';
+
 		var updatedStr = '{{.Post.Updated8601}}';
 		var updated = null;
 		if (updatedStr != '') {
@@ -169,7 +187,7 @@
 		var ok = H.load($writer, draftDoc, true, updated);
 		if (!ok) {
 			// Show "edited elsewhere" warning
-			$btnEraseEdit.el.classList.remove('hidden');
+			$btnEditedElsewhere.el.classList.remove('hidden');
 		}
 		var defaultTimeSet = false;
 		updateWordCount();
@@ -177,16 +195,17 @@
 		var typingTimer;
 		var doneTypingInterval = 200;
 
-		var posts;
+		/* Publish stuff */
 	{{if and (and .Post.Id (not .Post.Slug)) (not .User)}}
 		// is blog draft and guest user
 		var token = null;
-		var curPostIdx;
-		posts = JSON.parse(H.get('posts', '[]'));
-		for (var i=0; i<posts.length; i++) {
-			if (posts[i].id == "{{.Post.Id}}") {
-				token = posts[i].token;
-				break;
+		{
+			const posts = JSON.parse(H.get('posts', '[]'));
+			for (var i=0; i<posts.length; i++) {
+				if (posts[i].id == "{{.Post.Id}}") {
+					token = posts[i].token;
+					break;
+				}
 			}
 		}
 		var canPublish = token != null;
@@ -293,11 +312,16 @@
 							H.set(draftDoc, '');
 						}
 
-						{{if .EditCollection}}
+					{{if .EditCollection}}
 						window.location = '{{.EditCollection.CanonicalURL}}{{.Post.Slug}}';
-						{{else}}
-						window.location = nextURL;
-						{{end}}
+					{{else}}
+						if (isBlogDraft) {
+							// keep editing
+							window.location.reload();
+						} else {
+							window.location = nextURL;
+						}
+					{{end}}
 					} else {
 						$btnPublish.el.children[0].textContent = 'send';
 						alert("Failed to post. Please try again.");
@@ -307,7 +331,23 @@
 			http.send(JSON.stringify(params));
 		};
 
-		setButtonStates();
+		setButtonStatesOnce();
+
+		/* Set theme */
+		if (H.get('padTheme', 'auto') == 'light') {
+			setTheme('light');
+		} else if (H.get('padTheme', 'auto') == 'dark') {
+			setTheme('dark');
+		} else {
+			const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+			if (isDarkMode) {
+				setTheme('dark');
+			} else {
+				setTheme('light');
+			}
+		}
+
+		/* Event handlers */
 		$writer.on('keyup input', function() {
 			setButtonStates();
 			clearTimeout(typingTimer);
@@ -335,7 +375,10 @@
 			justPublished = true; // Block auto-save
 			location.reload();
 		});
-		H.getEl('reload-draft').on('click', function(e) {
+		$btnReload.on('click', function(e) {
+			if ($btnReload.el.className == 'disabled') {
+				return;
+			}
 			e.preventDefault();
 			H.remove(draftDoc);
 			H.remove(draftDoc+'-published');
@@ -447,44 +490,45 @@
 			}
 		});
 
-        let previewBody = document.querySelector('.e-content');
-        let togglePreview = function() {
-            showModal('preview');
+		/* Preview stuff */
+		let previewBody = document.querySelector('.e-content');
+		let togglePreview = function() {
+		    showModal('preview');
 
-            var http = new XMLHttpRequest();
-            var url = "/api/markdown";
-            var params = {
-                raw_body: $writer.el.value,
-            };
-            var postTarget = H.get('postTarget', 'anonymous');
-            if (postTarget != 'anonymous') {
-                params.collection_url = '/'+postTarget+'/'
-            }
-            http.open("POST", url, true);
-            http.setRequestHeader("Content-type", "application/json");
-            http.onreadystatechange = function() {
-                let data;
-                if (http.readyState === 4) {
-                    data = JSON.parse(http.responseText);
-                    if (http.status == 200) {
-                        previewBody.innerHTML = data.data.body;
-                    } else {
-                        // TODO: handle
-                    }
-                }
-            };
-            http.send(JSON.stringify(params));
-        }
+		    var http = new XMLHttpRequest();
+		    var url = "/api/markdown";
+		    var params = {
+			raw_body: $writer.el.value,
+		    };
+		    var postTarget = H.get('postTarget', 'anonymous');
+		    if (postTarget != 'anonymous') {
+			params.collection_url = '/'+postTarget+'/'
+		    }
+		    http.open("POST", url, true);
+		    http.setRequestHeader("Content-type", "application/json");
+		    http.onreadystatechange = function() {
+			let data;
+			if (http.readyState === 4) {
+			    data = JSON.parse(http.responseText);
+			    if (http.status == 200) {
+				previewBody.innerHTML = data.data.body;
+			    } else {
+				// TODO: handle
+			    }
+			}
+		    };
+		    http.send(JSON.stringify(params));
+		}
 
-        try {
-		  (function() {
-			var wf=document.createElement('script');
-			wf.src = '/js/webfont.js';
-			wf.type='text/javascript';
-			wf.async='true';
-			var s=document.getElementsByTagName('script')[0];
-			s.parentNode.insertBefore(wf, s);
-		  })();
+		try {
+			(function() {
+				 var wf=document.createElement('script');
+				 wf.src = '/js/webfont.js';
+				 wf.type='text/javascript';
+				 wf.async='true';
+				 var s=document.getElementsByTagName('script')[0];
+				 s.parentNode.insertBefore(wf, s);
+			 })();
 		} catch (e) {
 		  // whatevs
 		}

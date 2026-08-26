@@ -22,6 +22,7 @@ We've got:
 + Improved localization
 + Working archive with tags
 + More configuration options
++ Improved draft editing
 
 ## Features
 
