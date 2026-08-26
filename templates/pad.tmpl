@@ -178,6 +178,9 @@
 			} else {
 				$btnPublish.el.className = '';
 			}
+			if ($writer.el.value.length === 0) {
+				$btnPublish.el.className += ' disabled';
+			}
 		};
 
 		var updatedStr = '{{.Post.Updated8601}}';
