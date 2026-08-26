@@ -127,27 +127,40 @@
 			var words = 0;
 			var val = $writer.el.value.trim();
 			if (val != '') {
-				words = $writer.el.value.trim().replace(/\s+/gi, ' ').split(' ').length;
+				words = val.replace(/\s+/gi, ' ').split(' ').length;
 			}
-			$wc.el.innerText = words + " word" + (words != 1 ? "s" : "");
+			if (words > 1) {
+				$wc.el.innerText = words + " words";
+			} else {
+				$wc.el.innerText = words + " word";
+			}
+		};
+		var wasModified = function() {
+			// compare contents only, excluding title (not part of origDoc)
+			const post = H.getTitleStrict($writer.el.value);
+			return post.content != origDoc;
 		};
 		var setButtonStates = function() {
 			if (!canPublish) {
 				$btnPublish.el.className = 'disabled';
 				return;
 			}
-			if ($writer.el.value.length === 0 || (draftDoc != 'lastDoc' && $writer.el.value == origDoc)) {
+			if ($writer.el.value.length === 0 || (!isBrandNew && !wasModified())) {
 				$btnPublish.el.className = '';
 			} else {
 				$btnPublish.el.className = 'modified';
 			}
 		};
-		{{if .Post.Id}}
-		var draftDoc = 'draft{{.Post.Id}}';
-		var origDoc = '{{.Post.Content}}';
-		{{else}}
-		var draftDoc = 'lastDoc';
-		{{end}}
+	{{if .Post.Id}}
+		// saved post
+		const draftDoc = 'draft{{.Post.Id}}';
+		const origDoc = '{{.Post.Content}}';
+	{{else}}
+		// brand new post
+		const draftDoc = 'lastDoc';
+		const origDoc = '';
+	{{end}}
+		const isBrandNew = draftDoc == 'lastDoc';
 		var updatedStr = '{{.Post.Updated8601}}';
 		var updated = null;
 		if (updatedStr != '') {
@@ -165,7 +178,8 @@
 		var doneTypingInterval = 200;
 
 		var posts;
-		{{if and (and .Post.Id (not .Post.Slug)) (not .User)}}
+	{{if and (and .Post.Id (not .Post.Slug)) (not .User)}}
+		// is blog draft and guest user
 		var token = null;
 		var curPostIdx;
 		posts = JSON.parse(H.get('posts', '[]'));
@@ -176,9 +190,9 @@
 			}
 		}
 		var canPublish = token != null;
-		{{else}}
+	{{else}}
 		var canPublish = true;
-		{{end}}
+	{{end}}
 		var publishing = false;
 		var justPublished = false;
 		var silenced = {{.Silenced}};
@@ -188,13 +202,14 @@
 				return;
 			}
 			{{if and (and .Post.Id (not .Post.Slug)) (not .User)}}
-			if (!token) {
-				alert("You don't have permission to update this post.");
-				return;
-			}
-			if ($btnPublish.el.className == 'disabled') {
-				return;
-			}
+				// is blog draft and guest user
+				if (!token) {
+					alert("You don't have permission to update this post.");
+					return;
+				}
+				if ($btnPublish.el.className == 'disabled') {
+					return;
+				}
 			{{end}}
 			$btnPublish.el.children[0].textContent = 'more_horiz';
 			publishing = true;
@@ -271,7 +286,7 @@
 						{{ end }}
 
 						justPublished = true;
-						if (draftDoc != 'lastDoc') {
+						if (! isBrandNew) {
 							H.remove(draftDoc);
 							{{if .Editing}}H.remove('draft{{.Post.Id}}font');{{end}}
 						} else {
@@ -411,7 +426,7 @@
 		}
 
 		var doneTyping = function() {
-			if (draftDoc == 'lastDoc' || $writer.el.value != origDoc) {
+			if (isBrandNew || wasModified()) {
 				H.save($writer, draftDoc);
 				if (!defaultTimeSet) {
 					var lastLocalPublishStr = localStorage.getItem(draftDoc+'-published');
@@ -424,7 +439,7 @@
 			}
 		};
 		window.addEventListener('beforeunload', function(e) {
-			if (draftDoc != 'lastDoc' && $writer.el.value == origDoc) {
+			if (!isBrandNew && !wasModified()) {
 				H.remove(draftDoc);
 				H.remove(draftDoc+'-published');
 			} else if (!justPublished) {
