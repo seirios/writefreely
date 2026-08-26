@@ -63,7 +63,15 @@ body#pad, body#pad-sub {
 				}
 			}
 			#belt {
-				a, button {
+				a {
+					color: #000;
+
+					&.modified {
+						background: radial-gradient(circle, #000 3.5px,transparent 3.5px) right top/7px 1.4em padding-box border-box;
+						background-repeat: no-repeat;
+					}
+				}
+				button {
 					color: #000;
 				}
 			}
@@ -100,7 +108,15 @@ body#pad, body#pad-sub {
 				}
 			}
 			#belt {
-				a, button {
+				a {
+					color: white;
+
+					&.modified {
+						background: radial-gradient(circle, white 3.5px,transparent 3.5px) right top/7px 1.4em padding-box border-box;
+						background-repeat: no-repeat;
+					}
+				}
+				button {
 					color: white;
 				}
 			}

@@ -77,7 +77,7 @@
 		<script src="/js/modals.js"></script>
 		<script type="text/javascript" src="/js/menu.js"></script>
 		<script>
-		function toggleTheme() {
+		function toggleTheme(newTheme) {
 			if (document.body.classList.contains('light')) {
 				setTheme('dark');
 			} else {
@@ -85,11 +85,6 @@
 			}
 			H.set('padTheme', newTheme);
 		}
-
-        H.getEl('toggle-preview').on('click', function(e) {
-            e.preventDefault();
-            togglePreview();
-        });
 
 		function setTheme(newTheme) {
 			document.body.classList.remove('light');
@@ -142,13 +137,17 @@
 				return;
 			}
 			if ($writer.el.value.length === 0 || (draftDoc != 'lastDoc' && $writer.el.value == origDoc)) {
-				$btnPublish.el.className = 'disabled';
-			} else {
 				$btnPublish.el.className = '';
+			} else {
+				$btnPublish.el.className = 'modified';
 			}
 		};
-		{{if .Post.Id}}var draftDoc = 'draft{{.Post.Id}}';
-		var origDoc = '{{.Post.Content}}';{{else}}var draftDoc = 'lastDoc';{{end}}
+		{{if .Post.Id}}
+		var draftDoc = 'draft{{.Post.Id}}';
+		var origDoc = '{{.Post.Content}}';
+		{{else}}
+		var draftDoc = 'lastDoc';
+		{{end}}
 		var updatedStr = '{{.Post.Updated8601}}';
 		var updated = null;
 		if (updatedStr != '') {
@@ -177,7 +176,9 @@
 			}
 		}
 		var canPublish = token != null;
-		{{else}}var canPublish = true;{{end}}
+		{{else}}
+		var canPublish = true;
+		{{end}}
 		var publishing = false;
 		var justPublished = false;
 		var silenced = {{.Silenced}};
@@ -303,6 +304,7 @@
 				$btnPublish.el.click();
 			}
 		});
+
 		$btnPublish.on('click', function(e) {
 			e.preventDefault();
 			if (!publishing && $writer.el.value) {
@@ -310,6 +312,7 @@
 				publish(content, selectedFont);
 			}
 		});
+
 		H.getEl('erase-edit').on('click', function(e) {
 			e.preventDefault();
 			H.remove(draftDoc);
@@ -331,7 +334,12 @@
 			if (document.body.className == 'light') {
 				newTheme = 'dark';
 			}
-			toggleTheme();
+			toggleTheme(newTheme);
+		});
+
+		H.getEl('toggle-preview').on('click', function(e) {
+		    	e.preventDefault();
+		    	togglePreview();
 		});
 
 		var targets = document.querySelectorAll('#target li.target a');
