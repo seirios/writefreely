@@ -995,7 +995,7 @@ func handleSearchRedirect(app *App, w http.ResponseWriter, r *http.Request) erro
         if app.cfg.App.EnableSearch {
             query := r.URL.Query().Get("q")
             query = strings.TrimSpace(query)
-            query = url.QueryEscape(query)
+            query = url.PathEscape(query)
             loc := fmt.Sprintf("/search:%s", query)
             return impart.HTTPError{http.StatusFound, loc}
         } else {
@@ -1013,8 +1013,8 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
 		tag = vars["lang"]
 	} else if kind == "search" {
 		tag = vars["query"]
-		if(len(tag) > 128) {
-			log.Error("Search query exceeded maximum length")
+		if len(tag) > 128 {
+			log.Error("Search query too long")
 			return ErrCollectionPageNotFound
 		}
 		if tag == "" {
