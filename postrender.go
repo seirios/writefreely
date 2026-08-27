@@ -115,7 +115,11 @@ func applyMarkdownSpecial(data []byte, baseURL string, cfg *config.Config, skipN
 		mdParser.Strikethrough |
 		mdParser.SpaceHeadings |
 		mdParser.AutoHeadingIDs |
-		mdParser.DefinitionLists
+		mdParser.DefinitionLists |
+		mdParser.Attributes |
+		mdParser.InlineAttributes |
+		mdParser.HeadingIDs |
+		mdParser.SuperSubscript
 	htmlFlags := 0 |
 		mdHTML.Smartypants |
 		mdHTML.SmartypantsDashes
