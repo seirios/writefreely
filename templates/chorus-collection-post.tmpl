@@ -81,66 +81,12 @@ body#post header {
 		{{ end }}
 	</body>
 	
-	{{if .Collection.CanShowScript}}
-		{{range .Collection.ExternalScripts}}<script type="text/javascript" src="{{.}}" async></script>{{end}}
-		{{if .Collection.Script}}<script type="text/javascript">{{.Collection.ScriptDisplay}}</script>{{end}}
-	{{end}}
+	{{template "canshowscript" .Collection}}
 	<script src="/js/localdate.js"></script>
 	<script type="text/javascript">
 
-var pinning = false;
-function unpinPost(e, postID) {
-	e.preventDefault();
-	if (pinning) {
-		return;
-	}
-	pinning = true;
-
-	var $footer = document.getElementsByTagName('footer')[0];
-	var callback = function() {
-		// Hide current page
-		var $pinnedNavLink = $footer.getElementsByTagName('nav')[0].querySelector('.pinned.selected');
-		$pinnedNavLink.style.display = 'none';
-	};
-
-	var $pinBtn = $footer.getElementsByClassName('unpin')[0];
-	$pinBtn.innerHTML = '...';
-
-	var http = new XMLHttpRequest();
-	var url = "/api/collections/{{.Collection.Alias}}/unpin";
-	var params = [ { "id": postID } ];
-	http.open("POST", url, true);
-	http.setRequestHeader("Content-type", "application/json");
-	http.onreadystatechange = function() {
-		if (http.readyState == 4) {
-			pinning = false;
-			if (http.status == 200) {
-				callback();
-				$pinBtn.style.display = 'none';
-				$pinBtn.innerHTML = 'Pin';
-			} else if (http.status == 409) {
-				$pinBtn.innerHTML = 'Unpin';
-			} else {
-				$pinBtn.innerHTML = 'Unpin';
-				alert("Failed to unpin." + (http.status>=500?" Please try again.":""));
-			}
-		}
-	}
-	http.send(JSON.stringify(params));
-};
-
-	try { // Fonts
-	  WebFontConfig = {
-		custom: { families: [ 'Lora:400,700:latin', 'Open+Sans:400,700:latin' ], urls: [ '/css/fonts.css' ] }
-	  };
-	  (function() {
-		var wf = document.createElement('script');
-		wf.src = '/js/webfont.js';
-		wf.type = 'text/javascript';
-		wf.async = 'true';
-		var s = document.getElementsByTagName('script')[0];
-		s.parentNode.insertBefore(wf, s);
-	  })();
-	} catch (e) { /* ¯\_(ツ)_/¯ */ }
+	var $pinbox = document.getElementsByTagName('footer')[0];
+	{{template "unpin_action" .}}
+	{{template "webfonts" .}}
 	</script>
 </html>{{end}}

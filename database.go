@@ -1236,7 +1236,7 @@ func (db *datastore) GetPostsCount(c *CollectionObj, includeFuture bool) error {
 		return err
 	}
 
-	c.TotalPosts = int(count)
+	c.TotalPosts = int64(count)
 	return nil
 }
 

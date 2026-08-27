@@ -72,11 +72,8 @@
 
                 {{template "footer-branding" .}}
 	</body>
-	
-	{{if .CanShowScript}}
-		{{range .ExternalScripts}}<script type="text/javascript" src="{{.}}" async></script>{{end}}
-		{{if .Collection.Script}}<script type="text/javascript">{{.ScriptDisplay}}</script>{{end}}
-	{{end}}
+
+	{{template "canshowscript" .}}
 	<script src="/js/localdate.js"></script>
 	{{if .IsOwner}}
 	<script src="/js/h.js"></script>
@@ -84,117 +81,10 @@
 	{{end}}
 	<script type="text/javascript">
 {{if .IsOwner}}
-var deleting = false;
-function delPost(e, id, owned) {
-	e.preventDefault();
-	if (deleting) {
-		return;
-	}
-
-	// TODO: UNDO!
-	if (window.confirm('Are you sure you want to delete this post?')) {
-		// AJAX
-		deletePost(id, "", function() {
-			// Remove post from list
-			var $postEl = document.getElementById('post-' + id);
-			$postEl.parentNode.removeChild($postEl);
-			// TODO: add next post from this collection at the bottom
-		});
-	}
-}
-
-var deletePost = function(postID, token, callback) {
-	deleting = true;
-
-	var $delBtn = document.getElementById('post-' + postID).getElementsByClassName('delete action')[0];
-	$delBtn.innerHTML = '...';
-
-	var http = new XMLHttpRequest();
-	var url = "/api/posts/" + postID;
-	http.open("DELETE", url, true);
-	http.onreadystatechange = function() {
-		if (http.readyState == 4) {
-			deleting = false;
-			if (http.status == 204) {
-				callback();
-			} else if (http.status == 409) {
-				$delBtn.innerHTML = 'delete';
-				alert("Post is synced to another account. Delete the post from that account instead.");
-				// TODO: show "remove" button instead of "delete" now
-				// Persist that state.
-				// Have it remove the post locally only.
-			} else {
-				$delBtn.innerHTML = 'delete';
-				alert("Failed to delete." + (http.status>=500?" Please try again.":""));
-			}
-		}
-	}
-	http.send();
-};
-
-var pinning = false;
-function pinPost(e, postID, slug, title) {
-	e.preventDefault();
-	if (pinning) {
-		return;
-	}
-	pinning = true;
-
-	var callback = function() {
-		// Visibly remove post from collection
-		var $postEl = document.getElementById('post-' + postID);
-		$postEl.parentNode.removeChild($postEl);
-		var $header = document.getElementsByTagName('header')[0];
-		var $pinnedNavs = $header.getElementsByTagName('nav');
-		// Add link to nav
-		var link = '<a class="pinned" href="{{if not .SingleUser}}/{{.Alias}}/{{end}}'+slug+'">'+title+'</a>';
-		if ($pinnedNavs.length == 0) {
-			$header.insertAdjacentHTML("beforeend", '<nav>'+link+'</nav>');
-		} else {
-			$pinnedNavs[0].insertAdjacentHTML("beforeend", link);
-		}
-	};
-
-	var $pinBtn = document.getElementById('post-' + postID).getElementsByClassName('pin action')[0];
-	$pinBtn.innerHTML = '...';
-
-	var http = new XMLHttpRequest();
-	var url = "/api/collections/{{.Alias}}/pin";
-	var params = [ { "id": postID } ];
-	http.open("POST", url, true);
-	http.setRequestHeader("Content-type", "application/json");
-	http.onreadystatechange = function() {
-		if (http.readyState == 4) {
-			pinning = false;
-			if (http.status == 200) {
-				callback();
-			} else if (http.status == 409) {
-				$pinBtn.innerHTML = 'pin';
-				alert("Post is synced to another account. Delete the post from that account instead.");
-				// TODO: show "remove" button instead of "delete" now
-				// Persist that state.
-				// Have it remove the post locally only.
-			} else {
-				$pinBtn.innerHTML = 'pin';
-				alert("Failed to pin." + (http.status>=500?" Please try again.":""));
-			}
-		}
-	}
-	http.send(JSON.stringify(params));
-};
+{{template "delete_action" .}}
+{{template "pin_action" .}}
 {{end}}
-	try { // Fonts
-	  WebFontConfig = {
-		custom: { families: [ 'Lora:400,700:latin', 'Open+Sans:400,700:latin' ], urls: [ '/css/fonts.css' ] }
-	  };
-	  (function() {
-		var wf = document.createElement('script');
-		wf.src = '/js/webfont.js';
-		wf.type = 'text/javascript';
-		wf.async = 'true';
-		var s = document.getElementsByTagName('script')[0];
-		s.parentNode.insertBefore(wf, s);
-	  })();
-	} catch (e) { /* ¯\_(ツ)_/¯ */ }
+
+	{{template "webfonts" .}}
 	</script>
 </html>{{end}}

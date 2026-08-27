@@ -194,12 +194,12 @@ func handleFetchCollectionOutbox(app *App, w http.ResponseWriter, r *http.Reques
 	p, err := strconv.Atoi(page)
 	if err != nil || p < 1 {
 		// Return outbox
-		oc := activitystreams.NewOrderedCollection(accountRoot, "outbox", res.TotalPosts)
+		oc := activitystreams.NewOrderedCollection(accountRoot, "outbox", int(res.TotalPosts))
 		return impart.RenderActivityJSON(w, oc, http.StatusOK)
 	}
 
 	// Return outbox page
-	ocp := activitystreams.NewOrderedCollectionPage(accountRoot, "outbox", res.TotalPosts, p)
+	ocp := activitystreams.NewOrderedCollectionPage(accountRoot, "outbox", int(res.TotalPosts), p)
 	ocp.OrderedItems = []interface{}{}
 
 	posts, err := app.db.GetPosts(app.cfg, c, p, false, true, false, "")

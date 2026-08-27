@@ -74,7 +74,7 @@ type (
 	}
 	CollectionObj struct {
 		Collection
-		TotalPosts int           `json:"total_posts"`
+		TotalPosts int64         `json:"total_posts"`
 		Owner      *User         `json:"owner,omitempty"`
 		Posts      *[]PublicPost `json:"posts,omitempty"`
 		Format     *CollectionFormat
@@ -1053,25 +1053,25 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
             coll.NavSuffix = fmt.Sprintf("/search:%s", tag)
         }
 
-        var ttlPosts int
+        var ttlPosts int64
         if kind == "tag" {
             taggedPostIDs, err := app.db.GetAllPostsTaggedIDs(c, tag, cr.isCollOwner)
             if err != nil {
                     return err
             }
-            ttlPosts = len(taggedPostIDs)
+            ttlPosts = int64(len(taggedPostIDs))
         } else if kind == "lang" {
             ttlLangPosts, err := app.db.GetCollLangTotalPosts(coll.ID, tag, cr.isCollOwner)
             if err != nil {
                     log.Error("Unable to GetCollLangTotalPosts: %s", err)
             }
-            ttlPosts = int(ttlLangPosts)
+            ttlPosts = int64(ttlLangPosts)
         } else if kind == "search" {
             ttlSearchPosts, err := app.db.GetSearchTotalPosts(coll.ID, tag, cr.isCollOwner)
             if err != nil {
                     log.Error("Unable to GetSearchTotalPosts: %s", err)
             }
-            ttlPosts = int(ttlSearchPosts)
+            ttlPosts = int64(ttlSearchPosts)
         }
 
 	pagePosts := coll.Format.PostsPerPage()

@@ -1,120 +1,118 @@
 {{define "collection"}}<!DOCTYPE HTML>
 <html lang="{{.MainLanguage}}" dir="{{.Direction}}">
-<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
-	<meta charset="utf-8">
+	<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+		<meta charset="utf-8">
 
-	<title>{{localstr "Archive" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}</title>
-        <meta name="title" content="Archive &mdash; {{.Collection.DisplayTitle}}">
+		<title>{{localstr "Archive" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}</title>
+		<meta name="title" content="Archive &mdash; {{.Collection.DisplayTitle}}">
 
-	<link rel="stylesheet" type="text/css" href="/css/write.css" />
-        {{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
-	<link rel="shortcut icon" href="/favicon.ico" />
-	<link rel="canonical" href="{{.CanonicalURL}}">
-        {{if gt .CurrentPage 1}}<link rel="prev" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
-        {{if lt .CurrentPage .TotalPages}}<link rel="next" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
-        {{if not .IsPrivate}}<link rel="alternate" type="application/rss+xml" title="{{.DisplayTitle}} &raquo; Feed" href="{{.CanonicalURL}}feed/" />{{end}}
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" type="text/css" href="/css/write.css" />
+		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="canonical" href="{{.CanonicalURL}}">
+		{{if gt .CurrentPage 1}}<link rel="prev" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
+		{{if lt .CurrentPage .TotalPages}}<link rel="next" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
+		{{if not .IsPrivate}}<link rel="alternate" type="application/rss+xml" title="{{.DisplayTitle}} &raquo; Feed" href="{{.CanonicalURL}}feed/" />{{end}}
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-	<meta name="generator" content="WriteFreely">
-	<meta name="description" content="{{.PlainDescription}}">
-	<meta itemprop="name" content="{{.DisplayTitle}}">
-	<meta itemprop="description" content="{{.PlainDescription}}">
+		<meta name="generator" content="WriteFreely">
+		<meta name="description" content="{{.PlainDescription}}">
+		<meta itemprop="name" content="{{.DisplayTitle}}">
+		<meta itemprop="description" content="{{.PlainDescription}}">
 
-	<meta name="twitter:card" content="summary">
-	<meta name="twitter:title" content="{{.DisplayTitle}}">
-	<meta name="twitter:image" content="{{.AvatarURL}}">
-	<meta name="twitter:description" content="{{.PlainDescription}}">
+		<meta name="twitter:card" content="summary">
+		<meta name="twitter:title" content="{{.DisplayTitle}}">
+		<meta name="twitter:image" content="{{.AvatarURL}}">
+		<meta name="twitter:description" content="{{.PlainDescription}}">
 
-	<meta property="og:title" content="{{.DisplayTitle}}" />
-	<meta property="og:site_name" content="{{.DisplayTitle}}" />
-	<meta property="og:type" content="article" />
-	<meta property="og:url" content="{{.CanonicalURL}}" />
-	<meta property="og:description" content="{{.PlainDescription}}" />
-	<meta property="og:image" content="{{.AvatarURL}}">
-    {{template "collection-meta" .}}
-    {{if .StyleSheet}}<style type="text/css">{{.StyleSheetDisplay}}</style>{{end}}
+		<meta property="og:title" content="{{.DisplayTitle}}" />
+		<meta property="og:site_name" content="{{.DisplayTitle}}" />
+		<meta property="og:type" content="article" />
+		<meta property="og:url" content="{{.CanonicalURL}}" />
+		<meta property="og:description" content="{{.PlainDescription}}" />
+		<meta property="og:image" content="{{.AvatarURL}}">
+	    {{template "collection-meta" .}}
+	    {{if .StyleSheet}}<style type="text/css">{{.StyleSheetDisplay}}</style>{{end}}
 
-</head>
-<body id="subpage">
+	</head>
+	<body id="subpage">
 
-<div id="overlay"></div>
+	<div id="overlay"></div>
 
-<header>
-	<h1 dir="{{.Direction}}" id="blog-title"><a href="{{if .IsTopLevel}}/{{else}}/{{.Collection.Alias}}/{{end}}" class="h-card p-author">{{.Collection.DisplayTitle}}</a></h1>
-	<nav>
-        {{template "pinned-custom" .}}
-        {{if .PinnedPosts}}
-		{{range .PinnedPosts}}<a class="pinned" href="{{if not $.SingleUser}}/{{$.Collection.Alias}}/{{.Slug.String}}{{else}}{{.CanonicalURL $.Host}}{{end}}">{{.DisplayTitle}}</a>{{end}}
-        {{end}}
-	</nav>
-</header>
-
-{{if .Posts -}}
-<section id="wrapper" class="archive" itemscope itemtype="http://schema.org/Blog">
-    {{- else -}}
-	<div id="wrapper" class="archive">
-        {{- end}}
-
-		<h1>{{localstr "Archive" .MainLanguage}}</h1>
-
-        {{if .Flash}}
-			<div class="alert success flash">
-				<p>{{.Flash}}</p>
-			</div>
-        {{end}}
-
-		<ul>
-            {{ $curYear := 0 }}
-            {{ range $el := .Posts }}
-                {{if ne $curYear .Created.Year}}<li class="year">{{.Created.Year}}</li>{{ $curYear = .Created.Year }}{{end}}
-				<li>
-                    {{if .HasTitleLink -}}
-                        {{.HTMLTitleArrow}}
-                    {{- else -}}
-						<a href="{{if $.SingleUser}}/{{else}}/{{$.Alias}}/{{end}}{{.Slug.String}}" itemprop="url" class="u-url">
-                            {{- if .DisplayTitle -}}
-                                {{- .DisplayTitle -}}
-                            {{- else -}}
-								(Untitled)
-                            {{end}}
-						</a>
-                    {{- end}}
-                    {{if .IsScheduled}}[Scheduled]{{end}}
-                    {{if $.Format.ShowDates -}}
-						<time class="dt-published" datetime="{{.Created8601}}" pubdate itemprop="datePublished" content="{{.Created}}">
-                            {{- if .HasTitleLink -}}
-							<a href="{{if $.SingleUser}}/{{else}}/{{$.Alias}}/{{end}}{{.Slug.String}}" itemprop="url">
-                                {{- end -}}
-                                {{.DisplayDate}}
-                                {{- if .HasTitleLink -}}
-                                </a>
-                            {{- end -}}
-						</time>
-                    {{- else -}}
-                        {{- if .HasTitleLink -}}
-							<a href="{{if $.SingleUser}}/{{else}}/{{$.Alias}}/{{end}}{{.Slug.String}}" itemprop="url">view</a>
-                        {{- end -}}
-                    {{- end}}
-				</li>
-		<li class="tags">
-		{{ range $t := .Tags }}
-			<a href="/tag:{{$t}}">&num;{{$t}}</a>
+	<header>
+		<h1 dir="{{.Direction}}" id="blog-title"><a href="{{if .IsTopLevel}}/{{else}}/{{.Collection.Alias}}/{{end}}" class="h-card p-author">{{.Collection.DisplayTitle}}</a></h1>
+		<nav>
+		{{template "pinned-custom" .}}
+		{{if .PinnedPosts}}
+			{{range .PinnedPosts}}<a class="pinned" href="{{if not $.SingleUser}}/{{$.Collection.Alias}}/{{.Slug.String}}{{else}}{{.CanonicalURL $.Host}}{{end}}">{{.DisplayTitle}}</a>{{end}}
 		{{end}}
-		</li>
-            {{end}}
-		</ul>
+		</nav>
+	</header>
 
-        {{template "paging" .}}
+	{{if .Posts -}}
+	<section id="wrapper" class="archive" itemscope itemtype="http://schema.org/Blog">
+	    {{- else -}}
+		<div id="wrapper" class="archive">
+		{{- end}}
 
-    {{if .Posts}}</section>{{else}}</div>{{end}}
+			<h1>{{localstr "Archive" .MainLanguage}}</h1>
 
-        {{template "footer-branding" .}}
+		{{if .Flash}}
+				<div class="alert success flash">
+					<p>{{.Flash}}</p>
+				</div>
+		{{end}}
 
-</body>
+			<ul>
+		    {{ $curYear := 0 }}
+		    {{ range $el := .Posts }}
+			{{if ne $curYear .Created.Year}}<li class="year">{{.Created.Year}}</li>{{ $curYear = .Created.Year }}{{end}}
+					<li>
+			    {{if .HasTitleLink -}}
+				{{.HTMLTitleArrow}}
+			    {{- else -}}
+							<a href="{{if $.SingleUser}}/{{else}}/{{$.Alias}}/{{end}}{{.Slug.String}}" itemprop="url" class="u-url">
+				    {{- if .DisplayTitle -}}
+					{{- .DisplayTitle -}}
+				    {{- else -}}
+									(Untitled)
+				    {{end}}
+							</a>
+			    {{- end}}
+			    {{if .IsScheduled}}[Scheduled]{{end}}
+			    {{if $.Format.ShowDates -}}
+							<time class="dt-published" datetime="{{.Created8601}}" pubdate itemprop="datePublished" content="{{.Created}}">
+				    {{- if .HasTitleLink -}}
+								<a href="{{if $.SingleUser}}/{{else}}/{{$.Alias}}/{{end}}{{.Slug.String}}" itemprop="url">
+					{{- end -}}
+					{{.DisplayDate}}
+					{{- if .HasTitleLink -}}
+					</a>
+				    {{- end -}}
+							</time>
+			    {{- else -}}
+				{{- if .HasTitleLink -}}
+								<a href="{{if $.SingleUser}}/{{else}}/{{$.Alias}}/{{end}}{{.Slug.String}}" itemprop="url">view</a>
+				{{- end -}}
+			    {{- end}}
+					</li>
+			<li class="tags">
+			{{ range $t := .Tags }}
+				<a href="/tag:{{$t}}">&num;{{$t}}</a>
+			{{end}}
+			</li>
+		    {{end}}
+			</ul>
 
-{{if .CanShowScript}}
-    {{range .ExternalScripts}}<script type="text/javascript" src="{{.}}" async></script>{{end}}
-    {{if .Collection.Script}}<script type="text/javascript">{{.ScriptDisplay}}</script>{{end}}
+		{{template "paging" .}}
+
+	    {{if .Posts}}</section>{{else}}</div>{{end}}
+
+		{{template "footer-branding" .}}
+
+	</body>
+
+	{{template "canshowscript" .}}
+	<script src="/js/localdate.js"></script>
+</html>
 {{end}}
-<script src="/js/localdate.js"></script>
-</html>{{end}}
