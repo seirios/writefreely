@@ -37,13 +37,15 @@ require (
 	github.com/writeas/impart v1.1.1
 	github.com/writeas/import v0.2.1
 	github.com/writeas/monday v1.3.0
-	github.com/writeas/saturday v1.7.2-0.20200427193424-392b95a03320
+	github.com/writeas/saturday v1.7.2-0.20200427193424-392b95a03320 // indirect
 	github.com/writeas/web-core v1.8.0
 	github.com/writefreely/go-gopher v0.0.0-20220429181814-40127126f83b
 	github.com/writefreely/go-nodeinfo v1.2.0
 	golang.org/x/crypto v0.54.0
 	golang.org/x/net v0.57.0
 )
+
+require github.com/gomarkdown/markdown v0.0.0-20260824154242-13c5cf49db8d
 
 require (
 	code.as/core/socks v1.0.0 // indirect
