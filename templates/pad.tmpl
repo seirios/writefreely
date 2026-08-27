@@ -319,7 +319,7 @@
 					{{if .EditCollection}}
 						window.location = '{{.EditCollection.CanonicalURL}}{{.Post.Slug}}';
 					{{else}}
-						if (isBlogDraft) {
+						if ($btnPublish.el.title == "Save") {
 							// keep editing
 							window.location.reload();
 						} else {
@@ -369,6 +369,28 @@
 			if (!publishing && $writer.el.value) {
 				var content = $writer.el.value;
 				publish(content, selectedFont);
+			}
+		});
+
+		H.getEl('pad').on('keydown', function(e) {
+			if (isBlogDraft && e.key == "Alt") {
+				$btnPublish.el.title = 'Publish';
+				if (H.get('padTheme') == 'dark') {
+					$btnPublish.el.childNodes[0].src = '/img/ic_send@2x.png';
+				} else {
+					$btnPublish.el.childNodes[0].src = '/img/ic_send_dark@2x.png';
+				}
+			}
+		});
+
+		H.getEl('pad').on('keyup', function(e) {
+			if (isBlogDraft && e.key == "Alt") {
+				$btnPublish.el.title = 'Save';
+				if (H.get('padTheme') == 'dark') {
+					$btnPublish.el.childNodes[0].src = '/img/ic_save@2x.png';
+				} else {
+					$btnPublish.el.childNodes[0].src = '/img/ic_save_dark@2x.png';
+				}
 			}
 		});
 
