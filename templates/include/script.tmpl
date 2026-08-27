@@ -6,19 +6,21 @@
 {{ end }}
 
 {{ define "webfonts" }}
+	{{if .WebFonts}}
 	try { // Fonts
-	  WebFontConfig = {
-		custom: { families: [ 'Lora:400,700:latin', 'Open+Sans:400,700:latin' ], urls: [ '/css/fonts.css' ] }
-	  };
-	  (function() {
-		var wf = document.createElement('script');
-		wf.src = '/js/webfont.js';
-		wf.type = 'text/javascript';
-		wf.async = 'true';
-		var s = document.getElementsByTagName('script')[0];
-		s.parentNode.insertBefore(wf, s);
-	  })();
+		WebFontConfig = {
+			custom: { families: [ 'Lora:400,700:latin', 'Open+Sans:400,700:latin' ], urls: [ '/css/fonts.css' ] }
+		};
+		(function() {
+			var wf = document.createElement('script');
+			wf.src = '/js/webfont.js';
+			wf.type = 'text/javascript';
+			wf.async = 'true';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(wf, s);
+		})();
 	} catch (e) {}
+	{{end}}
 {{ end }}
 
 {{ define "delete_action" }}
