@@ -945,9 +945,7 @@ func handleViewCollection(app *App, w http.ResponseWriter, r *http.Request) erro
 	displayPage.PinnedPosts, _ = app.db.GetPinnedPosts(coll.CollectionObj, isOwner)
 
 	collTmpl := "collection"
-	if app.cfg.App.Chorus {
-		collTmpl = "chorus-collection"
-	} else if ct == postArch {
+	if ct == postArch {
 		displayPage.NavSuffix = "/archive/"
 		collTmpl = "collection-archive"
 	}

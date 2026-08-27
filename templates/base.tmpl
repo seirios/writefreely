@@ -14,13 +14,7 @@
 	<body {{template "body-attrs" .}}>
 		<div id="overlay"></div>
 		<header>
-			{{ if .Chorus }}<nav id="full-nav">
-				<div class="left-side">
-					<h2><a href="/">{{.SiteName}}</a></h2>
-				</div>
-			{{ else }}
-				<h2><a href="/">{{.SiteName}}</a></h2>
-			{{ end }}
+			<h2><a href="/">{{.SiteName}}</a></h2>
 			{{if not .SingleUser}}
 			<nav id="user-nav">
 				{{if .Username}}
@@ -37,23 +31,15 @@
 				</nav>
 				{{end}}
 				<nav class="tabs">
-					{{ if and .SimpleNav (not .SingleUser) }}
-					{{if and (and .LocalTimeline .CanViewReader) .Chorus}}<a href="/"{{if eq .Path "/"}} class="selected"{{end}}>Home</a>{{end}}
-					{{ end }}
-					{{if or .Chorus (not .Username)}}<a href="/about"{{if eq .Path "/about"}} class="selected"{{end}}>About</a>{{end}}
+					{{if not .Username}}<a href="/about"{{if eq .Path "/about"}} class="selected"{{end}}>About</a>{{end}}
 					{{ if not .SingleUser }}
 						{{ if .Username }}
 					{{if not .DisableDrafts}}<a href="/me/posts/"{{if eq .Path "/me/posts/"}} class="selected"{{end}}>Drafts</a>{{end}}
 						{{ end }}
-					{{if and (and  .LocalTimeline .CanViewReader) (not .Chorus)}}<a href="/read"{{if eq .Path "/read"}} class="selected"{{end}}>Reader</a>{{end}}
+					{{if and  .LocalTimeline .CanViewReader}}<a href="/read"{{if eq .Path "/read"}} class="selected"{{end}}>Reader</a>{{end}}
 					{{if and (not .Username) (not .Private)}}<a href="/login"{{if eq .Path "/login"}} class="selected"{{end}}>Log in</a>{{else if .SimpleNav}}<a href="/me/logout">Log out</a>{{end}}
 					{{ end }}
 				</nav>
-				{{if .Chorus}}{{if .Username}}<div class="right-side" style="font-size: 0.86em;">
-							<a class="simple-btn" href="/new">New Post</a>
-						</div>{{end}}
-					</nav>
-				{{end}}
 			</nav>
 			{{end}}
 		</header>

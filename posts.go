@@ -1242,11 +1242,7 @@ func (p *PublicPost) ActivityObject(app *App) *activitystreams.Object {
 		if isSingleUser {
 			tagBaseURL = p.Collection.CanonicalURL() + "tag:"
 		} else {
-			if cfg.App.Chorus {
-				tagBaseURL = fmt.Sprintf("%s/read/t/", p.Collection.hostName)
-			} else {
-				tagBaseURL = fmt.Sprintf("%s/%s/tag:", p.Collection.hostName, p.Collection.Alias)
-			}
+			tagBaseURL = fmt.Sprintf("%s/%s/tag:", p.Collection.hostName, p.Collection.Alias)
 		}
 		for _, t := range p.Tags {
 			o.Tag = append(o.Tag, activitystreams.Tag{
@@ -1651,9 +1647,6 @@ func viewCollectionPost(app *App, w http.ResponseWriter, r *http.Request) error 
 			w.WriteHeader(http.StatusNotFound)
 		}
 		postTmpl := "collection-post"
-		if app.cfg.App.Chorus {
-			postTmpl = "chorus-collection-post"
-		}
 		if err := templates[postTmpl].ExecuteTemplate(w, "post", tp); err != nil {
 			log.Error("Error in %s template: %v", postTmpl, err)
 		}

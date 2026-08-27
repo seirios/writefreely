@@ -236,14 +236,6 @@ func TestTemplateRendering_MeAndBlogPages(t *testing.T) {
 			name: "MultiUser_ChorusOff",
 			mutate: func(cfg *config.Config) {
 				cfg.App.SingleUser = false
-				cfg.App.Chorus = false
-			},
-		},
-		{
-			name: "MultiUser_ChorusOn",
-			mutate: func(cfg *config.Config) {
-				cfg.App.SingleUser = false
-				cfg.App.Chorus = true
 			},
 		},
 	}

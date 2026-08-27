@@ -115,7 +115,6 @@ type (
 		MainLanguage       string `ini:"language"`
 
 		// Site functionality
-		Chorus        bool `ini:"chorus"`
 		DisableDrafts bool `ini:"disable_drafts"`
 
 		// Users

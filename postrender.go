@@ -135,9 +135,6 @@ func applyMarkdownSpecial(data []byte, baseURL string, cfg *config.Config, skipN
 		nb := match[1] - match[0]
 
 		tagPrefix := baseURL + "tag:"
-		if cfg.App.Chorus {
-			tagPrefix = "/read/t/"
-		}
 		// append link
 		link := &mdAST.Link{
 			Destination: append([]byte(tagPrefix), data...),
