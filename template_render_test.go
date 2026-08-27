@@ -229,13 +229,6 @@ func TestTemplateRendering_MeAndBlogPages(t *testing.T) {
 		{
 			name: "SingleUser",
 			mutate: func(cfg *config.Config) {
-				cfg.App.SingleUser = true
-			},
-		},
-		{
-			name: "MultiUser_ChorusOff",
-			mutate: func(cfg *config.Config) {
-				cfg.App.SingleUser = false
 			},
 		},
 	}
@@ -253,9 +246,6 @@ func TestTemplateRendering_MeAndBlogPages(t *testing.T) {
 			}
 
 			blogPrefix := ""
-			if !app.cfg.App.SingleUser {
-				blogPrefix = "/" + coll.Alias
-			}
 
 			type pageCase struct {
 				name       string
@@ -286,15 +276,7 @@ func TestTemplateRendering_MeAndBlogPages(t *testing.T) {
 				{name: "me: settings", path: "/me/settings", authed: true, wantStatus: http.StatusOK},
 			}
 
-			if app.cfg.App.SingleUser {
-				cases = append(cases, pageCase{name: "pad: new post", path: "/me/new", authed: true, wantStatus: http.StatusOK})
-			} else {
-				cases = append(cases, pageCase{name: "pad: new post", path: "/new", authed: true, wantStatus: http.StatusOK})
-				cases = append(cases,
-					pageCase{name: "home (anon)", path: "/", authed: false},
-					pageCase{name: "home (authed)", path: "/", authed: true},
-				)
-			}
+			cases = append(cases, pageCase{name: "pad: new post", path: "/me/new", authed: true, wantStatus: http.StatusOK})
 
 			for _, c := range cases {
 				c := c

@@ -39,10 +39,8 @@ func (wfr wfResolver) FindUser(username string, host, requestHost string, r []we
 	var err error
 	if username == host {
 		c = instanceColl
-	} else if wfr.cfg.App.SingleUser {
-		c, err = wfr.db.GetCollectionByID(1)
 	} else {
-		c, err = wfr.db.GetCollection(username)
+		c, err = wfr.db.GetCollectionByID(1)
 	}
 	if err != nil {
 		log.Error("Unable to get blog: %v", err)
@@ -60,12 +58,10 @@ func (wfr wfResolver) FindUser(username string, host, requestHost string, r []we
 			return nil, wfUserNotFoundErr
 		}
 	}
-	if wfr.cfg.App.SingleUser {
-		// Ensure handle matches user-chosen one on single-user blogs
-		if username != c.Alias {
-			log.Info("Username '%s' is not handle '%s'", username, c.Alias)
-			return nil, wfUserNotFoundErr
-		}
+	// Ensure handle matches user-chosen one on single-user blogs
+	if username != c.Alias {
+		log.Info("Username '%s' is not handle '%s'", username, c.Alias)
+		return nil, wfUserNotFoundErr
 	}
 	// Only return information if site has federation enabled.
 	// TODO: enable two levels of federation? Unlisted or Public on timelines?

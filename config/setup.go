@@ -267,49 +267,43 @@ func Configure(fname string, configSections string) (*SetupData, error) {
 		selPrompt = promptui.Select{
 			Templates: selTmpls,
 			Label:     "Site type",
-			Items:     []string{"Single user blog", "Multi-user instance"},
+			Items:     []string{"Single user blog"},
 		}
 		_, usersType, err := selPrompt.Run()
 		if err != nil {
 			return data, err
 		}
-		data.Config.App.SingleUser = usersType == "Single user blog"
 
-		if data.Config.App.SingleUser {
-			data.User = &UserCreation{}
+		data.User = &UserCreation{}
 
-			//   prompt for username
-			prompt = promptui.Prompt{
-				Templates: tmpls,
-				Label:     "Admin username",
-				Validate:  validateNonEmpty,
-			}
-			data.User.Username, err = prompt.Run()
-			if err != nil {
-				return data, err
-			}
-
-			//   prompt for password
-			prompt = promptui.Prompt{
-				Templates: tmpls,
-				Label:     "Admin password",
-				Validate:  validateNonEmpty,
-			}
-			newUserPass, err := prompt.Run()
-			if err != nil {
-				return data, err
-			}
-
-			data.User.HashedPass, err = auth.HashPass([]byte(newUserPass))
-			if err != nil {
-				return data, err
-			}
+		//   prompt for username
+		prompt = promptui.Prompt{
+			Templates: tmpls,
+			Label:     "Admin username",
+			Validate:  validateNonEmpty,
+		}
+		data.User.Username, err = prompt.Run()
+		if err != nil {
+			return data, err
 		}
 
-		siteNameLabel := "Instance name"
-		if data.Config.App.SingleUser {
-			siteNameLabel = "Blog name"
+		//   prompt for password
+		prompt = promptui.Prompt{
+			Templates: tmpls,
+			Label:     "Admin password",
+			Validate:  validateNonEmpty,
 		}
+		newUserPass, err := prompt.Run()
+		if err != nil {
+			return data, err
+		}
+
+		data.User.HashedPass, err = auth.HashPass([]byte(newUserPass))
+		if err != nil {
+			return data, err
+		}
+
+		siteNameLabel := "Blog name"
 		prompt = promptui.Prompt{
 			Templates: tmpls,
 			Label:     siteNameLabel,

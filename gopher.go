@@ -42,35 +42,10 @@ func stripHostProtocol(app *App) string {
 
 func handleGopher(app *App, w gopher.ResponseWriter, r *gopher.Request) error {
 	parts := strings.Split(r.Selector, "/")
-	if app.cfg.App.SingleUser {
-		if parts[1] != "" {
-			return handleGopherCollectionPost(app, w, r)
-		}
-		return handleGopherCollection(app, w, r)
+	if parts[1] != "" {
+		return handleGopherCollectionPost(app, w, r)
 	}
-
-	// Show all public collections (a gopher Reader view, essentially)
-	if len(parts) == 3 {
-		return handleGopherCollection(app, w, r)
-	}
-
-	w.WriteInfo(fmt.Sprintf("Welcome to %s", app.cfg.App.SiteName))
-
-	colls, err := app.db.GetPublicCollections(app.cfg.App.Host)
-	if err != nil {
-		return err
-	}
-
-	for _, c := range *colls {
-		w.WriteItem(&gopher.Item{
-			Host:        stripHostProtocol(app),
-			Port:        app.cfg.Server.GopherPort,
-			Type:        gopher.DIRECTORY,
-			Description: c.DisplayTitle(),
-			Selector:    "/" + c.Alias + "/",
-		})
-	}
-	return w.End()
+	return handleGopherCollection(app, w, r)
 }
 
 func handleGopherCollection(app *App, w gopher.ResponseWriter, r *gopher.Request) error {
@@ -80,29 +55,15 @@ func handleGopherCollection(app *App, w gopher.ResponseWriter, r *gopher.Request
 	var baseSel = "/"
 
 	parts := strings.Split(r.Selector, "/")
-	if app.cfg.App.SingleUser {
-		// sanity check
-		slug = parts[1]
-		if slug != "" {
-			return handleGopherCollectionPost(app, w, r)
-		}
+	// sanity check
+	slug = parts[1]
+	if slug != "" {
+		return handleGopherCollectionPost(app, w, r)
+	}
 
-		c, err = app.db.GetCollectionByID(1)
-		if err != nil {
-			return err
-		}
-	} else {
-		collAlias = parts[1]
-		slug = parts[2]
-		if slug != "" {
-			return handleGopherCollectionPost(app, w, r)
-		}
-
-		c, err = app.db.GetCollection(collAlias)
-		if err != nil {
-			return err
-		}
-		baseSel = "/" + c.Alias + "/"
+	c, err = app.db.GetCollectionByID(1)
+	if err != nil {
+		return err
 	}
 	c.hostName = app.cfg.App.Host
 
@@ -134,19 +95,10 @@ func handleGopherCollectionPost(app *App, w gopher.ResponseWriter, r *gopher.Req
 	var err error
 
 	parts := strings.Split(r.Selector, "/")
-	if app.cfg.App.SingleUser {
-		slug = parts[1]
-		c, err = app.db.GetCollectionByID(1)
-		if err != nil {
-			return err
-		}
-	} else {
-		collAlias = parts[1]
-		slug = parts[2]
-		c, err = app.db.GetCollection(collAlias)
-		if err != nil {
-			return err
-		}
+	slug = parts[1]
+	c, err = app.db.GetCollectionByID(1)
+	if err != nil {
+		return err
 	}
 	c.hostName = app.cfg.App.Host
 

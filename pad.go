@@ -24,15 +24,12 @@ func handleViewPad(app *App, w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	action := vars["action"]
 	slug := vars["slug"]
-	collAlias := vars["collection"]
-	if app.cfg.App.SingleUser {
-		// TODO: refactor all of this, especially for single-user blogs
-		c, err := app.db.GetCollectionByID(1)
-		if err != nil {
-			return err
-		}
-		collAlias = c.Alias
+	// TODO: refactor all of this, especially for single-user blogs
+	c, err := app.db.GetCollectionByID(1)
+	if err != nil {
+		return err
 	}
+	collAlias := c.Alias
 	appData := &struct {
 		page.StaticPage
 		Post     *RawPost
@@ -161,12 +158,8 @@ func handleViewMeta(app *App, w http.ResponseWriter, r *http.Request) error {
 			// TODO: add ErrForbiddenEditPost message to flashes
 			return impart.HTTPError{http.StatusFound, r.URL.Path[:strings.LastIndex(r.URL.Path, "/meta")]}
 		}
-		if app.cfg.App.SingleUser {
-			// TODO: optimize this query just like we do in GetCollectionForPad (?)
-			appData.EditCollection, err = app.db.GetCollectionByID(1)
-		} else {
-			appData.EditCollection, err = app.db.GetCollectionForPad(collAlias)
-		}
+		// TODO: optimize this query just like we do in GetCollectionForPad (?)
+		appData.EditCollection, err = app.db.GetCollectionByID(1)
 		if err != nil {
 			return err
 		}

@@ -29,12 +29,10 @@ func nodeInfoConfig(db *datastore, cfg *config.Config) *nodeinfo.Config {
 	if desc == "" {
 		desc = "Minimal, federated blogging platform."
 	}
-	if cfg.App.SingleUser {
-		// Fetch blog information, instead
-		coll, err := db.GetCollectionByID(1)
-		if err == nil {
-			desc = coll.Description
-		}
+	// Fetch blog information, instead
+	coll, err := db.GetCollectionByID(1)
+	if err == nil {
+		desc = coll.Description
 	}
 	return &nodeinfo.Config{
 		BaseURL: cfg.App.Host,

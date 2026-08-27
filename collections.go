@@ -264,11 +264,7 @@ func (c *Collection) RedirectingCanonicalURL(isRedir bool) string {
 		// If this is true, the human programmers screwed up. So ask for a bug report and fail, fail, fail
 		log.Error("[PROGRAMMER ERROR] WARNING: Collection.hostName is empty! Federation and many other things will fail! If you're seeing this in the wild, please report this bug and let us know what you were doing just before this: https://github.com/writefreely/writefreely/issues/new?template=bug_report.md")
 	}
-	if isSingleUser {
-		return c.hostName + "/"
-	}
-
-	return fmt.Sprintf("%s/%s/", c.hostName, c.Alias)
+	return c.hostName + "/"
 }
 
 // PrevPageURL provides a full URL for the previous page of collection posts,
@@ -701,11 +697,7 @@ func processCollectionPermissions(app *App, cr *collectionReq, u *User, w http.R
 	// Display collection if this is a collection
 	var c *Collection
 	var err error
-	if app.cfg.App.SingleUser {
-		c, err = app.db.GetCollectionByID(1)
-	} else {
-		c, err = app.db.GetCollection(cr.alias)
-	}
+	c, err = app.db.GetCollectionByID(1)
 	// TODO: verify we don't reveal the existence of a private collection with redirection
 	if err != nil {
 		if err, ok := err.(impart.HTTPError); ok {
@@ -809,7 +801,7 @@ func newDisplayCollection(c *Collection, cr *collectionReq, page int) (*DisplayC
 		CollectionObj: NewCollectionObj(c),
 		CurrentPage:   page,
 		Prefix:        cr.prefix,
-		IsTopLevel:    isSingleUser,
+		IsTopLevel:    true,
 	}
 	err := c.db.GetPostsCount(coll.CollectionObj, cr.isCollOwner)
 	if err != nil {
@@ -885,9 +877,6 @@ func handleViewCollection(app *App, w http.ResponseWriter, r *http.Request) erro
 	coll.TotalPages = int(math.Ceil(float64(coll.TotalPosts) / float64(ppp)))
 	if coll.TotalPages > 0 && page > coll.TotalPages {
 		redirURL := fmt.Sprintf("/page/%d", coll.TotalPages)
-		if !app.cfg.App.SingleUser {
-			redirURL = fmt.Sprintf("/%s%s%s", cr.prefix, coll.Alias, redirURL)
-		}
 		return impart.HTTPError{http.StatusFound, redirURL}
 	}
 
@@ -1083,9 +1072,6 @@ func handleViewSubCollection(app *App, w http.ResponseWriter, r *http.Request, k
             } else if kind == "search" {
                 redirURL =  fmt.Sprintf("/search:%s/page/%d", tag, coll.TotalPages)
             }
-            if !app.cfg.App.SingleUser {
-                redirURL = fmt.Sprintf("/%s%s%s", cr.prefix, coll.Alias, redirURL)
-            }
             return impart.HTTPError{http.StatusFound, redirURL}
 	}
 
@@ -1194,9 +1180,6 @@ func handleCollectionPostRedirect(app *App, w http.ResponseWriter, r *http.Reque
 
 	// Normalize the URL, redirecting user to consistent post URL
 	loc := fmt.Sprintf("/%s", slug)
-	if !app.cfg.App.SingleUser {
-		loc = fmt.Sprintf("/%s/%s", cr.alias, slug)
-	}
 	return impart.HTTPError{http.StatusFound, loc}
 }
 
@@ -1366,9 +1349,6 @@ func handleWebCollectionUnlock(app *App, w http.ResponseWriter, r *http.Request)
 	}
 
 	next := "/" + readReq.Next
-	if !app.cfg.App.SingleUser {
-		next = "/" + readReq.Alias + next
-	}
 	return impart.HTTPError{http.StatusFound, next}
 }
 
@@ -1401,11 +1381,7 @@ func handleLogOutCollection(app *App, w http.ResponseWriter, r *http.Request) er
 	alias := collectionAliasFromReq(r)
 	var c *Collection
 	var err error
-	if app.cfg.App.SingleUser {
-		c, err = app.db.GetCollectionByID(1)
-	} else {
-		c, err = app.db.GetCollection(alias)
-	}
+	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		return err
 	}

@@ -320,8 +320,6 @@ func handleViewPost(app *App, w http.ResponseWriter, r *http.Request) error {
 	// Display reserved page if that is requested resource
 	if t, ok := pages[r.URL.Path[1:]+".tmpl"]; ok {
 		return handleTemplatedPage(app, w, r, t)
-	} else if r.URL.Path == "/sitemap.xml" && !app.cfg.App.SingleUser {
-		return impart.HTTPError{Status: http.StatusNotFound, Message: "Page not found."}
 	} else if (strings.Contains(r.URL.Path, ".") && !isRaw && !isMarkdown) || r.URL.Path == "/robots.txt" || r.URL.Path == "/manifest.json" {
 		// Serve static file
 		app.shttp.ServeHTTP(w, r)
@@ -802,15 +800,10 @@ func existingPost(app *App, w http.ResponseWriter, r *http.Request) error {
 	collectionAlias := vars["alias"]
 	redirect := "/" + postID + "/meta"
 	if collectionAlias != "" {
-		collPre := "/" + collectionAlias
-		if app.cfg.App.SingleUser {
-			collPre = ""
-		}
+		collPre := ""
 		redirect = collPre + "/" + pRes.Slug.String + "/edit/meta"
 	} else {
-		if app.cfg.App.SingleUser {
-			redirect = "/d" + redirect
-		}
+		redirect = "/d" + redirect
 	}
 	w.Header().Set("Location", redirect)
 	w.WriteHeader(http.StatusFound)
@@ -1239,11 +1232,7 @@ func (p *PublicPost) ActivityObject(app *App) *activitystreams.Object {
 		o.Tag = []activitystreams.Tag{}
 	} else {
 		var tagBaseURL string
-		if isSingleUser {
-			tagBaseURL = p.Collection.CanonicalURL() + "tag:"
-		} else {
-			tagBaseURL = fmt.Sprintf("%s/%s/tag:", p.Collection.hostName, p.Collection.Alias)
-		}
+		tagBaseURL = p.Collection.CanonicalURL() + "tag:"
 		for _, t := range p.Tags {
 			o.Tag = append(o.Tag, activitystreams.Tag{
 				Type: activitystreams.TagHashtag,
@@ -1404,11 +1393,7 @@ func getRawCollectionPost(app *App, slug, collAlias string) *RawPost {
 	var views int64
 	var err error
 
-	if app.cfg.App.SingleUser {
-		err = app.db.QueryRow("SELECT id, title, content, text_appearance, language, rtl, view_count, created, updated, owner_id FROM posts WHERE slug = ? AND collection_id = 1", slug).Scan(&id, &title, &content, &font, &lang, &isRTL, &views, &created, &updated, &ownerID)
-	} else {
-		err = app.db.QueryRow("SELECT id, title, content, text_appearance, language, rtl, view_count, created, updated, owner_id FROM posts WHERE slug = ? AND collection_id = (SELECT id FROM collections WHERE alias = ?)", slug, collAlias).Scan(&id, &title, &content, &font, &lang, &isRTL, &views, &created, &updated, &ownerID)
-	}
+	err = app.db.QueryRow("SELECT id, title, content, text_appearance, language, rtl, view_count, created, updated, owner_id FROM posts WHERE slug = ? AND collection_id = 1", slug).Scan(&id, &title, &content, &font, &lang, &isRTL, &views, &created, &updated, &ownerID)
 	switch {
 	case err == sql.ErrNoRows:
 		return &RawPost{Content: "", Found: false, Gone: false}
@@ -1472,19 +1457,12 @@ func viewCollectionPost(app *App, w http.ResponseWriter, r *http.Request) error 
 	// Normalize the URL, redirecting user to consistent post URL
 	if slug != strings.ToLower(slug) {
 		loc := fmt.Sprintf("/%s", strings.ToLower(slug))
-		if !app.cfg.App.SingleUser {
-			loc = "/" + cr.alias + loc
-		}
 		return impart.HTTPError{http.StatusMovedPermanently, loc}
 	}
 
 	// Display collection if this is a collection
 	var c *Collection
-	if app.cfg.App.SingleUser {
-		c, err = app.db.GetCollectionByID(1)
-	} else {
-		c, err = app.db.GetCollection(cr.alias)
-	}
+	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		if err, ok := err.(impart.HTTPError); ok {
 			if err.Status == http.StatusNotFound {
@@ -1568,7 +1546,7 @@ func viewCollectionPost(app *App, w http.ResponseWriter, r *http.Request) error 
 	// Check if the authenticated user is the post owner
 	p.IsOwner = u != nil && u.ID == p.OwnerID.Int64
 	p.Collection = coll
-	p.IsTopLevel = app.cfg.App.SingleUser
+	p.IsTopLevel = true
 
 	// Only allow a post owner or admin to view a post for silenced collections
 	if silenced && !p.IsOwner && (u == nil || !u.IsAdmin()) {

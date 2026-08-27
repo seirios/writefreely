@@ -227,11 +227,7 @@ func login(app *App, w http.ResponseWriter, r *http.Request) error {
 
 	redirectTo := r.FormValue("to")
 	if redirectTo == "" {
-		if app.cfg.App.SingleUser {
-			redirectTo = "/me/new"
-		} else {
-			redirectTo = "/"
-		}
+		redirectTo = "/me/new"
 	}
 
 	var u *User
@@ -902,7 +898,7 @@ func handleViewSubscribers(app *App, u *User, w http.ResponseWriter, r *http.Req
 		Collection: CollectionNav{
 			Collection: c,
 			Path:       r.URL.Path,
-			SingleUser: app.cfg.App.SingleUser,
+			SingleUser: true,
 		},
 		Silenced:          u.IsSilenced(),
 		Filter:            filter,

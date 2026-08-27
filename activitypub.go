@@ -125,10 +125,8 @@ func handleFetchCollectionActivities(app *App, w http.ResponseWriter, r *http.Re
 	var err error
 	if alias == r.Host {
 		c = instanceColl
-	} else if app.cfg.App.SingleUser {
-		c, err = app.db.GetCollectionByID(1)
 	} else {
-		c, err = app.db.GetCollection(alias)
+		c, err = app.db.GetCollectionByID(1)
 	}
 	if err != nil {
 		return err
@@ -162,11 +160,7 @@ func handleFetchCollectionOutbox(app *App, w http.ResponseWriter, r *http.Reques
 	// Get base Collection data
 	var c *Collection
 	var err error
-	if app.cfg.App.SingleUser {
-		c, err = app.db.GetCollectionByID(1)
-	} else {
-		c, err = app.db.GetCollection(alias)
-	}
+	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		return err
 	}
@@ -180,10 +174,8 @@ func handleFetchCollectionOutbox(app *App, w http.ResponseWriter, r *http.Reques
 	}
 	c.hostName = app.cfg.App.Host
 
-	if app.cfg.App.SingleUser {
-		if alias != c.Alias {
-			return ErrCollectionNotFound
-		}
+	if alias != c.Alias {
+		return ErrCollectionNotFound
 	}
 
 	res := &CollectionObj{Collection: *c}
@@ -218,18 +210,11 @@ func handleFetchCollectionOutbox(app *App, w http.ResponseWriter, r *http.Reques
 func handleFetchCollectionFollowers(app *App, w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Server", serverSoftware)
 
-	vars := mux.Vars(r)
-	alias := vars["alias"]
-
 	// TODO: enforce visibility
 	// Get base Collection data
 	var c *Collection
 	var err error
-	if app.cfg.App.SingleUser {
-		c, err = app.db.GetCollectionByID(1)
-	} else {
-		c, err = app.db.GetCollection(alias)
-	}
+	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		return err
 	}
@@ -273,18 +258,11 @@ func handleFetchCollectionFollowers(app *App, w http.ResponseWriter, r *http.Req
 func handleFetchCollectionFollowing(app *App, w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Server", serverSoftware)
 
-	vars := mux.Vars(r)
-	alias := vars["alias"]
-
 	// TODO: enforce visibility
 	// Get base Collection data
 	var c *Collection
 	var err error
-	if app.cfg.App.SingleUser {
-		c, err = app.db.GetCollectionByID(1)
-	} else {
-		c, err = app.db.GetCollection(alias)
-	}
+	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		return err
 	}
@@ -318,15 +296,9 @@ func handleFetchCollectionFollowing(app *App, w http.ResponseWriter, r *http.Req
 func handleFetchCollectionInbox(app *App, w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Server", serverSoftware)
 
-	vars := mux.Vars(r)
-	alias := vars["alias"]
 	var c *Collection
 	var err error
-	if app.cfg.App.SingleUser {
-		c, err = app.db.GetCollectionByID(1)
-	} else {
-		c, err = app.db.GetCollection(alias)
-	}
+	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		// TODO: return Reject?
 		return err

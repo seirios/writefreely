@@ -22,15 +22,14 @@
 		
 		<header id="tools">
 			<div id="clip">
-				{{if not .SingleUser}}<h1><a href="/me/c/" title="View blogs">{{.SiteName}}</a></h1>{{end}}
-				<nav id="target" {{if .SingleUser}}style="margin-left:0"{{end}}><ul>
+				<nav id="target" style="margin-left:0"><ul>
 						<li>{{if .Blogs}}<a href="{{$c := index .Blogs 0}}{{$c.CanonicalURL}}">My Posts</a>{{else}}<a>Draft</a>{{end}}</li>
 				</ul></nav>
 				<span id="wc" class="hidden if-room room-4">0 words</span>
 			</div>
 			<noscript style="margin-left: 2em;"><strong>NOTE</strong>: for now, you'll need JavaScript enabled to post.</noscript>
 			<div id="belt">
-				{{if .Editing}}<div class="tool hidden if-room"><a href="{{if .EditCollection}}{{.EditCollection.CanonicalURL}}{{.Post.Slug}}/edit/meta{{else}}/{{if .SingleUser}}d/{{end}}{{.Post.Id}}/meta{{end}}" title="Edit post metadata" id="edit-meta"><img class="ic-24dp" src="/img/ic_info_dark@2x.png" /></a></div>{{end}}
+				{{if .Editing}}<div class="tool hidden if-room"><a href="{{if .EditCollection}}{{.EditCollection.CanonicalURL}}{{.Post.Slug}}/edit/meta{{else}}/d/{{.Post.Id}}/meta{{end}}" title="Edit post metadata" id="edit-meta"><img class="ic-24dp" src="/img/ic_info_dark@2x.png" /></a></div>{{end}}
 				<div class="tool"><button title="Publish your writing" id="publish" style="font-weight: bold">Post</button></div>
 			</div>
 		</header>
@@ -144,13 +143,13 @@
 					if (http.status == 200 || http.status == 201) {
 						data = JSON.parse(http.responseText);
 						id = data.data.id;
-						nextURL = '{{if .SingleUser}}/d{{end}}/'+id;
+						nextURL = '/d/'+id;
 						localStorage.setItem('draft'+id+'-published', new Date().toISOString());
 
 						{{ if not .Post.Id }}
 							// Post created
 							if (postTarget != 'anonymous') {
-							  nextURL = {{if not .SingleUser}}'/'+postTarget+{{end}}'/'+data.data.slug;
+							  nextURL = '/'+data.data.slug;
 							}
 							editToken = data.data.token;
 

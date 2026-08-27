@@ -41,19 +41,9 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 
 	// Set up routes
 	hostSubroute := apper.App().cfg.App.Host[strings.Index(apper.App().cfg.App.Host, "://")+3:]
-	if apper.App().cfg.App.SingleUser {
-		hostSubroute = "{domain}"
-	} else {
-		if strings.HasPrefix(hostSubroute, "localhost") {
-			hostSubroute = "localhost"
-		}
-	}
+	hostSubroute = "{domain}"
 
-	if apper.App().cfg.App.SingleUser {
-		log.Info("Adding %s routes (single user)...", hostSubroute)
-	} else {
-		log.Info("Adding %s routes (multi-user)...", hostSubroute)
-	}
+	log.Info("Adding %s routes (single user)...", hostSubroute)
 
 	// Primary app routes
 	write := r.PathPrefix("/").Subrouter()
@@ -173,26 +163,14 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	write.HandleFunc("/read", handler.Web(viewLocalTimeline, UserLevelReader))
 	RouteRead(handler, UserLevelReader, write.PathPrefix("/read").Subrouter())
 
-	draftEditPrefix := ""
-	if apper.App().cfg.App.SingleUser {
-		draftEditPrefix = "/d"
-		write.HandleFunc("/me/new", handler.Web(handleViewPad, UserLevelUser)).Methods("GET")
-	} else {
-		write.HandleFunc("/new", handler.Web(handleViewPad, UserLevelUser)).Methods("GET")
-	}
+	draftEditPrefix := "/d"
+	write.HandleFunc("/me/new", handler.Web(handleViewPad, UserLevelUser)).Methods("GET")
 
 	// All the existing stuff
 	write.HandleFunc(draftEditPrefix+"/{action}/edit", handler.Web(handleViewPad, UserLevelUser)).Methods("GET")
 	write.HandleFunc(draftEditPrefix+"/{action}/meta", handler.Web(handleViewMeta, UserLevelUser)).Methods("GET")
 	// Collections
-	if apper.App().cfg.App.SingleUser {
-		RouteCollections(handler, write.PathPrefix("/").Subrouter())
-	} else {
-		write.HandleFunc("/{prefix:[@~$!\\-+]}{collection}", handler.Web(handleViewCollection, UserLevelReader))
-		write.HandleFunc("/{collection}/", handler.Web(handleViewCollection, UserLevelReader))
-		RouteCollections(handler, write.PathPrefix("/{prefix:[@~$!\\-+]?}{collection}").Subrouter())
-		// Posts
-	}
+	RouteCollections(handler, write.PathPrefix("/").Subrouter())
 	write.HandleFunc(draftEditPrefix+"/{post}", handler.Web(handleViewPost, UserLevelOptional))
 	write.HandleFunc("/", handler.Web(handleViewHome, UserLevelOptional))
 

@@ -48,10 +48,6 @@ var (
 
 func (p *Post) formatContent(cfg *config.Config, c *Collection, isOwner bool, isPostPage bool) {
 	baseURL := c.CanonicalURL()
-	// TODO: redundant
-	if !isSingleUser {
-		baseURL = "/" + c.Alias + "/"
-	}
 
 	p.HTMLTitle = template.HTML(applyBasicMarkdown([]byte(p.Title.String)))
 	p.HTMLContent = template.HTML(applyMarkdown([]byte(p.Content), baseURL, cfg))
@@ -84,7 +80,7 @@ func (p *PublicPost) augmentContent() {
 }
 
 func applyMarkdown(data []byte, baseURL string, cfg *config.Config) string {
-	return applyMarkdownSpecial(data, baseURL, cfg, cfg.App.SingleUser)
+	return applyMarkdownSpecial(data, baseURL, cfg)
 }
 
 func disableYoutubeAutoplay(outHTML string) string {
@@ -106,7 +102,7 @@ func disableYoutubeAutoplay(outHTML string) string {
 	return outHTML
 }
 
-func applyMarkdownSpecial(data []byte, baseURL string, cfg *config.Config, skipNoFollow bool) string {
+func applyMarkdownSpecial(data []byte, baseURL string, cfg *config.Config) string {
 
 	mdExtensions := 0 |
 		mdParser.Tables |
@@ -186,7 +182,7 @@ func applyMarkdownSpecial(data []byte, baseURL string, cfg *config.Config, skipN
 
 	// Strip out bad HTML
 	policy := getSanitizationPolicy()
-	policy.RequireNoFollowOnLinks(!skipNoFollow)
+	policy.RequireNoFollowOnLinks(false)
 	outHTML := string(policy.SanitizeBytes(md))
 	// Strip newlines on certain block elements that render with them
 	outHTML = blockReg.ReplaceAllString(outHTML, "<$1>")

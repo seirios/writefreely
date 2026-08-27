@@ -61,9 +61,6 @@ var (
 
 	// Software version can be set from git env using -ldflags
 	softwareVer = "0.17.2"
-
-	// DEPRECATED VARS
-	isSingleUser bool
 )
 
 // App holds data and configuration for an individual WriteFreely instance.
@@ -225,32 +222,8 @@ func (app *App) ReqLog(r *http.Request, status int, timeSince time.Duration) str
 // handleViewHome shows page at root path. It checks the configuration and
 // authentication state to show the correct page.
 func handleViewHome(app *App, w http.ResponseWriter, r *http.Request) error {
-	if app.cfg.App.SingleUser {
-		// Render blog index
-		return handleViewCollection(app, w, r)
-	}
-
-	// Multi-user instance
-	forceLanding := r.FormValue("landing") == "1"
-	if !forceLanding {
-		// Show correct page based on user auth status and configured landing path
-		u := getUserSession(app, r)
-
-		if u != nil {
-			// User is logged in, so show the Pad
-			return handleViewPad(app, w, r)
-		}
-
-		if app.cfg.App.Private {
-			return viewLogin(app, w, r)
-		}
-
-		if land := app.cfg.App.LandingPath(); land != "/" {
-			return impart.HTTPError{http.StatusFound, land}
-		}
-	}
-
-	return handleViewLanding(app, w, r)
+	// Render blog index
+	return handleViewCollection(app, w, r)
 }
 
 func handleViewLanding(app *App, w http.ResponseWriter, r *http.Request) error {
@@ -436,7 +409,6 @@ func Initialize(apper Apper, debug bool) (*App, error) {
 func Serve(app *App, r *mux.Router) {
 	log.Info("Going to serve...")
 
-	isSingleUser = app.cfg.App.SingleUser
 	app.cfg.Server.Dev = debugging
 
 	// Handle shutdown

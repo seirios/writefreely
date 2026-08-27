@@ -27,11 +27,7 @@ func handleViewFeed(app *App, w http.ResponseWriter, req *http.Request) error {
 	// Display collection if this is a collection
 	var c *Collection
 	var err error
-	if app.cfg.App.SingleUser {
-		c, err = app.db.GetCollectionByID(1)
-	} else {
-		c, err = app.db.GetCollection(alias)
-	}
+	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		return nil
 	}

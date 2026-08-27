@@ -118,7 +118,6 @@ type (
 		DisableDrafts bool `ini:"disable_drafts"`
 
 		// Users
-		SingleUser       bool `ini:"single_user"`
 		MinUsernameLen   int  `ini:"min_username_len"`
 
 		// Options for public instances
@@ -165,7 +164,6 @@ func New() *Config {
 			Host:               "http://localhost:8080",
 			Theme:              "write",
 			WebFonts:           true,
-			SingleUser:         true,
 			MinUsernameLen:     8,
 			Federation:         true,
 			PublicStats:        true,

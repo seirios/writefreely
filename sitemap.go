@@ -50,11 +50,7 @@ func handleViewSitemap(app *App, w http.ResponseWriter, r *http.Request) error {
 	var c *Collection
 	var err error
 	pre := "/"
-	if app.cfg.App.SingleUser {
-		c, err = app.db.GetCollectionByID(1)
-	} else {
-		c, err = app.db.GetCollection(alias)
-	}
+	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		return err
 	}
