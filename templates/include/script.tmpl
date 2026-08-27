@@ -6,7 +6,6 @@
 {{ end }}
 
 {{ define "webfonts" }}
-	{{if .WebFonts}}
 	try { // Fonts
 		WebFontConfig = {
 			custom: { families: [ 'Lora:400,700:latin', 'Open+Sans:400,700:latin' ], urls: [ '/css/fonts.css' ] }
@@ -20,7 +19,6 @@
 			s.parentNode.insertBefore(wf, s);
 		})();
 	} catch (e) {}
-	{{end}}
 {{ end }}
 
 {{ define "delete_action" }}

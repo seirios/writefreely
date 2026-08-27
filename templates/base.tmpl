@@ -53,7 +53,9 @@
 		{{if not .JSDisabled}}
 		<script type="text/javascript" src="/js/menu.js"></script>
 		<script type="text/javascript">
-		{{template "webfonts" .}}
+		{{if .WebFonts}}
+			{{template "webfonts" .}}
+		{{end}}
 		</script>
 		{{else}}
 			{{if .WebFonts}}<link href="/css/fonts.css" rel="stylesheet" type="text/css" />{{end}}
