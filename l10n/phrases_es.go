@@ -15,6 +15,7 @@ var phrasesES = map[string]string{
 	"Publish to...":                  "Publicar en...",
 	"Publish":                        "Publicar",
 	"Read more...":                   "Leer más...",
+	"Search results":                 "Resultados de búsqueda",
 	"Subscribe":                      "Suscribirse",
 	"This blog requires a password.": "Este blog requiere una contraseña.",
 	"This page is missing":           "Entrada inexistente",

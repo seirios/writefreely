@@ -24,6 +24,7 @@ var phrases = map[string]string{
 	"Publish to...":                  "Publish to...",
 	"Publish":                        "Publish",
 	"Read more...":                   "Read more...",
+	"Search results":                 "Search results",
 	"Subscribe":                      "Subscribe",
 	"This blog requires a password.": "This blog requires a password.",
 	"This page is missing":           "This page is missing",
