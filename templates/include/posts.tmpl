@@ -72,11 +72,11 @@
     {{if gt .TotalPages 1}}
     <nav id="paging" class="content-container clearfix">
         {{if or (and .Format.Ascending (le .CurrentPage .TotalPages)) (isRTL .Direction)}}
-            {{if gt .CurrentPage 1}}<a href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">&#8672; {{if and .Format.Ascending (le .CurrentPage .TotalPages)}}{{localstr "Previous" .MainLanguage}}{{else}}{{localstr "Newer" .MainLanguage}}{{end}}</a>{{end}}
-            {{if lt .CurrentPage .TotalPages}}<a style="float:right;" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{if and .Format.Ascending (lt .CurrentPage .TotalPages)}}{{localstr "Next" .MainLanguage}}{{else}}{{localstr "Older" .MainLanguage}}{{end}} &#8674;</a>{{end}}
+            {{if gt .CurrentPage 1}}<a id="prev-page" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">&#8672; {{if and .Format.Ascending (le .CurrentPage .TotalPages)}}{{localstr "Previous" .MainLanguage}}{{else}}{{localstr "Newer" .MainLanguage}}{{end}}</a>{{end}}
+            {{if lt .CurrentPage .TotalPages}}<a id="next-page" style="float:right;" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{if and .Format.Ascending (lt .CurrentPage .TotalPages)}}{{localstr "Next" .MainLanguage}}{{else}}{{localstr "Older" .MainLanguage}}{{end}} &#8674;</a>{{end}}
         {{else}}
-            {{if lt .CurrentPage .TotalPages}}<a href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">&#8672; {{localstr "Older" .MainLanguage}}</a>{{end}}
-            {{if gt .CurrentPage 1}}<a style="float:right;" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{localstr "Newer" .MainLanguage}} &#8674;</a>{{end}}
+            {{if lt .CurrentPage .TotalPages}}<a id="next-page" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">&#8672; {{localstr "Older" .MainLanguage}}</a>{{end}}
+            {{if gt .CurrentPage 1}}<a id="prev-page" style="float:right;" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{localstr "Newer" .MainLanguage}} &#8674;</a>{{end}}
         {{end}}
     </nav>
     {{end}}
