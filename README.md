@@ -23,6 +23,7 @@ We've got:
 + Working archive with tags
 + More configuration options
 + Improved draft editing
++ Markdown parsing with [gomarkdown](https://github.com/gomarkdown/markdown)
 
 ## Features
 

@@ -111,7 +111,6 @@ func applyMarkdownSpecial(data []byte, baseURL string, cfg *config.Config, skipN
 	mdExtensions := 0 |
 		mdParser.Tables |
 		mdParser.FencedCode |
-		mdParser.Autolink |
 		mdParser.Strikethrough |
 		mdParser.SpaceHeadings |
 		mdParser.AutoHeadingIDs |
