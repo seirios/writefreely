@@ -66,7 +66,7 @@
 			<ul>
 		    {{ $curYear := 0 }}
 		    {{ range $el := .Posts }}
-			{{if ne $curYear .Created.Year}}<li class="year">{{.Created.Year}}</li>{{ $curYear = .Created.Year }}{{end}}
+			{{if ne $curYear .Created.Year}}<li class="year"><h2>{{.Created.Year}}</h2></li>{{ $curYear = .Created.Year }}{{end}}
 					<li>
 			    {{if .HasTitleLink -}}
 				{{.HTMLTitleArrow}}
