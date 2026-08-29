@@ -281,6 +281,7 @@ func friendlyPostTitle(content, friendlyId string) string {
 // Strip HTML tags with bluemonday's StrictPolicy, then unescape the HTML
 // entities added in by sanitizing the content.
 func stripHTMLWithoutEscaping(content string) string {
+	content = strings.Replace(content, " ", "&nbsp;", -1)
 	return html.UnescapeString(bluemonday.StrictPolicy().Sanitize(content))
 }
 
@@ -301,10 +302,6 @@ func getSanitizationPolicy() *bluemonday.Policy {
 	policy.AllowAttrs("type", "name", "value", "placeholder").OnElements("input")
 	policy.AllowURLSchemes("http", "https", "mailto", "xmpp", "gopher", "gophers", "gemini", "spartan")
 	return policy
-}
-
-func sanitizePost(content string) string {
-	return strings.Replace(content, "<", "&lt;", -1)
 }
 
 // postDescription generates a description based on the given post content,
