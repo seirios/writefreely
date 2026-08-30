@@ -299,8 +299,7 @@
 		}
 		params.token = token;
 		{{ else }}
-		var lang = navigator.languages ? navigator.languages[0] : (navigator.language || navigator.userLanguage);
-		lang = lang.substring(0, 2);
+		var lang = {{.MainLanguage}};
 		params.lang = lang;
 
 		var url = "/api/posts";
