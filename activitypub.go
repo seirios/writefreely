@@ -119,7 +119,6 @@ func handleFetchCollectionActivities(app *App, w http.ResponseWriter, r *http.Re
 		alias = filepath.Base(r.RequestURI)
 	}
 
-	// TODO: enforce visibility
 	// Get base Collection data
 	var c *Collection
 	var err error
@@ -134,6 +133,9 @@ func handleFetchCollectionActivities(app *App, w http.ResponseWriter, r *http.Re
 	c.hostName = app.cfg.App.Host
 
 	if !c.IsInstanceColl() {
+		if c.IsPrivate() || c.IsProtected() {
+			return ErrCollectionNotFound
+		}
 		silenced, err := app.db.IsUserSilenced(c.OwnerID)
 		if err != nil {
 			log.Error("fetch collection activities: %v", err)
@@ -156,13 +158,15 @@ func handleFetchCollectionOutbox(app *App, w http.ResponseWriter, r *http.Reques
 	vars := mux.Vars(r)
 	alias := vars["alias"]
 
-	// TODO: enforce visibility
 	// Get base Collection data
 	var c *Collection
 	var err error
 	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		return err
+	}
+	if c.IsPrivate() || c.IsProtected() {
+		return ErrCollectionNotFound
 	}
 	silenced, err := app.db.IsUserSilenced(c.OwnerID)
 	if err != nil {
@@ -210,13 +214,18 @@ func handleFetchCollectionOutbox(app *App, w http.ResponseWriter, r *http.Reques
 func handleFetchCollectionFollowers(app *App, w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Server", serverSoftware)
 
-	// TODO: enforce visibility
+	vars := mux.Vars(r)
+	alias := vars["alias"]
+
 	// Get base Collection data
 	var c *Collection
 	var err error
 	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		return err
+	}
+	if c.IsPrivate() || c.IsProtected() {
+		return ErrCollectionNotFound
 	}
 	silenced, err := app.db.IsUserSilenced(c.OwnerID)
 	if err != nil {
@@ -258,13 +267,18 @@ func handleFetchCollectionFollowers(app *App, w http.ResponseWriter, r *http.Req
 func handleFetchCollectionFollowing(app *App, w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Server", serverSoftware)
 
-	// TODO: enforce visibility
+	vars := mux.Vars(r)
+	alias := vars["alias"]
+
 	// Get base Collection data
 	var c *Collection
 	var err error
 	c, err = app.db.GetCollectionByID(1)
 	if err != nil {
 		return err
+	}
+	if c.IsPrivate() || c.IsProtected() {
+		return ErrCollectionNotFound
 	}
 	silenced, err := app.db.IsUserSilenced(c.OwnerID)
 	if err != nil {

@@ -12,6 +12,7 @@ package writefreely
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -68,18 +69,15 @@ func initTemplate(parentDir, name string) {
 		filepath.Join(parentDir, templatesDir, name+".tmpl"),
 		filepath.Join(parentDir, templatesDir, "include", "script.tmpl"),
 		filepath.Join(parentDir, templatesDir, "include", "footer.tmpl"),
-		filepath.Join(parentDir, templatesDir, "include", "pinned-custom.tmpl"),
 		filepath.Join(parentDir, templatesDir, "base.tmpl"),
 		filepath.Join(parentDir, templatesDir, "user", "include", "silenced.tmpl"),
 	}
-	if name == "collection" || name == "collection-tags" || name == "collection-query" || name == "collection-archive" || name == "chorus-collection" || name == "read" {
+	if name == "collection" || name == "collection-tags" || name == "collection-query" || name == "collection-archive" || name == "read" {
 		// These pages list out collection posts, so we also parse templatesDir + "include/posts.tmpl"
 		files = append(files, filepath.Join(parentDir, templatesDir, "include", "posts.tmpl"))
 	}
-	if name == "chorus-collection" || name == "chorus-collection-post" {
-		files = append(files, filepath.Join(parentDir, templatesDir, "user", "include", "header.tmpl"))
-	}
-	if name == "collection" || name == "collection-tags" || name == "collection-query" || name == "collection-archive" || name == "collection-post" || name == "post" || name == "chorus-collection" || name == "chorus-collection-post" {
+	if name == "collection" || name == "collection-tags" || name == "collection-query" || name == "collection-archive" || name == "collection-post" || name == "post" {
+		// These pages render posts (summaries or full), so we also parse templatesDir + "include/post-render.tmpl"
 		files = append(files, filepath.Join(parentDir, templatesDir, "include", "post-render.tmpl"))
 	}
 	templates[name] = template.Must(template.New("").Funcs(funcMap).ParseFiles(files...))
@@ -118,12 +116,25 @@ func initUserPage(parentDir, path, key string) {
 	))
 }
 
+// missingDirError returns a helpful error when required templates/pages directory doesn't exist.
+func missingDirError(name, dir string, err error) error {
+	if !os.IsNotExist(err) {
+		return err
+	}
+	abs, absErr := filepath.Abs(dir)
+	if absErr != nil {
+		abs = dir
+	}
+	return fmt.Errorf("unable to find %s directory, expected at %q", name, abs)
+}
+
 // InitTemplates loads all template files from the configured parent dir.
 func InitTemplates(cfg *config.Config) error {
 	log.Info("Loading templates...")
-	tmplFiles, err := os.ReadDir(filepath.Join(cfg.Server.TemplatesParentDir, templatesDir))
+	templatesPath := filepath.Join(cfg.Server.TemplatesParentDir, templatesDir)
+	tmplFiles, err := os.ReadDir(templatesPath)
 	if err != nil {
-		return err
+		return missingDirError(templatesDir, templatesPath, err)
 	}
 
 	for _, f := range tmplFiles {
@@ -136,8 +147,12 @@ func InitTemplates(cfg *config.Config) error {
 
 	log.Info("Loading pages...")
 	// Initialize all static pages that use the base template
-	err = filepath.Walk(filepath.Join(cfg.Server.PagesParentDir, pagesDir), func(path string, i os.FileInfo, err error) error {
+	pagesPath := filepath.Join(cfg.Server.PagesParentDir, pagesDir)
+	err = filepath.Walk(pagesPath, func(path string, i os.FileInfo, err error) error {
 		if err != nil {
+			if path == pagesPath {
+				return missingDirError(pagesDir, pagesPath, err)
+			}
 			return err
 		}
 		if !i.IsDir() && !strings.HasPrefix(i.Name(), ".") {
@@ -153,8 +168,12 @@ func InitTemplates(cfg *config.Config) error {
 
 	log.Info("Loading user pages...")
 	// Initialize all user pages that use base templates
-	err = filepath.Walk(filepath.Join(cfg.Server.TemplatesParentDir, templatesDir, "user"), func(path string, f os.FileInfo, err error) error {
+	userPath := filepath.Join(cfg.Server.TemplatesParentDir, templatesDir, "user")
+	err = filepath.Walk(userPath, func(path string, f os.FileInfo, err error) error {
 		if err != nil {
+			if path == userPath {
+				return missingDirError(filepath.Join(templatesDir, "user"), userPath, err)
+			}
 			return err
 		}
 		if !f.IsDir() && !strings.HasPrefix(f.Name(), ".") {

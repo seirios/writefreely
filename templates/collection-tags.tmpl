@@ -7,6 +7,7 @@
 		<meta name="title" content="{{.Tag}} &mdash; {{.Collection.DisplayTitle}}">
 		
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
+		<link rel="stylesheet" type="text/css" href="/css/toc.css" />
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<link rel="shortcut icon" href="/favicon.ico" />
 		<link rel="canonical" href="{{.CanonicalURL}}tag:{{.Tag | tolower}}" />
@@ -52,10 +53,7 @@
 		<header>
 		<h1 dir="{{.Direction}}" id="blog-title"><a href="{{if .IsTopLevel}}/{{else}}/{{.Collection.Alias}}/{{end}}" class="h-card p-author">{{.Collection.DisplayTitle}}</a></h1>
 		<nav>
-		{{template "pinned-custom" .}}
-		{{if .PinnedPosts}}
-			{{range .PinnedPosts}}<a class="pinned" href="{{if not $.SingleUser}}/{{$.Collection.Alias}}/{{.Slug.String}}{{else}}{{.CanonicalURL $.Host}}{{end}}">{{.DisplayTitle}}</a>{{end}}
-		{{end}}
+		{{template "pinned" .}}
 		</nav>
 		</header>
 		
@@ -79,7 +77,22 @@
 	<script src="/js/h.js"></script>
 	<script src="/js/postactions.js"></script>
 	{{end}}
+	<script type="text/javascript" src="/js/toc.js"></script>
 	<script type="text/javascript">
+	let extraItems = [];
+	let elNext = document.getElementById("next-page");
+	let elPrev = document.getElementById("prev-page");
+	if (elNext != null) {
+		let item = new TocItem(elNext.text, 0, 0, elNext);
+		extraItems.push(item);
+	}
+	if (elPrev != null) {
+		let item = new TocItem(elPrev.text, 0, 0, elPrev);
+		extraItems.push(item);
+	}
+	document.addEventListener("DOMContentLoaded",
+                initToc("#blog-title,.post-title", "", extraItems));
+
 {{if .IsOwner}}
 {{template "delete_action" .}}
 {{template "pin_action" .}}

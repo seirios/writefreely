@@ -7,6 +7,7 @@
 		<meta name="title" content="Archive &mdash; {{.Collection.DisplayTitle}}">
 
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
+		<link rel="stylesheet" type="text/css" href="/css/toc.css" />
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<link rel="shortcut icon" href="/favicon.ico" />
 		<link rel="canonical" href="{{.CanonicalURL}}">
@@ -42,10 +43,7 @@
 	<header>
 		<h1 dir="{{.Direction}}" id="blog-title"><a href="{{if .IsTopLevel}}/{{else}}/{{.Collection.Alias}}/{{end}}" class="h-card p-author">{{.Collection.DisplayTitle}}</a></h1>
 		<nav>
-		{{template "pinned-custom" .}}
-		{{if .PinnedPosts}}
-			{{range .PinnedPosts}}<a class="pinned" href="{{if not $.SingleUser}}/{{$.Collection.Alias}}/{{.Slug.String}}{{else}}{{.CanonicalURL $.Host}}{{end}}">{{.DisplayTitle}}</a>{{end}}
-		{{end}}
+		{{template "pinned" .}}
 		</nav>
 	</header>
 
@@ -66,7 +64,7 @@
 			<ul>
 		    {{ $curYear := 0 }}
 		    {{ range $el := .Posts }}
-			{{if ne $curYear .Created.Year}}<li class="year">{{.Created.Year}}</li>{{ $curYear = .Created.Year }}{{end}}
+			{{if ne $curYear .Created.Year}}<li class="year"><h2>{{.Created.Year}}</h2></li>{{ $curYear = .Created.Year }}{{end}}
 					<li>
 			    {{if .HasTitleLink -}}
 				{{.HTMLTitleArrow}}
@@ -114,5 +112,21 @@
 
 	{{template "canshowscript" .}}
 	<script src="/js/localdate.js"></script>
+	<script type="text/javascript" src="/js/toc.js"></script>
+	<script type="text/javascript">
+	let extraItems = [];
+	let elNext = document.getElementById("next-page");
+	let elPrev = document.getElementById("prev-page");
+	if (elNext != null) {
+		let item = new TocItem(elNext.text, 0, 0, elNext);
+		extraItems.push(item);
+	}
+	if (elPrev != null) {
+		let item = new TocItem(elPrev.text, 0, 0, elPrev);
+		extraItems.push(item);
+	}
+	document.addEventListener("DOMContentLoaded",
+                initToc("", "wrapper", extraItems));
+	</script>
 </html>
 {{end}}
