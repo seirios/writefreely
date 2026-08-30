@@ -15,6 +15,7 @@ We've got:
 + NO monetization
 + NO email
 + NO user invites
++ NO user signup
 + NO third-party OAuth
 + NO spurious tags
 + Fixes for single-user sites
