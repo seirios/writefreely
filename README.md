@@ -24,6 +24,7 @@ We've got:
 + More configuration options
 + Improved draft editing
 + Markdown parsing with [gomarkdown](https://github.com/gomarkdown/markdown)
++ Unobtrusive table of contents (based on [kjk's](https://gist.github.com/kjk/d9343c3f45d9f529b2b8156048254840))
 
 ## Features
 

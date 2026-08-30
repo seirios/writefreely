@@ -6,6 +6,7 @@
 
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
 		<link rel="stylesheet" type="text/css" href="/css/icons.css">
+		<link rel="stylesheet" type="text/css" href="/css/toc.css">
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -78,12 +79,55 @@
 	<script src="/js/h.js"></script>
 	<script src="/js/modals.js"></script>
 	<script type="text/javascript" src="/js/menu.js"></script>
+	<script type="text/javascript" src="/js/toc.js"></script>
 	<script type="text/javascript">
 	var $writer = H.getEl('writer');
 	var $btnPublish = H.getEl('publish');
 	var $btnReload = H.getEl('reload-draft');
 	var $btnEditedElsewhere = H.getEl('edited-elsewhere');
 	var $wc = H.getEl("wc");
+
+        function findHeaderLines() {
+            let items = [];
+            let lines = $writer.el.value.split("\n");
+            for (li of lines) {
+                let m = li.match("^#\+ ");
+                if (m != null) {
+                    let text = li.slice(m[0].length);
+                    let hLevel = m[0].length - 1;
+                    let item = new TocItem(text, hLevel, hLevel - 1, $writer.el);
+                    items.push(item);
+                }
+            }
+            return items;
+        }
+	document.addEventListener("DOMContentLoaded",
+                initTocWithItems(findHeaderLines(), "scrollText"));
+
+        function scrollText(n) {
+            if (n == 0) {
+                $writer.el.scrollTop = 0;
+                return;
+            }
+            let str = "#".repeat(tocItems[n].hLevel) + " " + tocItems[n].text;
+            let txt = $writer.el.value.slice(0, $writer.el.value.indexOf(str));
+            let el = $writer.el.cloneNode();
+            el.id = "mirror";
+            el.value = txt;
+            el.style = "display: block;";
+            document.body.appendChild(el);
+            let posY = el.scrollHeight;
+            el.remove();
+            let styl = self.getComputedStyle($writer.el);
+            let height = Math.round(styl.getPropertyValue("height").replace("px", ""));
+            let posTop = Math.round(styl.getPropertyValue("top").replace("px", ""));
+            if (posY <= height) {
+                posY = 0;
+            } else {
+                posY -= (posTop + 1);
+            }
+            $writer.el.scrollTop = posY;
+        }
 
 {{if .Post.Id}}
 	// is saved post
@@ -359,6 +403,7 @@
 	/* Event handlers */
 	$writer.on('keyup input', function() {
 		setButtonStates();
+		initTocWithItems(findHeaderLines(), "scrollText", true);
 		clearTimeout(typingTimer);
 		typingTimer = setTimeout(doneTyping, doneTypingInterval);
 	}, false);

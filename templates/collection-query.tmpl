@@ -7,6 +7,7 @@
 		<meta name="title" content="{{localstr "Search results" .MainLanguage}} &mdash; {{.DisplayTitle}}{{if not .SingleUser}} &mdash; {{.SiteName}}{{end}}">
 
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
+		<link rel="stylesheet" type="text/css" href="/css/toc.css" />
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<link rel="shortcut icon" href="/favicon.ico" />
 		<link rel="canonical" href="{{.CanonicalURL}}">
@@ -131,7 +132,22 @@
 	<script src="/js/postactions.js"></script>
 	{{end}}
 	<script type="text/javascript" src="/js/menu.js"></script>
+	<script type="text/javascript" src="/js/toc.js"></script>
 	<script type="text/javascript">
+	let extraItems = [];
+	let elNext = document.getElementById("next-page");
+	let elPrev = document.getElementById("prev-page");
+	if (elNext != null) {
+		let item = new TocItem(elNext.text, 0, 0, elNext);
+		extraItems.push(item);
+	}
+	if (elPrev != null) {
+		let item = new TocItem(elPrev.text, 0, 0, elPrev);
+		extraItems.push(item);
+	}
+	document.addEventListener("DOMContentLoaded",
+                initToc("#blog-title,.post-title", "", extraItems));
+
 {{if .IsOwner}}
 {{template "delete_action" .}}
 {{template "pin_action" .}}

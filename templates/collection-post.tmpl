@@ -6,6 +6,7 @@
 		<title>{{.PlainDisplayTitle}} {{localhtml "title dash" .Language.String}} {{.Collection.DisplayTitle}}</title>
 
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
+		<link rel="stylesheet" type="text/css" href="/css/toc.css" />
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<link rel="shortcut icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -75,7 +76,16 @@
 
 	{{template "canshowscript" .Collection}}
 	<script src="/js/localdate.js"></script>
+	<script type="text/javascript" src="/js/toc.js"></script>
 	<script type="text/javascript">
+	let extraItems = [];
+	let elFn1 = document.getElementById("fn1");
+	if (elFn1 != null) {
+		let item = new TocItem({{localstr "Notes" .MainLanguage}}, 0, 0, elFn1);
+		extraItems.push(item);
+	}
+	document.addEventListener("DOMContentLoaded",
+                initToc("", "post-body", extraItems));
 
 	var $pinbox = document.getElementsByTagName('header')[0];
 	{{template "unpin_action" .}}

@@ -7,6 +7,7 @@
 		<meta name="title" content="Archive &mdash; {{.Collection.DisplayTitle}}">
 
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
+		<link rel="stylesheet" type="text/css" href="/css/toc.css" />
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<link rel="shortcut icon" href="/favicon.ico" />
 		<link rel="canonical" href="{{.CanonicalURL}}">
@@ -114,5 +115,21 @@
 
 	{{template "canshowscript" .}}
 	<script src="/js/localdate.js"></script>
+	<script type="text/javascript" src="/js/toc.js"></script>
+	<script type="text/javascript">
+	let extraItems = [];
+	let elNext = document.getElementById("next-page");
+	let elPrev = document.getElementById("prev-page");
+	if (elNext != null) {
+		let item = new TocItem(elNext.text, 0, 0, elNext);
+		extraItems.push(item);
+	}
+	if (elPrev != null) {
+		let item = new TocItem(elPrev.text, 0, 0, elPrev);
+		extraItems.push(item);
+	}
+	document.addEventListener("DOMContentLoaded",
+                initToc("", "wrapper", extraItems));
+	</script>
 </html>
 {{end}}
