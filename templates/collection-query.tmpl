@@ -92,10 +92,7 @@
 			<!--p class="meta-note"><span>Private collection</span>. Only you can see this page.</p-->
 		{{/*end*/}}
 		<nav>
-		{{template "pinned-custom" .}}
-		{{if .PinnedPosts}}
-			{{range .PinnedPosts}}<a class="pinned" href="{{if not $.SingleUser}}/{{$.Alias}}/{{.Slug.String}}{{else}}{{.CanonicalURL $.Host}}{{end}}">{{.PlainDisplayTitle}}</a>{{end}}
-		{{end}}
+		{{template "pinned" .}}
 		</nav>
 
                 {{if .Tag}}

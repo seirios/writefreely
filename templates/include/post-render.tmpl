@@ -104,5 +104,12 @@
 </script>
 {{end}}
 
-{{ define "pinned-custom" }}
-{{ end }}
+{{define "pinned"}}
+	{{template "pinned-custom" .}}
+	{{if .PinnedPosts}}
+		{{range .PinnedPosts}}<a class="pinned" href="{{if not $.SingleUser}}/{{$.Collection.Alias}}/{{.Slug.String}}{{else}}{{.CanonicalURL $.Host}}{{end}}">{{.PlainDisplayTitle}}</a>{{end}}
+	{{end}}
+{{end}}
+
+{{define "pinned-custom"}}
+{{end}}

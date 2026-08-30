@@ -43,10 +43,7 @@
 	<header>
 		<h1 dir="{{.Direction}}" id="blog-title"><a href="{{if .IsTopLevel}}/{{else}}/{{.Collection.Alias}}/{{end}}" class="h-card p-author">{{.Collection.DisplayTitle}}</a></h1>
 		<nav>
-		{{template "pinned-custom" .}}
-		{{if .PinnedPosts}}
-			{{range .PinnedPosts}}<a class="pinned" href="{{if not $.SingleUser}}/{{$.Collection.Alias}}/{{.Slug.String}}{{else}}{{.CanonicalURL $.Host}}{{end}}">{{.DisplayTitle}}</a>{{end}}
-		{{end}}
+		{{template "pinned" .}}
 		</nav>
 	</header>
 
