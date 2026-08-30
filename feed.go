@@ -22,8 +22,6 @@ import (
 )
 
 func handleViewFeed(app *App, w http.ResponseWriter, req *http.Request) error {
-	alias := collectionAliasFromReq(req)
-
 	// Display collection if this is a collection
 	var c *Collection
 	var err error

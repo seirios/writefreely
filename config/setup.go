@@ -264,16 +264,6 @@ func Configure(fname string, configSections string) (*SetupData, error) {
 		title(" App setup ")
 		fmt.Println()
 
-		selPrompt = promptui.Select{
-			Templates: selTmpls,
-			Label:     "Site type",
-			Items:     []string{"Single user blog"},
-		}
-		_, usersType, err := selPrompt.Run()
-		if err != nil {
-			return data, err
-		}
-
 		data.User = &UserCreation{}
 
 		//   prompt for username

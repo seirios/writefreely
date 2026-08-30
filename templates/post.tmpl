@@ -11,7 +11,7 @@
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<link rel="shortcut icon" href="/favicon.ico" />
-		<link rel="canonical" href="{{.Host}}/{{if .SingleUser}}d/{{end}}{{.ID}}" />
+		<link rel="canonical" href="{{.Host}}/d/{{.ID}}" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		<meta name="generator" content="{{.SiteName}}">
@@ -28,7 +28,7 @@
 		<meta property="og:title" content="{{if .Title}}{{.Title}}{{else}}{{.GenTitle}}{{end}}" />
 		<meta property="og:site_name" content="{{.SiteName}}" />
 		<meta property="og:type" content="article" />
-		<meta property="og:url" content="{{.Host}}/{{if .SingleUser}}d/{{end}}{{.ID}}" />
+		<meta property="og:url" content="{{.Host}}/d/{{.ID}}" />
 		<meta property="og:description" content="{{.Description}}" />
 		{{range .Images}}<meta property="og:image" content="{{.}}" />{{else}}<meta property="og:image" content="{{.Host}}/img/wf-sq.png">{{end}}
 		{{if .Author}}<meta property="article:author" content="https://{{.Author}}" />{{end}}
@@ -43,7 +43,7 @@
 				{{if .IsCode}}<a href="/{{.ID}}.txt" rel="noindex" dir="{{.Direction}}">View raw</a>{{end}}
 				{{ if .Username }}
 				{{if .IsOwner}}
-				<a href="/{{if .SingleUser}}d/{{end}}{{.ID}}/edit" dir="{{.Direction}}">Edit</a>
+				<a href="/d/{{.ID}}/edit" dir="{{.Direction}}">Edit</a>
 				{{end}}
 				<a class="xtra-feature dash-nav" href="/me/posts/" dir="{{.Direction}}">Drafts</a>
 				{{ end }}

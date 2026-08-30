@@ -92,7 +92,6 @@ type (
 	CollectionNav struct {
 		*Collection
 		Path       string
-		SingleUser bool
 		CanPost    bool
 	}
 
@@ -1378,7 +1377,6 @@ func logOutCollection(app *App, alias string, w http.ResponseWriter, r *http.Req
 }
 
 func handleLogOutCollection(app *App, w http.ResponseWriter, r *http.Request) error {
-	alias := collectionAliasFromReq(r)
 	var c *Collection
 	var err error
 	c, err = app.db.GetCollectionByID(1)

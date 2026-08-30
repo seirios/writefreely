@@ -49,7 +49,7 @@ func handleGopher(app *App, w gopher.ResponseWriter, r *gopher.Request) error {
 }
 
 func handleGopherCollection(app *App, w gopher.ResponseWriter, r *gopher.Request) error {
-	var collAlias, slug string
+	var slug string
 	var c *Collection
 	var err error
 	var baseSel = "/"
@@ -90,7 +90,7 @@ func handleGopherCollection(app *App, w gopher.ResponseWriter, r *gopher.Request
 }
 
 func handleGopherCollectionPost(app *App, w gopher.ResponseWriter, r *gopher.Request) error {
-	var collAlias, slug string
+	var slug string
 	var c *Collection
 	var err error
 

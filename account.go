@@ -898,7 +898,6 @@ func handleViewSubscribers(app *App, u *User, w http.ResponseWriter, r *http.Req
 		Collection: CollectionNav{
 			Collection: c,
 			Path:       r.URL.Path,
-			SingleUser: true,
 		},
 		Silenced:          u.IsSilenced(),
 		Filter:            filter,

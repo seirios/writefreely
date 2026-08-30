@@ -27,7 +27,7 @@ textarea.section.norm {
 
 	<h1>Customize</h1>
 
-	{{template "collection-nav" (dict "Alias" .Alias "Path" .Path "SingleUser" .SingleUser)}}
+	{{template "collection-nav" (dict "Alias" .Alias "Path" .Path)}}
 
 	{{if .Flashes}}<ul class="errors">
 		{{range .Flashes}}<li class="urgent">{{.}}</li>{{end}}
@@ -46,7 +46,7 @@ textarea.section.norm {
 			{{if eq .Alias .UserPage.Username}}<p style="font-size: 0.8em">This blog uses your username in its URL{{if .Federation}} and fediverse handle{{end}}. You can change it in your <a href="/me/settings">Account Settings</a>.</p>{{end}}
 			<ul style="list-style:none">
 				<li>
-					{{.FriendlyHost}}/{{if not .SingleUser}}<strong>{{.Alias}}</strong>/{{end}}
+					{{.FriendlyHost}}/
 				</li>
 				<li>
 					<strong id="normal-handle-env" class="fedi-handle" {{if not .Federation}}style="display:none"{{end}}>@<span id="fedi-handle">{{.Alias}}</span>@<span id="fedi-domain">{{.FriendlyHost}}</span></strong>
@@ -77,15 +77,6 @@ textarea.section.norm {
 					</label>
 					<p>A password is required to read this blog.</p>
 				</li>
-				{{if not .SingleUser}}
-				<li>
-					<label class="option-text{{if not .LocalTimeline}} disabled{{end}}"><input type="radio" name="visibility" id="visibility-public" value="1" {{if .IsPublic}}checked="checked"{{end}} {{if not .LocalTimeline}}disabled="disabled"{{end}} />
-						Public
-					</label>
-					{{if .LocalTimeline}}<p>This blog is displayed on the public <a href="/read">reader</a>, and is visible to {{if .Private}}any registered user on this instance{{else}}anyone with its link{{end}}.</p>
-					{{else}}<p>The public reader is currently turned off for this community.</p>{{end}}
-				</li>
-				{{end}}
 			</ul>
 		</div>
 	</div>
@@ -188,7 +179,7 @@ textarea.section.norm {
 
 	<div class="option" style="text-align: center; margin-top: 4em;">
 		<input type="submit" id="save-changes" value="Save changes" />
-		<p><a href="{{if .SingleUser}}/{{else}}/{{.Alias}}/{{end}}">View Blog</a></p>
+		<p><a href="/">View Blog</a></p>
 		{{if ne .Alias .Username}}<p><a class="danger" href="#modal-delete" onclick="promptDelete();">Delete Blog...</a></p>{{end}}
 	</div>
 </div>

@@ -214,9 +214,6 @@ func handleFetchCollectionOutbox(app *App, w http.ResponseWriter, r *http.Reques
 func handleFetchCollectionFollowers(app *App, w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Server", serverSoftware)
 
-	vars := mux.Vars(r)
-	alias := vars["alias"]
-
 	// Get base Collection data
 	var c *Collection
 	var err error
@@ -266,9 +263,6 @@ func handleFetchCollectionFollowers(app *App, w http.ResponseWriter, r *http.Req
 
 func handleFetchCollectionFollowing(app *App, w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Server", serverSoftware)
-
-	vars := mux.Vars(r)
-	alias := vars["alias"]
 
 	// Get base Collection data
 	var c *Collection

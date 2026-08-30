@@ -227,7 +227,7 @@ func TestTemplateRendering_MeAndBlogPages(t *testing.T) {
 		mutate func(cfg *config.Config)
 	}{
 		{
-			name: "SingleUser",
+			name: "single_user",
 			mutate: func(cfg *config.Config) {
 			},
 		},

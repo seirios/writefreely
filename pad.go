@@ -44,7 +44,6 @@ func handleViewPad(app *App, w http.ResponseWriter, r *http.Request) error {
 		Post:       &RawPost{Font: "norm"},
 		User:       getUserSession(app, r),
 	}
-	var err error
 	if appData.User != nil {
 		appData.Blogs, err = app.db.GetPublishableCollections(appData.User, app.cfg.App.Host)
 		if err != nil {

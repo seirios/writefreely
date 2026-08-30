@@ -69,7 +69,7 @@
 			    {{if .HasTitleLink -}}
 				{{.HTMLTitleArrow}}
 			    {{- else -}}
-							<a href="{{if $.SingleUser}}/{{else}}/{{$.Alias}}/{{end}}{{.Slug.String}}" itemprop="url" class="u-url">
+							<a href="/{{.Slug.String}}" itemprop="url" class="u-url">
 				    {{- if .DisplayTitle -}}
 					{{- .DisplayTitle -}}
 				    {{- else -}}
@@ -81,7 +81,7 @@
 			    {{if $.Format.ShowDates -}}
 							<time class="dt-published" datetime="{{.Created8601}}" pubdate itemprop="datePublished" content="{{.Created}}">
 				    {{- if .HasTitleLink -}}
-								<a href="{{if $.SingleUser}}/{{else}}/{{$.Alias}}/{{end}}{{.Slug.String}}" itemprop="url">
+								<a href="/{{.Slug.String}}" itemprop="url">
 					{{- end -}}
 					{{.DisplayDate}}
 					{{- if .HasTitleLink -}}
@@ -90,7 +90,7 @@
 							</time>
 			    {{- else -}}
 				{{- if .HasTitleLink -}}
-								<a href="{{if $.SingleUser}}/{{else}}/{{$.Alias}}/{{end}}{{.Slug.String}}" itemprop="url">view</a>
+								<a href="/{{.Slug.String}}" itemprop="url">view</a>
 				{{- end -}}
 			    {{- end}}
 					</li>
