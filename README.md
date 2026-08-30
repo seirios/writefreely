@@ -12,6 +12,7 @@ Welcome to my fork of writefreely!
 
 We've got:
 
++ Single-user only
 + NO monetization
 + NO email
 + NO user invites
