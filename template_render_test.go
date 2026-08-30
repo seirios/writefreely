@@ -68,7 +68,6 @@ func newTemplateTestApp(t *testing.T, mutate func(cfg *config.Config)) (*App, *m
 	// Make the auto-created user blog fully public so we exercise the
 	// normal collection/post templates rather than the password-gate flow.
 	cfg.App.DefaultVisibility = "public"
-	cfg.App.LocalTimeline = true
 	cfg.Database.Type = driverSQLite
 	cfg.Database.FileName = filepath.Join(dir, "writefreely.db")
 
@@ -98,9 +97,6 @@ func newTemplateTestApp(t *testing.T, mutate func(cfg *config.Config)) (*App, *m
 	}
 
 	initActivityPub(app)
-	if app.cfg.App.LocalTimeline {
-		initLocalTimeline(app)
-	}
 
 	router := mux.NewRouter()
 	InitRoutes(app, router)

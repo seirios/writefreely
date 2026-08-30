@@ -48,7 +48,7 @@ func nodeInfoConfig(db *datastore, cfg *config.Config) *nodeinfo.Config {
 				Follow:   "https://writing.exchange/@writefreely",
 			},
 			MaxBlogs:     1,
-			PublicReader: cfg.App.LocalTimeline,
+			PublicReader: false,
 			Invites:      false,
 		},
 		Protocols: []nodeinfo.NodeProtocol{

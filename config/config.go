@@ -130,7 +130,6 @@ type (
 		Private bool `ini:"private"`
 
 		// Additional functions
-		LocalTimeline bool   `ini:"local_timeline"`
 		EnableSearch  bool   `ini:"search"`
 
 		// Defaults

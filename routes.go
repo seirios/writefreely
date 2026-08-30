@@ -73,7 +73,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 	// Handle auth
 	auth := write.PathPrefix("/api/auth/").Subrouter()
 	auth.HandleFunc("/login", handler.All(login)).Methods("POST")
-	auth.HandleFunc("/read", handler.WebErrors(handleWebCollectionUnlock, UserLevelNone)).Methods("POST")
 	auth.HandleFunc("/me", handler.All(handleAPILogout)).Methods("DELETE")
 
 	// Handle logged in user sections
@@ -159,9 +158,6 @@ func InitRoutes(apper Apper, r *mux.Router) *mux.Router {
 
 	// Handle special pages first
 	write.HandleFunc("/login", handler.Web(viewLogin, UserLevelNoneRequired))
-	// TODO: show a reader-specific 404 page if the function is disabled
-	write.HandleFunc("/read", handler.Web(viewLocalTimeline, UserLevelReader))
-	RouteRead(handler, UserLevelReader, write.PathPrefix("/read").Subrouter())
 
 	draftEditPrefix := "/d"
 	write.HandleFunc("/me/new", handler.Web(handleViewPad, UserLevelUser)).Methods("GET")
@@ -210,15 +206,4 @@ func RouteCollections(handler *Handler, r *mux.Router) {
 	r.HandleFunc("/{slug}/edit", handler.Web(handleViewPad, UserLevelUser))
 	r.HandleFunc("/{slug}/edit/meta", handler.Web(handleViewMeta, UserLevelUser))
 	r.HandleFunc("/{slug}/", handler.Web(handleCollectionPostRedirect, UserLevelReader)).Methods("GET")
-}
-
-func RouteRead(handler *Handler, readPerm UserLevelFunc, r *mux.Router) {
-	r.HandleFunc("/api/posts", handler.Web(viewLocalTimelineAPI, readPerm))
-	r.HandleFunc("/p/{page}", handler.Web(viewLocalTimeline, readPerm))
-	r.HandleFunc("/feed", handler.Web(viewLocalTimelineFeed, readPerm))
-	r.HandleFunc("/feed/", handler.Web(viewLocalTimelineFeed, readPerm))
-	r.HandleFunc("/t/{tag}", handler.Web(viewLocalTimeline, readPerm))
-	r.HandleFunc("/a/{post}", handler.Web(handlePostIDRedirect, readPerm))
-	r.HandleFunc("/{author}", handler.Web(viewLocalTimeline, readPerm))
-	r.HandleFunc("/", handler.Web(viewLocalTimeline, readPerm))
 }

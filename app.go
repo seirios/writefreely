@@ -74,8 +74,6 @@ type App struct {
 	sessionStore sessions.Store
 	formDecoder  *schema.Decoder
 	updates      *updatesCache
-
-	timeline *localTimeline
 }
 
 // DB returns the App's datastore
@@ -407,12 +405,6 @@ func Initialize(apper Apper, debug bool) (*App, error) {
 	}
 
 	initActivityPub(apper.App())
-
-	// Handle local timeline, if enabled
-	if apper.App().cfg.App.LocalTimeline {
-		log.Info("Initializing local timeline...")
-		initLocalTimeline(apper.App())
-	}
 
 	return apper.App(), nil
 }
@@ -930,11 +922,6 @@ func ModerateUsers(apper Apper, filter UserFilter, action UserAction) error {
 			continue
 		}
 		done++
-	}
-
-	// Silenced users' posts may be cached in the timeline; refresh it once.
-	if action == ActionSilence && done > 0 && app.timeline != nil {
-		updateTimelineCache(app.timeline, true)
 	}
 
 	log.Info("Done. %d/%d succeeded, %d errors.", done, len(users), failed)

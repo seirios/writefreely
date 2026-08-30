@@ -361,9 +361,6 @@ func handleAdminToggleUserStatus(app *App, u *User, w http.ResponseWriter, r *ht
 		err = app.db.SetUserStatus(user.ID, UserActive)
 	} else {
 		err = app.db.SetUserStatus(user.ID, UserSilenced)
-
-		// reset the cache to removed silence user posts
-		updateTimelineCache(app.timeline, true)
 	}
 	if err != nil {
 		log.Error("toggle user silenced: %v", err)
@@ -575,11 +572,6 @@ func handleAdminUpdateConfig(apper Apper, u *User, w http.ResponseWriter, r *htt
 	apper.App().cfg.App.Federation = r.FormValue("federation") == "on"
 	apper.App().cfg.App.PublicStats = r.FormValue("public_stats") == "on"
 	apper.App().cfg.App.Private = r.FormValue("private") == "on"
-	apper.App().cfg.App.LocalTimeline = r.FormValue("local_timeline") == "on"
-	if apper.App().cfg.App.LocalTimeline && apper.App().timeline == nil {
-		log.Info("Initializing local timeline...")
-		initLocalTimeline(apper.App())
-	}
 	apper.App().cfg.App.DefaultVisibility = r.FormValue("default_visibility")
 
 	m := "?cm=Configuration+saved."
