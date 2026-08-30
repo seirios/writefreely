@@ -75,8 +75,6 @@ var reservedUsernames = map[string]bool{
 	"publications":     true,
 	"publish":          true,
 	"random":           true,
-	"read":             true,
-	"reader":           true,
 	"register":         true,
 	"remove":           true,
 	"signin":           true,

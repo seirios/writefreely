@@ -72,7 +72,7 @@ func initTemplate(parentDir, name string) {
 		filepath.Join(parentDir, templatesDir, "base.tmpl"),
 		filepath.Join(parentDir, templatesDir, "user", "include", "silenced.tmpl"),
 	}
-	if name == "collection" || name == "collection-tags" || name == "collection-query" || name == "collection-archive" || name == "read" {
+	if name == "collection" || name == "collection-tags" || name == "collection-query" || name == "collection-archive" {
 		// These pages list out collection posts, so we also parse templatesDir + "include/posts.tmpl"
 		files = append(files, filepath.Join(parentDir, templatesDir, "include", "posts.tmpl"))
 	}

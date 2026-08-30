@@ -259,8 +259,6 @@ func TestTemplateRendering_MeAndBlogPages(t *testing.T) {
 				{name: "post view (owner)", path: blogPrefix + "/" + slug, authed: true, wantStatus: http.StatusOK},
 				{name: "post edit (owner)", path: blogPrefix + "/" + slug + "/edit", authed: true, wantStatus: http.StatusOK},
 
-				// Reader
-				{name: "reader", path: "/read", authed: false, wantStatus: http.StatusOK},
 
 				// Authenticated "/me" pages
 				{name: "me: collections list", path: "/me/c/", authed: true, wantStatus: http.StatusOK},
