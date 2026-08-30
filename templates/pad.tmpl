@@ -105,10 +105,6 @@
                 initTocWithItems(findHeaderLines(), "scrollText"));
 
         function scrollText(n) {
-            if (n == 0) {
-                $writer.el.scrollTop = 0;
-                return;
-            }
             let str = "#".repeat(tocItems[n].hLevel) + " " + tocItems[n].text;
             let txt = $writer.el.value.slice(0, $writer.el.value.indexOf(str));
             let el = $writer.el.cloneNode();
@@ -119,12 +115,13 @@
             let posY = el.scrollHeight;
             el.remove();
             let styl = self.getComputedStyle($writer.el);
-            let height = Math.round(styl.getPropertyValue("height").replace("px", ""));
-            let posTop = Math.round(styl.getPropertyValue("top").replace("px", ""));
-            if (posY <= height) {
+            let height = Number(styl.getPropertyValue("height").replace("px", ""));
+            let padTop = Number(styl.getPropertyValue("padding-top").replace("px", ""));
+            let padBot = Number(styl.getPropertyValue("padding-bottom").replace("px", ""));
+            if (posY <= Math.round(height)) {
                 posY = 0;
             } else {
-                posY -= (posTop + 1);
+                posY -= (Math.round(padTop + padBot) + 1);
             }
             $writer.el.scrollTop = posY;
         }
