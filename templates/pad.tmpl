@@ -5,6 +5,7 @@
 		<title>{{if .Editing}}Editing {{if .Post.Title}}{{.Post.Title}}{{else}}{{.Post.Id}}{{end}}{{else}}New Post{{end}} &mdash; {{.SiteName}}</title>
 
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
+		<link rel="stylesheet" type="text/css" href="/css/icons.css">
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -72,493 +73,495 @@
 				<div class="tool"><a href="#publish" title="Publish" id="publish"><img class="ic-24dp" src="/img/ic_send_dark@2x.png" /></a></div>
 			</div>
 		</header>
+	</body>
 
-		<script src="/js/h.js"></script>
-		<script src="/js/modals.js"></script>
-		<script type="text/javascript" src="/js/menu.js"></script>
-		<script>
-		var $writer = H.getEl('writer');
-		var $btnPublish = H.getEl('publish');
-		var $btnReload = H.getEl('reload-draft');
-		var $btnEditedElsewhere = H.getEl('edited-elsewhere');
-		var $wc = H.getEl("wc");
+	<script src="/js/h.js"></script>
+	<script src="/js/modals.js"></script>
+	<script type="text/javascript" src="/js/menu.js"></script>
+	<script type="text/javascript">
+	var $writer = H.getEl('writer');
+	var $btnPublish = H.getEl('publish');
+	var $btnReload = H.getEl('reload-draft');
+	var $btnEditedElsewhere = H.getEl('edited-elsewhere');
+	var $wc = H.getEl("wc");
 
-	{{if .Post.Id}}
-		// is saved post
-		const draftDoc = 'draft{{.Post.Id}}';
-		const origDoc = '{{.Post.Content}}';
-		const isBlogDraft = {{and .Post.Id (not .Post.Slug)}};
-		const isBrandNew = false;
+{{if .Post.Id}}
+	// is saved post
+	const draftDoc = 'draft{{.Post.Id}}';
+	const origDoc = '{{.Post.Content}}';
+	const isBlogDraft = {{and .Post.Id (not .Post.Slug)}};
+	const isBrandNew = false;
 
-		document.addEventListener("DOMContentLoaded", function (event) {
-			// add small delay to avoid race condition
-			setTimeout(function() {
-				var scrollpos = sessionStorage.getItem('scrollpos'+draftDoc);
-				if (scrollpos) {
-					$writer.el.scrollTo(0, scrollpos);
-				}
-			}, 50);
-		});
-
-		window.addEventListener("beforeunload", function (e) {
-			sessionStorage.setItem('scrollpos'+draftDoc, $writer.el.scrollTop);
-		});
-	{{else}}
-		// is brand new post
-		const draftDoc = 'lastDoc';
-		const origDoc = '';
-		const isBlogDraft = false;
-		const isBrandNew = true;
-	{{end}}
-
-		function toggleTheme(newTheme) {
-			if (document.body.classList.contains('light')) {
-				setTheme('dark');
-			} else {
-				setTheme('light');
+	document.addEventListener("DOMContentLoaded", function (event) {
+		// add small delay to avoid race condition
+		setTimeout(function() {
+			var scrollpos = sessionStorage.getItem('scrollpos'+draftDoc);
+			if (scrollpos) {
+				$writer.el.scrollTo(0, scrollpos);
 			}
-			H.set('padTheme', newTheme);
-		};
+		}, 50);
+	});
 
-		function setTheme(newTheme) {
-			document.body.classList.remove('light');
-			document.body.classList.remove('dark');
-			document.body.classList.add(newTheme);
-			var btns = Array.prototype.slice.call(document.getElementById('tools').querySelectorAll('a img'));
-			if (newTheme == 'light') {
-				// check if current theme is dark otherwise we'll get `_dark_dark@2x.png`
-				if (H.get('padTheme', 'auto') == 'dark'){
-					for (var i=0; i<btns.length; i++) {
-						btns[i].src = btns[i].src.replace('@2x.png', '_dark@2x.png');
-					}
-				}
-			} else {
-				for (var i=0; i<btns.length; i++) {
-					btns[i].src = btns[i].src.replace('_dark@2x.png', '@2x.png');
-				}
-			}
-			H.set('padTheme', newTheme);
-		};
+	window.addEventListener("beforeunload", function (e) {
+		sessionStorage.setItem('scrollpos'+draftDoc, $writer.el.scrollTop);
+	});
+{{else}}
+	// is brand new post
+	const draftDoc = 'lastDoc';
+	const origDoc = '';
+	const isBlogDraft = false;
+	const isBrandNew = true;
+{{end}}
 
-		var updateWordCount = function() {
-			var words = 0;
-			var val = $writer.el.value.trim();
-			if (val != '') {
-				words = val.replace(/\s+/gi, ' ').split(' ').length;
-			}
-			if (words > 1) {
-				$wc.el.innerText = words + " words";
-			} else {
-				$wc.el.innerText = words + " word";
-			}
-		};
-
-		var wasModified = function() {
-			// compare contents only, excluding title (not part of origDoc)
-			const post = H.getTitleStrict($writer.el.value);
-			return post.content != origDoc;
-		};
-
-		var setButtonStatesOnce = function() {
-			if (!canPublish) {
-				$btnPublish.el.className = 'disabled';
-			}
-			if (isBrandNew) {
-				$btnReload.el.className = 'disabled';
-			}
-			if (isBlogDraft) {
-				$btnPublish.el.title = 'Save';
-				$btnPublish.el.childNodes[0].src = '/img/ic_save_dark@2x.png';
-			}
-		};
-
-		var setButtonStates = function() {
-			if (isBrandNew || wasModified()) {
-				$btnPublish.el.className = 'modified';
-			} else {
-				$btnPublish.el.className = '';
-			}
-			if ($writer.el.value.length === 0) {
-				$btnPublish.el.className += ' disabled';
-			}
-		};
-
-		var updatedStr = '{{.Post.Updated8601}}';
-		var updated = null;
-		if (updatedStr != '') {
-			updated = new Date(updatedStr);
-		}
-		var ok = H.load($writer, draftDoc, true, updated);
-		if (!ok) {
-			// Show "edited elsewhere" warning
-			$btnEditedElsewhere.el.classList.remove('hidden');
-		}
-		var defaultTimeSet = false;
-		updateWordCount();
-
-		var typingTimer;
-		var doneTypingInterval = 200;
-
-		/* Publish stuff */
-	{{if and (and .Post.Id (not .Post.Slug)) (not .User)}}
-		// is blog draft and guest user
-		var token = null;
-		{
-			const posts = JSON.parse(H.get('posts', '[]'));
-			for (var i=0; i<posts.length; i++) {
-				if (posts[i].id == "{{.Post.Id}}") {
-					token = posts[i].token;
-					break;
-				}
-			}
-		}
-		var canPublish = token != null;
-	{{else}}
-		var canPublish = true;
-	{{end}}
-		var publishing = false;
-		var justPublished = false;
-		var silenced = {{.Silenced}};
-		var publish = function(content, font) {
-			if (silenced === true) {
-				alert("Your account is silenced, so you can't publish or update posts.");
-				return;
-			}
-			{{if and (and .Post.Id (not .Post.Slug)) (not .User)}}
-				// is blog draft and guest user
-				if (!token) {
-					alert("You don't have permission to update this post.");
-					return;
-				}
-				if ($btnPublish.el.className == 'disabled') {
-					return;
-				}
-			{{end}}
-			$btnPublish.el.children[0].textContent = 'more_horiz';
-			publishing = true;
-			var xpostTarg = H.get('crosspostTarget', '[]');
-
-			var http = new XMLHttpRequest();
-			var post = H.getTitleStrict(content);
-
-			var params = {
-				body: post.content,
-				title: post.title,
-				font: font
-			};
-
-			{{ if .Post.Slug }}
-			var url = "/api/collections/{{.EditCollection.Alias}}/posts/{{.Post.Id}}";
-			{{ else if .Post.Id }}
-			var url = "/api/posts/{{.Post.Id}}";
-			if (typeof token === 'undefined' || !token) {
-				token = "";
-			}
-			params.token = token;
-			{{ else }}
-			var lang = navigator.languages ? navigator.languages[0] : (navigator.language || navigator.userLanguage);
-			lang = lang.substring(0, 2);
-			params.lang = lang;
-
-			var url = "/api/posts";
-			var postTarget = H.get('postTarget', 'anonymous');
-			if (postTarget != 'anonymous') {
-				url = "/api/collections/" + postTarget + "/posts";
-			}
-			params.crosspost = JSON.parse(xpostTarg);
-			{{ end }}
-
-			http.open("POST", url, true);
-
-			// Send the proper header information along with the request
-			http.setRequestHeader("Content-type", "application/json");
-
-			http.onreadystatechange = function() {
-				if (http.readyState == 4) {
-					publishing = false;
-					if (http.status == 200 || http.status == 201) {
-						data = JSON.parse(http.responseText);
-						id = data.data.id;
-						nextURL = '{{if .SingleUser}}/d{{end}}/'+id;
-						localStorage.setItem('draft'+id+'-published', new Date().toISOString());
-
-						{{ if not .Post.Id }}
-							// Post created
-							if (postTarget != 'anonymous') {
-							  nextURL = {{if not .SingleUser}}'/'+postTarget+{{end}}'/'+data.data.slug;
-							}
-							editToken = data.data.token;
-
-							{{ if not .User }}if (postTarget == 'anonymous') {
-								// Save the data
-								var posts = JSON.parse(H.get('posts', '[]'));
-
-								{{if .Post.Id}}var newPost = H.createPost("{{.Post.Id}}", token, content);
-								for (var i=0; i<posts.length; i++) {
-									if (posts[i].id == "{{.Post.Id}}") {
-										posts[i].title = newPost.title;
-										posts[i].summary = newPost.summary;
-										break;
-									}
-								}
-								nextURL = "/pad/posts";{{else}}posts.push(H.createPost(id, editToken, content));{{end}}
-
-								H.set('posts', JSON.stringify(posts));
-							}
-							{{ end }}
-						{{ end }}
-
-						justPublished = true;
-						if (! isBrandNew) {
-							H.remove(draftDoc);
-							{{if .Editing}}H.remove('draft{{.Post.Id}}font');{{end}}
-						} else {
-							H.set(draftDoc, '');
-						}
-
-					{{if .EditCollection}}
-						window.location = '{{.EditCollection.CanonicalURL}}{{.Post.Slug}}';
-					{{else}}
-						if ($btnPublish.el.title == "Save") {
-							// keep editing
-							window.location.reload();
-						} else {
-							window.location = nextURL;
-						}
-					{{end}}
-					} else {
-						$btnPublish.el.children[0].textContent = 'send';
-						alert("Failed to post. Please try again.");
-					}
-				}
-			}
-			http.send(JSON.stringify(params));
-		};
-
-		setButtonStatesOnce();
-
-		/* Set theme */
-		if (H.get('padTheme', 'auto') == 'light') {
-			setTheme('light');
-		} else if (H.get('padTheme', 'auto') == 'dark') {
+	function toggleTheme(newTheme) {
+		if (document.body.classList.contains('light')) {
 			setTheme('dark');
 		} else {
-			const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
-			if (isDarkMode) {
-				setTheme('dark');
-			} else {
-				setTheme('light');
+			setTheme('light');
+		}
+		H.set('padTheme', newTheme);
+	};
+
+	function setTheme(newTheme) {
+		document.body.classList.remove('light');
+		document.body.classList.remove('dark');
+		document.body.classList.add(newTheme);
+		var btns = Array.prototype.slice.call(document.getElementById('tools').querySelectorAll('a img'));
+		if (newTheme == 'light') {
+			// check if current theme is dark otherwise we'll get `_dark_dark@2x.png`
+			if (H.get('padTheme', 'auto') == 'dark'){
+				for (var i=0; i<btns.length; i++) {
+					btns[i].src = btns[i].src.replace('@2x.png', '_dark@2x.png');
+				}
+			}
+		} else {
+			for (var i=0; i<btns.length; i++) {
+				btns[i].src = btns[i].src.replace('_dark@2x.png', '@2x.png');
 			}
 		}
+		H.set('padTheme', newTheme);
+	};
 
-		/* Event handlers */
-		$writer.on('keyup input', function() {
-			setButtonStates();
-			clearTimeout(typingTimer);
-			typingTimer = setTimeout(doneTyping, doneTypingInterval);
-		}, false);
-		$writer.on('keydown', function(e) {
-			clearTimeout(typingTimer);
-			if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
-				$btnPublish.el.click();
+	var updateWordCount = function() {
+		var words = 0;
+		var val = $writer.el.value.trim();
+		if (val != '') {
+			words = val.replace(/\s+/gi, ' ').split(' ').length;
+		}
+		if (words > 1) {
+			$wc.el.innerText = words + " words";
+		} else {
+			$wc.el.innerText = words + " word";
+		}
+	};
+
+	var wasModified = function() {
+		// compare contents only, excluding title (not part of origDoc)
+		const post = H.getTitleStrict($writer.el.value);
+		return post.content != origDoc;
+	};
+
+	var setButtonStatesOnce = function() {
+		if (!canPublish) {
+			$btnPublish.el.className = 'disabled';
+		}
+		if (isBrandNew) {
+			$btnReload.el.className = 'disabled';
+		}
+		if (isBlogDraft) {
+			$btnPublish.el.title = 'Save';
+			$btnPublish.el.childNodes[0].src = '/img/ic_save_dark@2x.png';
+		}
+	};
+
+	var setButtonStates = function() {
+		if (isBrandNew || wasModified()) {
+			$btnPublish.el.className = 'modified';
+		} else {
+			$btnPublish.el.className = '';
+		}
+		if ($writer.el.value.length === 0) {
+			$btnPublish.el.className += ' disabled';
+		}
+	};
+
+	var updatedStr = '{{.Post.Updated8601}}';
+	var updated = null;
+	if (updatedStr != '') {
+		updated = new Date(updatedStr);
+	}
+	var ok = H.load($writer, draftDoc, true, updated);
+	if (!ok) {
+		// Show "edited elsewhere" warning
+		$btnEditedElsewhere.el.classList.remove('hidden');
+	}
+	var defaultTimeSet = false;
+	updateWordCount();
+
+	var typingTimer;
+	var doneTypingInterval = 200;
+
+	/* Publish stuff */
+{{if and (and .Post.Id (not .Post.Slug)) (not .User)}}
+	// is blog draft and guest user
+	var token = null;
+	{
+		const posts = JSON.parse(H.get('posts', '[]'));
+		for (var i=0; i<posts.length; i++) {
+			if (posts[i].id == "{{.Post.Id}}") {
+				token = posts[i].token;
+				break;
 			}
-		});
-
-		$btnPublish.on('click', function(e) {
-			e.preventDefault();
-			if (!publishing && $writer.el.value) {
-				var content = $writer.el.value;
-				publish(content, selectedFont);
-			}
-		});
-
-		H.getEl('pad').on('keydown', function(e) {
-			if (isBlogDraft && e.key == "Alt") {
-				$btnPublish.el.title = 'Publish';
-				if (H.get('padTheme') == 'dark') {
-					$btnPublish.el.childNodes[0].src = '/img/ic_send@2x.png';
-				} else {
-					$btnPublish.el.childNodes[0].src = '/img/ic_send_dark@2x.png';
-				}
-			}
-		});
-
-		H.getEl('pad').on('keyup', function(e) {
-			if (isBlogDraft && e.key == "Alt") {
-				$btnPublish.el.title = 'Save';
-				if (H.get('padTheme') == 'dark') {
-					$btnPublish.el.childNodes[0].src = '/img/ic_save@2x.png';
-				} else {
-					$btnPublish.el.childNodes[0].src = '/img/ic_save_dark@2x.png';
-				}
-			}
-		});
-
-		H.getEl('erase-edit').on('click', function(e) {
-			e.preventDefault();
-			H.remove(draftDoc);
-			H.remove(draftDoc+'-published');
-			justPublished = true; // Block auto-save
-			location.reload();
-		});
-		$btnReload.on('click', function(e) {
-			if ($btnReload.el.className == 'disabled') {
+		}
+	}
+	var canPublish = token != null;
+{{else}}
+	var canPublish = true;
+{{end}}
+	var publishing = false;
+	var justPublished = false;
+	var silenced = {{.Silenced}};
+	var publish = function(content, font) {
+		if (silenced === true) {
+			alert("Your account is silenced, so you can't publish or update posts.");
+			return;
+		}
+		{{if and (and .Post.Id (not .Post.Slug)) (not .User)}}
+			// is blog draft and guest user
+			if (!token) {
+				alert("You don't have permission to update this post.");
 				return;
 			}
+			if ($btnPublish.el.className == 'disabled') {
+				return;
+			}
+		{{end}}
+		$btnPublish.el.children[0].textContent = 'more_horiz';
+		publishing = true;
+		var xpostTarg = H.get('crosspostTarget', '[]');
+
+		var http = new XMLHttpRequest();
+		var post = H.getTitleStrict(content);
+
+		var params = {
+			body: post.content,
+			title: post.title,
+			font: font
+		};
+
+		{{ if .Post.Slug }}
+		var url = "/api/collections/{{.EditCollection.Alias}}/posts/{{.Post.Id}}";
+		{{ else if .Post.Id }}
+		var url = "/api/posts/{{.Post.Id}}";
+		if (typeof token === 'undefined' || !token) {
+			token = "";
+		}
+		params.token = token;
+		{{ else }}
+		var lang = navigator.languages ? navigator.languages[0] : (navigator.language || navigator.userLanguage);
+		lang = lang.substring(0, 2);
+		params.lang = lang;
+
+		var url = "/api/posts";
+		var postTarget = H.get('postTarget', 'anonymous');
+		if (postTarget != 'anonymous') {
+			url = "/api/collections/" + postTarget + "/posts";
+		}
+		params.crosspost = JSON.parse(xpostTarg);
+		{{ end }}
+
+		http.open("POST", url, true);
+
+		// Send the proper header information along with the request
+		http.setRequestHeader("Content-type", "application/json");
+
+		http.onreadystatechange = function() {
+			if (http.readyState == 4) {
+				publishing = false;
+				if (http.status == 200 || http.status == 201) {
+					data = JSON.parse(http.responseText);
+					id = data.data.id;
+					nextURL = '{{if .SingleUser}}/d{{end}}/'+id;
+					localStorage.setItem('draft'+id+'-published', new Date().toISOString());
+
+					{{ if not .Post.Id }}
+						// Post created
+						if (postTarget != 'anonymous') {
+						  nextURL = {{if not .SingleUser}}'/'+postTarget+{{end}}'/'+data.data.slug;
+						}
+						editToken = data.data.token;
+
+						{{ if not .User }}if (postTarget == 'anonymous') {
+							// Save the data
+							var posts = JSON.parse(H.get('posts', '[]'));
+
+							{{if .Post.Id}}var newPost = H.createPost("{{.Post.Id}}", token, content);
+							for (var i=0; i<posts.length; i++) {
+								if (posts[i].id == "{{.Post.Id}}") {
+									posts[i].title = newPost.title;
+									posts[i].summary = newPost.summary;
+									break;
+								}
+							}
+							nextURL = "/pad/posts";{{else}}posts.push(H.createPost(id, editToken, content));{{end}}
+
+							H.set('posts', JSON.stringify(posts));
+						}
+						{{ end }}
+					{{ end }}
+
+					justPublished = true;
+					if (! isBrandNew) {
+						H.remove(draftDoc);
+						{{if .Editing}}H.remove('draft{{.Post.Id}}font');{{end}}
+					} else {
+						H.set(draftDoc, '');
+					}
+
+				{{if .EditCollection}}
+					window.location = '{{.EditCollection.CanonicalURL}}{{.Post.Slug}}';
+				{{else}}
+					if ($btnPublish.el.title == "Save") {
+						// keep editing
+						window.location.reload();
+					} else {
+						window.location = nextURL;
+					}
+				{{end}}
+				} else {
+					$btnPublish.el.children[0].textContent = 'send';
+					alert("Failed to post. Please try again.");
+				}
+			}
+		}
+		http.send(JSON.stringify(params));
+	};
+
+	setButtonStatesOnce();
+
+	/* Set theme */
+	function setupTheme() {
+            if (H.get('padTheme', 'auto') == 'light') {
+                    setTheme('light');
+            } else if (H.get('padTheme', 'auto') == 'dark') {
+                    setTheme('dark');
+            } else {
+                    const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+                    if (isDarkMode) {
+                            setTheme('dark');
+                    } else {
+                            setTheme('light');
+                    }
+            }
+        }
+        document.addEventListener("DOMContentLoaded", setupTheme);
+
+	/* Event handlers */
+	$writer.on('keyup input', function() {
+		setButtonStates();
+		clearTimeout(typingTimer);
+		typingTimer = setTimeout(doneTyping, doneTypingInterval);
+	}, false);
+	$writer.on('keydown', function(e) {
+		clearTimeout(typingTimer);
+		if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
+			$btnPublish.el.click();
+		}
+	});
+
+	$btnPublish.on('click', function(e) {
+		e.preventDefault();
+		if (!publishing && $writer.el.value) {
+			var content = $writer.el.value;
+			publish(content, selectedFont);
+		}
+	});
+
+	H.getEl('pad').on('keydown', function(e) {
+		if (isBlogDraft && e.key == "Alt") {
+			$btnPublish.el.title = 'Publish';
+			if (H.get('padTheme') == 'dark') {
+				$btnPublish.el.childNodes[0].src = '/img/ic_send@2x.png';
+			} else {
+				$btnPublish.el.childNodes[0].src = '/img/ic_send_dark@2x.png';
+			}
+		}
+	});
+
+	H.getEl('pad').on('keyup', function(e) {
+		if (isBlogDraft && e.key == "Alt") {
+			$btnPublish.el.title = 'Save';
+			if (H.get('padTheme') == 'dark') {
+				$btnPublish.el.childNodes[0].src = '/img/ic_save@2x.png';
+			} else {
+				$btnPublish.el.childNodes[0].src = '/img/ic_save_dark@2x.png';
+			}
+		}
+	});
+
+	H.getEl('erase-edit').on('click', function(e) {
+		e.preventDefault();
+		H.remove(draftDoc);
+		H.remove(draftDoc+'-published');
+		justPublished = true; // Block auto-save
+		location.reload();
+	});
+	$btnReload.on('click', function(e) {
+		if ($btnReload.el.className == 'disabled') {
+			return;
+		}
+		e.preventDefault();
+		H.remove(draftDoc);
+		H.remove(draftDoc+'-published');
+		justPublished = true; // Block auto-save
+		location.reload();
+	});
+
+	H.getEl('toggle-theme').on('click', function(e) {
+		e.preventDefault();
+		var newTheme = 'light';
+		if (document.body.className == 'light') {
+			newTheme = 'dark';
+		}
+		toggleTheme(newTheme);
+	});
+
+	H.getEl('toggle-preview').on('click', function(e) {
+	    	e.preventDefault();
+	    	togglePreview();
+	});
+
+	var targets = document.querySelectorAll('#target li.target a');
+	for (var i=0; i<targets.length; i++) {
+		targets[i].addEventListener('click', function(e) {
 			e.preventDefault();
+			var targetName = this.href.substring(this.href.indexOf('#')+1);
+			H.set('postTarget', targetName);
+
+			document.querySelector('#target li.target.selected').classList.remove('selected');
+			this.parentElement.classList.add('selected');
+			var newText = this.innerText.split(' ');
+			newText.shift();
+			document.getElementById('target-name').innerText = newText.join(' ');
+		});
+	}
+	var postTarget = H.get('postTarget', '{{if .Blogs}}{{$blog := index .Blogs 0}}{{$blog.Alias}}{{else}}anonymous{{end}}');
+	if (location.hash != '') {
+		postTarget = location.hash.substring(1);
+		// TODO: pushState to /pad (or whatever the URL is) so we live on a clean URL
+		location.hash = '';
+	}
+	var pte = document.querySelector('#target li.target#blog-'+postTarget+' a');
+	if (pte != null) {
+		pte.click();
+	} else {
+		postTarget = 'anonymous';
+		H.set('postTarget', postTarget);
+	}
+
+	var sansLoaded = false;
+	WebFontConfig = {
+		custom: { families: [ 'Lora:400,700:latin' ], urls: [ '/css/fonts.css' ] }
+	};
+	var loadSans = function() {
+	  if (sansLoaded) return;
+	  sansLoaded = true;
+	  WebFontConfig.custom.families.push('Open+Sans:400,700:latin');
+	  try {
+		  (function() {
+			var wf=document.createElement('script');
+			wf.src = '/js/webfont.js';
+			wf.type='text/javascript';
+			wf.async='true';
+			var s=document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(wf, s);
+		  })();
+	  } catch (e) {}
+	};
+	var fonts = document.querySelectorAll('nav#font-picker a.font');
+	for (var i=0; i<fonts.length; i++) {
+		fonts[i].addEventListener('click', function(e) {
+			e.preventDefault();
+			selectedFont = this.href.substring(this.href.indexOf('#')+1);
+			$writer.el.className = selectedFont;
+        document.getElementById('post').className = selectedFont;
+			document.querySelector('nav#font-picker li.selected').classList.remove('selected');
+			this.parentElement.classList.add('selected');
+			H.set('{{if .Editing}}draft{{.Post.Id}}font{{else}}padFont{{end}}', selectedFont);
+			if (selectedFont == 'sans') {
+				loadSans();
+			}
+		});
+	}
+	var selectedFont = H.get('{{if .Editing}}draft{{.Post.Id}}font{{else}}padFont{{end}}', '{{.Post.Font}}');
+	var sfe = document.querySelector('nav#font-picker a.font.'+selectedFont);
+	if (sfe != null) {
+		sfe.click();
+	}
+
+	var doneTyping = function() {
+		if (isBrandNew || wasModified()) {
+			H.save($writer, draftDoc);
+			if (!defaultTimeSet) {
+				var lastLocalPublishStr = localStorage.getItem(draftDoc+'-published');
+				if (lastLocalPublishStr == null || lastLocalPublishStr == '') {
+					localStorage.setItem(draftDoc+'-published', updatedStr);
+				}
+				defaultTimeSet = true;
+			}
+			updateWordCount();
+		}
+	};
+	window.addEventListener('beforeunload', function(e) {
+		if (!isBrandNew && !wasModified()) {
 			H.remove(draftDoc);
 			H.remove(draftDoc+'-published');
-			justPublished = true; // Block auto-save
-			location.reload();
-		});
-
-		H.getEl('toggle-theme').on('click', function(e) {
-			e.preventDefault();
-			var newTheme = 'light';
-			if (document.body.className == 'light') {
-				newTheme = 'dark';
-			}
-			toggleTheme(newTheme);
-		});
-
-		H.getEl('toggle-preview').on('click', function(e) {
-		    	e.preventDefault();
-		    	togglePreview();
-		});
-
-		var targets = document.querySelectorAll('#target li.target a');
-		for (var i=0; i<targets.length; i++) {
-			targets[i].addEventListener('click', function(e) {
-				e.preventDefault();
-				var targetName = this.href.substring(this.href.indexOf('#')+1);
-				H.set('postTarget', targetName);
-
-				document.querySelector('#target li.target.selected').classList.remove('selected');
-				this.parentElement.classList.add('selected');
-				var newText = this.innerText.split(' ');
-				newText.shift();
-				document.getElementById('target-name').innerText = newText.join(' ');
-			});
+		} else if (!justPublished) {
+			doneTyping();
 		}
-		var postTarget = H.get('postTarget', '{{if .Blogs}}{{$blog := index .Blogs 0}}{{$blog.Alias}}{{else}}anonymous{{end}}');
-		if (location.hash != '') {
-			postTarget = location.hash.substring(1);
-			// TODO: pushState to /pad (or whatever the URL is) so we live on a clean URL
-			location.hash = '';
-		}
-		var pte = document.querySelector('#target li.target#blog-'+postTarget+' a');
-		if (pte != null) {
-			pte.click();
-		} else {
-			postTarget = 'anonymous';
-			H.set('postTarget', postTarget);
-		}
+	});
 
-		var sansLoaded = false;
-		WebFontConfig = {
-			custom: { families: [ 'Lora:400,700:latin' ], urls: [ '/css/fonts.css' ] }
-		};
-		var loadSans = function() {
-		  if (sansLoaded) return;
-		  sansLoaded = true;
-		  WebFontConfig.custom.families.push('Open+Sans:400,700:latin');
-		  try {
-			  (function() {
-				var wf=document.createElement('script');
-				wf.src = '/js/webfont.js';
-				wf.type='text/javascript';
-				wf.async='true';
-				var s=document.getElementsByTagName('script')[0];
-				s.parentNode.insertBefore(wf, s);
-			  })();
-		  } catch (e) {}
-		};
-		var fonts = document.querySelectorAll('nav#font-picker a.font');
-		for (var i=0; i<fonts.length; i++) {
-			fonts[i].addEventListener('click', function(e) {
-				e.preventDefault();
-				selectedFont = this.href.substring(this.href.indexOf('#')+1);
-				$writer.el.className = selectedFont;
-                document.getElementById('post').className = selectedFont;
-				document.querySelector('nav#font-picker li.selected').classList.remove('selected');
-				this.parentElement.classList.add('selected');
-				H.set('{{if .Editing}}draft{{.Post.Id}}font{{else}}padFont{{end}}', selectedFont);
-				if (selectedFont == 'sans') {
-					loadSans();
-				}
-			});
-		}
-		var selectedFont = H.get('{{if .Editing}}draft{{.Post.Id}}font{{else}}padFont{{end}}', '{{.Post.Font}}');
-		var sfe = document.querySelector('nav#font-picker a.font.'+selectedFont);
-		if (sfe != null) {
-			sfe.click();
-		}
+	/* Preview stuff */
+	let previewBody = document.querySelector('.e-content');
+	let togglePreview = function() {
+	    showModal('preview');
 
-		var doneTyping = function() {
-			if (isBrandNew || wasModified()) {
-				H.save($writer, draftDoc);
-				if (!defaultTimeSet) {
-					var lastLocalPublishStr = localStorage.getItem(draftDoc+'-published');
-					if (lastLocalPublishStr == null || lastLocalPublishStr == '') {
-						localStorage.setItem(draftDoc+'-published', updatedStr);
-					}
-					defaultTimeSet = true;
-				}
-				updateWordCount();
-			}
-		};
-		window.addEventListener('beforeunload', function(e) {
-			if (!isBrandNew && !wasModified()) {
-				H.remove(draftDoc);
-				H.remove(draftDoc+'-published');
-			} else if (!justPublished) {
-				doneTyping();
-			}
-		});
-
-		/* Preview stuff */
-		let previewBody = document.querySelector('.e-content');
-		let togglePreview = function() {
-		    showModal('preview');
-
-		    var http = new XMLHttpRequest();
-		    var url = "/api/markdown";
-		    var params = {
-			raw_body: $writer.el.value,
-		    };
-		    var postTarget = H.get('postTarget', 'anonymous');
-		    if (postTarget != 'anonymous') {
-			params.collection_url = '/'+postTarget+'/'
+	    var http = new XMLHttpRequest();
+	    var url = "/api/markdown";
+	    var params = {
+		raw_body: $writer.el.value,
+	    };
+	    var postTarget = H.get('postTarget', 'anonymous');
+	    if (postTarget != 'anonymous') {
+		params.collection_url = '/'+postTarget+'/'
+	    }
+	    http.open("POST", url, true);
+	    http.setRequestHeader("Content-type", "application/json");
+	    http.onreadystatechange = function() {
+		let data;
+		if (http.readyState === 4) {
+		    data = JSON.parse(http.responseText);
+		    if (http.status == 200) {
+			previewBody.innerHTML = data.data.body;
+		    } else {
+			// TODO: handle
 		    }
-		    http.open("POST", url, true);
-		    http.setRequestHeader("Content-type", "application/json");
-		    http.onreadystatechange = function() {
-			let data;
-			if (http.readyState === 4) {
-			    data = JSON.parse(http.responseText);
-			    if (http.status == 200) {
-				previewBody.innerHTML = data.data.body;
-			    } else {
-				// TODO: handle
-			    }
-			}
-		    };
-		    http.send(JSON.stringify(params));
 		}
+	    };
+	    http.send(JSON.stringify(params));
+	}
 
-		try {
-			(function() {
-				 var wf=document.createElement('script');
-				 wf.src = '/js/webfont.js';
-				 wf.type='text/javascript';
-				 wf.async='true';
-				 var s=document.getElementsByTagName('script')[0];
-				 s.parentNode.insertBefore(wf, s);
-			 })();
-		} catch (e) {
-		  // whatevs
-		}
-		</script>
-		<link href="/css/icons.css" rel="stylesheet">
-	</body>
+	try {
+		(function() {
+			 var wf=document.createElement('script');
+			 wf.src = '/js/webfont.js';
+			 wf.type='text/javascript';
+			 wf.async='true';
+			 var s=document.getElementsByTagName('script')[0];
+			 s.parentNode.insertBefore(wf, s);
+		 })();
+	} catch (e) {
+	  // whatevs
+	}
+	</script>
 </html>{{end}}
