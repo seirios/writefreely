@@ -114,7 +114,8 @@ func applyMarkdownSpecial(data []byte, baseURL string, cfg *config.Config) strin
 		mdParser.Attributes |
 		mdParser.InlineAttributes |
 		mdParser.HeadingIDs |
-		mdParser.SuperSubscript
+		mdParser.SuperSubscript |
+		mdParser.NonBlockingSpace
 	htmlFlags := 0 |
 		mdHTML.Smartypants |
 		mdHTML.SmartypantsDashes
@@ -191,8 +192,6 @@ func applyMarkdownSpecial(data []byte, baseURL string, cfg *config.Config) strin
 	outHTML = blockReg.ReplaceAllString(outHTML, "<$1>")
 	outHTML = endBlockReg.ReplaceAllString(outHTML, "</$1></$2>")
 	outHTML = disableYoutubeAutoplay(outHTML)
-	// Unescape entities
-	outHTML = html.UnescapeString(outHTML)
 
 	return outHTML
 }
