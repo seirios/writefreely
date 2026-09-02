@@ -1506,7 +1506,9 @@ ORDER BY created `+order+limitStr, collID, lang)
 
 func PrepareSearchTerm(query string) (string) {
 	var searchTerm string
+	// Escape SQL wildcards (we use ESCAPE below)
 	query = strings.ReplaceAll(query, "%", "\\%")
+	query = strings.ReplaceAll(query, "_", "\\_")
 	if strings.Contains(query, " ") { // multiple words
 		searchTerm = "%" + query + "%"
 	} else { // single word
