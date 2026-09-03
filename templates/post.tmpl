@@ -9,6 +9,7 @@
 		<link rel="stylesheet" href="/css/lib/mono-blue.min.css">
 		{{end}}
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
+		<link rel="stylesheet" type="text/css" href="/css/toc.css" />
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<link rel="shortcut icon" href="/favicon.ico" />
 		<link rel="canonical" href="{{.Host}}/d/{{.ID}}" />
@@ -68,7 +69,17 @@
 	<script src="/js/h.js"></script>
 	{{if .IsPlainText}}<script src="/js/twitter-text.min.js"></script>{{end}}
 	{{end}}
+	<script type="text/javascript" src="/js/toc.js"></script>
 	<script type="text/javascript">
+	let extraItems = [];
+	let elFn1 = document.getElementById("fn1");
+	if (elFn1 != null) {
+		let item = new TocItem({{localstr "Notes" .MainLanguage}}, 0, 1, elFn1);
+		extraItems.push(item);
+	}
+	document.addEventListener("DOMContentLoaded",
+		initToc("", "article", extraItems));
+
 	{{template "webfonts" .}}
 
 	var posts = localStorage.getItem('posts');

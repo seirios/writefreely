@@ -87,10 +87,14 @@
             let lines = $writer.el.value.split("\n");
             for (li of lines) {
                 let m = li.match("^#\+ ");
-                if (m != null) {
+                if (m != null) { // header
                     let text = li.slice(m[0].length);
                     let hLevel = m[0].length - 1;
                     let item = new TocItem(text, hLevel, hLevel - 1, $writer.el);
+                    items.push(item);
+                } else if (li.indexOf("{#fn1}") != -1) { // footnotes
+                    let text = '{{localstr "Notes" .MainLanguage}}';
+                    let item = new TocItem(text, 0, 1, $writer.el);
                     items.push(item);
                 }
             }
