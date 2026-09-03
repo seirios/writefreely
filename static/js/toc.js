@@ -2,10 +2,10 @@
 // ORIGINAL AUTHOR: Krzysztof Kowalczyk
 //             URL: https://gist.github.com/kjk/d9343c3f45d9f529b2b8156048254840
 
-function getAllHeaders(optRootID = "") {
+function getAllHeaders(optRoot = "") {
     let hdrSel = "%h1, %h2, %h3, %h4, %h5, %h6"
-    if (optRootID != "") {
-        hdrSel = hdrSel.replaceAll("%", "#" + optRootID + " ");
+    if (optRoot != "") {
+        hdrSel = hdrSel.replaceAll("%", optRoot + " ");
     } else {
         hdrSel = hdrSel.replaceAll("%", "")
     }
@@ -29,8 +29,8 @@ class TocItem {
     }
 }
 
-function buildTocItems(optFilter = "", optRootID = "") {
-    let allHdrs = getAllHeaders(optRootID);
+function buildTocItems(optFilter = "", optRoot = "") {
+    let allHdrs = getAllHeaders(optRoot);
     let filter = [];
     let hasFilter = optFilter != "";
     if (hasFilter) {
@@ -143,8 +143,8 @@ function tocGoTo(n) {
     }, 100);
 }
 
-function genToc(optFilter = "", optRootID = "", optItems = []) {
-    tocItems = buildTocItems(optFilter, optRootID);
+function genToc(optFilter = "", optRoot = "", optItems = []) {
+    tocItems = buildTocItems(optFilter, optRoot);
     fixNesting(tocItems);
     tocItems = tocItems.concat(optItems);
     const container = document.createElement("div");

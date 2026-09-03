@@ -61,7 +61,10 @@
 			{{template "user-silenced"}}
 		{{end}}
 		{{if .Posts}}<section id="wrapper" itemscope itemtype="http://schema.org/Blog">{{else}}<div id="wrapper">{{end}}
-			<h1>&num;{{.Tag}}</h1>
+			<h1 class="tag-title">&num;{{.Tag}}</h1>
+                        <div class="results" {{if eq .TotalPosts 0}}style="display: none;"{{end}}>
+                            <p>{{.TotalPosts}} {{localstr (pluralize "result" "results" .TotalPosts) .MainLanguage}}</p>
+                        </div>
 			{{template "posts" .}}
 
 		{{template "paging" .}}
@@ -91,7 +94,7 @@
 		extraItems.push(item);
 	}
 	document.addEventListener("DOMContentLoaded",
-                initToc("#blog-title,.post-title", "", extraItems));
+                initToc(".tag-title,.post-title", "#wrapper", extraItems));
 
 {{if .IsOwner}}
 {{template "delete_action" .}}

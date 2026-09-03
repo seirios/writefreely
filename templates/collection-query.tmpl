@@ -1,41 +1,41 @@
 {{define "collection"}}<!DOCTYPE HTML>
 <html lang="{{if .Language}}{{.Language}}{{else}}{{.MainLanguage}}{{end}}" dir="{{.Direction}}">
-	<head>
+	<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
 		<meta charset="utf-8">
 
-		<title>{{localstr "Search results" .MainLanguage}} &mdash; {{.DisplayTitle}}</title>
-		<meta name="title" content="{{localstr "Search results" .MainLanguage}} &mdash; {{.DisplayTitle}}">
-
+		<title>{{localstr "Search results" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}</title>
+		<meta name="title" content="{{localstr "Search results" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}">
+		
 		<link rel="stylesheet" type="text/css" href="/css/write.css" />
 		<link rel="stylesheet" type="text/css" href="/css/toc.css" />
 		{{if .CustomCSS}}<link rel="stylesheet" type="text/css" href="/local/custom.css" />{{end}}
 		<link rel="shortcut icon" href="/favicon.ico" />
-		<link rel="canonical" href="{{.CanonicalURL}}">
-		{{if gt .CurrentPage 1}}<link rel="prev" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
-		{{if lt .CurrentPage .TotalPages}}<link rel="next" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
-		{{if not .IsPrivate}}<link rel="alternate" type="application/rss+xml" title="{{.DisplayTitle}} &raquo; Feed" href="{{.CanonicalURL}}feed/" />{{end}}
+		<link rel="canonical" href="{{.CanonicalURL}}" />
+                {{if gt .CurrentPage 1}}<link rel="prev" href="{{.PrevPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
+                {{if lt .CurrentPage .TotalPages}}<link rel="next" href="{{.NextPageURL .Prefix .NavSuffix .CurrentPage .IsTopLevel}}">{{end}}
+		{{if not .Collection.IsPrivate}}<link rel="alternate" type="application/rss+xml" title="{{.DisplayTitle}} &raquo; Feed" href="{{.CanonicalURL}}feed/" />{{end}}
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		<meta name="generator" content="WriteFreely">
-		<meta name="description" content="{{.PlainDescription}}">
-		<meta itemprop="name" content="{{.DisplayTitle}}">
-		<meta itemprop="description" content="{{.PlainDescription}}">
+		<meta name="description" content="{{localstr "Search results" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}">
+		<meta itemprop="name" content="{{.Collection.DisplayTitle}}">
+		<meta itemprop="description" content="{{localstr "Search results" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}">
 
 		<meta name="twitter:card" content="summary">
-		<meta name="twitter:title" content="{{.DisplayTitle}}">
-		<meta name="twitter:image" content="{{.AvatarURL}}">
-		<meta name="twitter:description" content="{{.PlainDescription}}">
+		<meta name="twitter:title" content="{{localstr "Search results" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}">
+		<meta name="twitter:image" content="{{.Collection.AvatarURL}}">
+		<meta name="twitter:description" content="{{localstr "Search results" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}">
 
-		<meta property="og:title" content="{{.DisplayTitle}}" />
+		<meta property="og:title" content="{{localstr "Search results" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}" />
 		<meta property="og:site_name" content="{{.DisplayTitle}}" />
 		<meta property="og:type" content="article" />
-		<meta property="og:url" content="{{.CanonicalURL}}" />
-		<meta property="og:description" content="{{.PlainDescription}}" />
-		<meta property="og:image" content="{{.AvatarURL}}">
+		<meta property="og:url" content="{{.CanonicalURL}}tag:{{.Tag}}" />
+		<meta property="og:description" content="{{localstr "Search results" .MainLanguage}} &mdash; {{.Collection.DisplayTitle}}">
+		<meta property="og:image" content="{{.Collection.AvatarURL}}">
 		{{template "collection-meta" .}}
-		{{if .StyleSheet}}<style type="text/css">{{.StyleSheetDisplay}}</style>{{end}}
+		{{if .Collection.StyleSheet}}<style type="text/css">{{.Collection.StyleSheetDisplay}}</style>{{end}}
 
-		{{if .RenderMathJax}}
+		{{if .Collection.RenderMathJax}}
 		  <!-- Add mathjax logic -->
 		  {{template "mathjax" .}}
 		{{end}}
@@ -44,59 +44,25 @@
 		{{template "highlighting" . }}
 
 	</head>
-	<body id="collection" itemscope itemtype="http://schema.org/WebPage">
-	{{if not .NoMenu}}
-		<nav id="manage"><ul>
-			<li class="has-submenu"><a onclick="void(0)">&#9776; Menu</a>
-				<ul>
-					{{ if .IsOwner }}
-						<li><a href="/me/new">New Post</a></li>
-						{{if .SimpleNav}}<li><a href="/new#{{.Alias}}">New Post</a></li>{{end}}
-						<li><a href="/me/c/{{.Alias}}">Customize</a></li>
-						<li><a href="/me/c/{{.Alias}}/stats">Stats</a></li>
-						<li><a href="/me/c/{{.Alias}}/subscribers">Subscribers</a></li>
-						<li class="separator"><hr /></li>
-						<li><a href="/me/posts/"><img class="ic-18dp" src="/img/ic_list_dark@2x.png" /> View Drafts</a></li>
-					{{ else }}
-						<li><a href="/login">Log in{{if .IsProtected}} to {{.DisplayTitle}}{{end}}</a></li>
-						{{if .IsProtected}}
-							<li class="separator"><hr /></li>
-							<li><a href="/logout">Log out</a></li>
-						{{end}}
-					{{ end }}
-				</ul>
-			</li>
-		</ul></nav>
-	{{end}}
+	<body id="subpage">
+		
+		<div id="overlay"></div>
 
 		<header>
-		<h1 dir="{{.Direction}}" id="blog-title">{{if .Posts}}{{else}}<span class="writeas-prefix"><a href="/">write.as</a></span> {{end}}<a href="/{{if .IsTopLevel}}{{else}}{{.Prefix}}{{.Alias}}/{{end}}" class="h-card p-author u-url" rel="me author">{{.DisplayTitle}}</a></h1>
-		{{if .Description}}<p class="description p-note">{{.DisplayDescription}}</p>{{end}}
-		{{/*if not .Public/*}}
-			<!--p class="meta-note"><span>Private collection</span>. Only you can see this page.</p-->
-		{{/*end*/}}
+		<h1 dir="{{.Direction}}" id="blog-title"><a href="{{if .IsTopLevel}}/{{else}}/{{.Collection.Alias}}/{{end}}" class="h-card p-author">{{.Collection.DisplayTitle}}</a></h1>
 		<nav>
 		{{template "pinned" .}}
 		</nav>
-
-                {{if .Tag}}
-                <div class="results" {{if eq .TotalPosts 0}}style="display: none;"{{end}}>
-                    <p>{{.TotalPosts}} {{localstr (pluralize "result" "results" .TotalPosts) .MainLanguage}}</p>
-                </div>
-                {{end}}
 		</header>
-
+		
 		{{if .Silenced}}
 			{{template "user-silenced"}}
 		{{end}}
 		{{if .Posts}}<section id="wrapper" itemscope itemtype="http://schema.org/Blog">{{else}}<div id="wrapper">{{end}}
-
-			{{if .Flash}}
-				<div class="alert success flash">
-					<p>{{.Flash}}</p>
-				</div>
-			{{end}}
-
+			<h1 class="tag-title">{{localstr "Search results" .MainLanguage}}</h1>
+                        <div class="results">
+                            <p><code>{{if .Language}}lang:{{end}}{{.Tag}}</code> &mdash; {{.TotalPosts}} {{localstr (pluralize "result" "results" .TotalPosts) .MainLanguage}}</p>
+                        </div>
 			{{template "posts" .}}
 
 		{{template "paging" .}}
@@ -112,7 +78,6 @@
 	<script src="/js/h.js"></script>
 	<script src="/js/postactions.js"></script>
 	{{end}}
-	<script type="text/javascript" src="/js/menu.js"></script>
 	<script type="text/javascript" src="/js/toc.js"></script>
 	<script type="text/javascript">
 	let extraItems = [];
@@ -127,7 +92,7 @@
 		extraItems.push(item);
 	}
 	document.addEventListener("DOMContentLoaded",
-                initToc("#blog-title,.post-title", "", extraItems));
+                initToc(".tag-title,.post-title", "#wrapper", extraItems));
 
 {{if .IsOwner}}
 {{template "delete_action" .}}

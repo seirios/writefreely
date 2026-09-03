@@ -85,7 +85,7 @@
 		extraItems.push(item);
 	}
 	document.addEventListener("DOMContentLoaded",
-                initToc("", "post-body", extraItems));
+                initToc("", "#post-body", extraItems));
 
 	var $pinbox = document.getElementsByTagName('header')[0];
 	{{template "unpin_action" .}}
