@@ -90,6 +90,7 @@ func initPage(parentDir, path, key string) {
 
 	files := []string{
 		path,
+		filepath.Join(parentDir, templatesDir, "include", "script.tmpl"),
 		filepath.Join(parentDir, templatesDir, "include", "footer.tmpl"),
 		filepath.Join(parentDir, templatesDir, "base.tmpl"),
 		filepath.Join(parentDir, templatesDir, "user", "include", "silenced.tmpl"),
